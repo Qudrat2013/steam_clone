@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Подтверждение почты{% endblock %}
+
+{% block content %}
+<div class="auth_page">
+    <div class="auth_box">
+        <div class="auth_logo">
+            <svg viewBox="0 0 130 50" xmlns="http://www.w3.org/2000/svg" height="40">
+                <text x="0" y="40" font-family="Arial Black" font-size="42" font-weight="900" fill="#67c1f5">STEAM</text>
+            </svg>
+        </div>
+
+        <div class="auth_title">Подтвердите почту</div>
+        <div class="auth_subtitle">Код отправлен на {{ email }}</div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="form_errors">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form_group">
+                <label for="id_code">Код подтверждения</label>
+                <input type="text" name="code" id="id_code" class="form_control" maxlength="6" required>
+            </div>
+            <button type="submit" class="btn_steam_green">Подтвердить</button>
+        </form>
+
+        <div class="auth_footer">
+            <a href="{% url 'resend_code' %}">Отправить код заново</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

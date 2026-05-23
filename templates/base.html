@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Steam{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Motiva+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'css/steam.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div id="global_header" class="steam_header_v3">
+    <div class="header_inner steam_header_inner_v3">
+
+        <div class="header_logo">
+            <a href="{% url 'home' %}" class="steam_logo_text">STEAM</a>
+        </div>
+
+        <div class="header_links steam_nav_v3">
+            <a href="{% url 'home' %}" class="nav_link">МАГАЗИН</a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'library' %}" class="nav_link">БИБЛИОТЕКА</a>
+
+                <div class="nav_dropdown">
+                    <span class="nav_link">
+                        СООБЩЕСТВО <i class="fas fa-caret-down"></i>
+                    </span>
+
+                    <div class="nav_dropdown_menu">
+                        <a href="{% url 'friends_list' %}"><i class="fas fa-user-friends"></i> Друзья</a>
+                        <a href="{% url 'chat_list' %}"><i class="fas fa-comments"></i> Сообщения {% if unread_message_count > 0 %}({{ unread_message_count }}){% endif %}</a>
+                        <a href="{% url 'trade_list' %}"><i class="fas fa-exchange-alt"></i> Обмены {% if pending_trade_count > 0 %}({{ pending_trade_count }}){% endif %}</a>
+                        <a href="{% url 'inventory' %}"><i class="fas fa-box-open"></i> Инвентарь</a>
+                        <a href="{% url 'market_list' %}"><i class="fas fa-store"></i> Маркет</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="#" class="nav_link">СООБЩЕСТВО</a>
+                <a href="#" class="nav_link">О САЙТЕ</a>
+                <a href="#" class="nav_link">ПОДДЕРЖКА</a>
+            {% endif %}
+        </div>
+
+        <div class="header_account">
+            {% if user.is_authenticated %}
+                <div class="user_menu">
+                    <span class="username_link">
+                        {{ user.username }}
+                        {% if unread_notification_count > 0 %}
+                            <span class="mini_count">{{ unread_notification_count }}</span>
+                        {% endif %}
+                        <i class="fas fa-caret-down"></i>
+                    </span>
+
+                    <div class="user_dropdown">
+                        <a href="{% url 'profile' user.username %}"><i class="fas fa-user"></i> Профиль</a>
+                        <a href="{% url 'library' %}"><i class="fas fa-gamepad"></i> Библиотека</a>
+                        <a href="{% url 'wishlist' %}"><i class="fas fa-heart"></i> Желаемое</a>
+                        <a href="{% url 'inventory' %}"><i class="fas fa-box-open"></i> Инвентарь</a>
+                        <a href="{% url 'market_list' %}"><i class="fas fa-store"></i> Маркет</a>
+                        <a href="{% url 'wallet' %}"><i class="fas fa-wallet"></i> Баланс: ${{ request.user.profile.balance }}</a>
+                        <a href="{% url 'notification_list' %}"><i class="fas fa-bell"></i> Уведомления {% if unread_notification_count > 0 %}({{ unread_notification_count }}){% endif %}</a>
+
+                        {% if user.is_staff %}
+                            <a href="{% url 'dashboard_home' %}"><i class="fas fa-tools"></i> Dashboard</a>
+                        {% endif %}
+
+                        <div class="dropdown_divider"></div>
+                        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+                    </div>
+                </div>
+
+                <a href="{% url 'cart' %}" class="cart_link">
+                    <i class="fas fa-shopping-cart"></i>
+                    {% if cart_count > 0 %}
+                        <span class="cart_badge">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn_login">Войти</a>
+                <a href="{% url 'register' %}" class="btn_register">Регистрация</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="supernav_container steam_supernav_v3">
+        <div class="supernav">
+            <a href="{% url 'home' %}" class="tab {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Главная</a>
+            <a href="{% url 'game_list' %}" class="tab {% if request.resolver_match.url_name == 'game_list' %}active{% endif %}">Новинки и рекомендации</a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'wishlist' %}" class="tab">Желаемое</a>
+                <a href="{% url 'cart' %}" class="tab">Корзина</a>
+                <a href="{% url 'wallet' %}" class="tab">Баланс: ${{ request.user.profile.balance }}</a>
+            {% endif %}
+        </div>
+
+        <div class="searchbar">
+            <form action="{% url 'game_list' %}" method="get">
+                <input type="text" name="q" placeholder="Поиск в магазине" value="{{ request.GET.q }}">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if user.is_authenticated and unread_notification_count > 0 %}
+<div class="steam_notice steam_notice_blue">
+    У вас {{ unread_notification_count }} нов{% if unread_notification_count == 1 %}ое уведомление{% else %}ых уведомлений{% endif %}.
+    <a href="{% url 'notification_list' %}">Открыть</a>
+</div>
+{% endif %}
+
+{% if user.is_authenticated and pending_trade_count > 0 %}
+<div class="steam_notice steam_notice_blue">
+    У вас {{ pending_trade_count }} нов{% if pending_trade_count == 1 %}ое предложение обмена{% else %}ых предложений обмена{% endif %}.
+    <a href="{% url 'trade_list' %}">Открыть</a>
+</div>
+{% endif %}
+
+{% if user.is_authenticated and unread_message_count > 0 %}
+<div class="steam_notice steam_notice_green">
+    У вас {{ unread_message_count }} нов{% if unread_message_count == 1 %}ое сообщение{% else %}ых сообщений{% endif %}.
+    <a href="{% url 'chat_list' %}">Открыть чат</a>
+</div>
+{% endif %}
+
+{% if messages %}
+<div class="messages_container">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+            <button class="close_alert">×</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div id="page_root">
+    {% block content %}{% endblock %}
+</div>
+
+<div id="footer_spacer"></div>
+
+<div id="footer" class="steam_footer_v3">
+    <div class="footer_inner">
+        <div class="footer_logo steam_footer_logo">STEAM</div>
+
+        <div class="footer_links_wrap">
+            <div class="footer_col">
+                <div class="footer_title">Платформа</div>
+                <a href="{% url 'home' %}">Магазин</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'library' %}">Библиотека</a>
+                    <a href="{% url 'inventory' %}">Инвентарь</a>
+                    <a href="{% url 'market_list' %}">Маркет</a>
+                {% endif %}
+            </div>
+
+            <div class="footer_col">
+                <div class="footer_title">Аккаунт</div>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' user.username %}">Профиль</a>
+                    <a href="{% url 'wallet' %}">Баланс</a>
+                    <a href="{% url 'notification_list' %}">Уведомления</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Вход</a>
+                    <a href="{% url 'register' %}">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="footer_copy">
+            Игровая платформа для учебного проекта. Все изображения, игры и материалы принадлежат их владельцам.
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/steam.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

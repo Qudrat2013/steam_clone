@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Трейд #{{ trade.id }}{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px;margin:20px auto;color:white;">
+    <div style="background:#16202d;padding:20px;border-radius:12px;">
+        <h2 style="margin-top:0;">Трейд #{{ trade.id }}</h2>
+
+        <p>
+            <strong>{{ trade.sender.username }}</strong>
+            ↔
+            <strong>{{ trade.receiver.username }}</strong>
+        </p>
+
+        <p>
+            Статус:
+            <strong>{{ trade.get_status_display }}</strong>
+        </p>
+
+        {% if trade.message %}
+            <div style="background:#1b2838;padding:12px;border-radius:10px;margin:15px 0;">
+                {{ trade.message }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;">
+        <div style="background:#16202d;padding:16px;border-radius:12px;">
+            <h3>Предметы {{ trade.sender.username }}</h3>
+
+            {% for trade_item in sender_trade_items %}
+                <div style="background:#1b2838;padding:12px;border-radius:10px;margin-bottom:10px;display:flex;gap:12px;align-items:center;">
+                    {% if trade_item.inventory_item.item.image %}
+                        <img src="{{ trade_item.inventory_item.item.image.url }}" alt="{{ trade_item.inventory_item.item.name }}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;">
+                    {% else %}
+                        <div style="width:70px;height:70px;background:#2a475e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8f98a0;">
+                            <i class="fas fa-box"></i>
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <div style="font-weight:700;">{{ trade_item.inventory_item.item.name }}</div>
+                        <div style="font-size:13px;color:#8f98a0;">
+                            {{ trade_item.inventory_item.item.game.title }}
+                        </div>
+                        <div style="font-size:12px;color:#66c0f4;">
+                            {{ trade_item.inventory_item.item.get_rarity_display }}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p style="color:#8f98a0;">Нет предметов.</p>
+            {% endfor %}
+        </div>
+
+        <div style="background:#16202d;padding:16px;border-radius:12px;">
+            <h3>Предметы {{ trade.receiver.username }}</h3>
+
+            {% for trade_item in receiver_trade_items %}
+                <div style="background:#1b2838;padding:12px;border-radius:10px;margin-bottom:10px;display:flex;gap:12px;align-items:center;">
+                    {% if trade_item.inventory_item.item.image %}
+                        <img src="{{ trade_item.inventory_item.item.image.url }}" alt="{{ trade_item.inventory_item.item.name }}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;">
+                    {% else %}
+                        <div style="width:70px;height:70px;background:#2a475e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8f98a0;">
+                            <i class="fas fa-box"></i>
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <div style="font-weight:700;">{{ trade_item.inventory_item.item.name }}</div>
+                        <div style="font-size:13px;color:#8f98a0;">
+                            {{ trade_item.inventory_item.item.game.title }}
+                        </div>
+                        <div style="font-size:12px;color:#66c0f4;">
+                            {{ trade_item.inventory_item.item.get_rarity_display }}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p style="color:#8f98a0;">Нет предметов.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if request.user == trade.receiver and trade.status == 'pending' %}
+        <div style="margin-top:20px;display:flex;gap:10px;">
+            <form method="post" action="{% url 'accept_trade' trade.id %}">
+                {% csrf_token %}
+                <button type="submit" style="padding:12px 18px;background:#5c7e10;color:white;border:none;border-radius:8px;cursor:pointer;">
+                    Принять обмен
+                </button>
+            </form>
+
+            <form method="post" action="{% url 'decline_trade' trade.id %}">
+                {% csrf_token %}
+                <button type="submit" style="padding:12px 18px;background:#a34c25;color:white;border:none;border-radius:8px;cursor:pointer;">
+                    Отклонить
+                </button>
+            </form>
+        </div>
+    {% endif %}
+
+    <div style="margin-top:20px;">
+        <a href="{% url 'trade_list' %}" style="color:#67c1f5;">← Назад к обменам</a>
+    </div>
+</div>
+{% endblock %}

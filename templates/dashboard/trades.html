@@ -1,0 +1,39 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Трейды{% endblock %}
+
+{% block content %}
+<h1>Трейды</h1>
+
+<div class="dash-card">
+    <table class="dash-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Отправитель</th>
+            <th>Получатель</th>
+            <th>Статус</th>
+            <th>Создан</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for trade in trades %}
+            <tr>
+                <td>{{ trade.id }}</td>
+                <td>{{ trade.sender.username }}</td>
+                <td>{{ trade.receiver.username }}</td>
+                <td>{{ trade.get_status_display }}</td>
+                <td>{{ trade.created_at }}</td>
+                <td>
+                    <a href="{% url 'trade_detail' trade.id %}" class="dash-btn dash-btn-blue">Открыть</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">Трейдов нет.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

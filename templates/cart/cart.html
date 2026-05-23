@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Корзина — Steam{% endblock %}
+
+{% block content %}
+<div class="cart_page">
+    <h1>Ваша корзина</h1>
+
+    {% if cart_items %}
+    <div class="cart_layout">
+        <div class="cart_items">
+            {% for item in cart_items %}
+            <div class="cart_item">
+                {% if item.game.header_image %}
+                    <img class="cart_item_img" src="{{ item.game.header_image.url }}" alt="{{ item.game.title }}">
+                {% else %}
+                    <div class="cart_item_img" style="background:linear-gradient(135deg,#1b2838,#2a475e);display:flex;align-items:center;justify-content:center;color:#4a6b8a;font-size:24px;">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                {% endif %}
+
+                <div>
+                    <a href="{{ item.game.get_absolute_url }}" class="cart_item_title">{{ item.game.title }}</a>
+                    <div style="font-size:12px;color:#8f98a0;margin-top:4px;">
+                        {% if item.game.category %}{{ item.game.category.name }}{% endif %}
+                    </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div>
+                        {% if item.game.discount > 0 %}
+                            <div style="text-decoration:line-through;color:#8f98a0;font-size:11px;">${{ item.game.price }}</div>
+                        {% endif %}
+                        <div class="cart_item_price">
+                            {% if item.game.price == 0 %}Бесплатно
+                            {% else %}${{ item.game.get_discounted_price|floatformat:2 }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{% url 'remove_from_cart' item.game.id %}">
+                        <button class="cart_item_remove" title="Удалить">×</button>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart_summary">
+            <h3>Итого</h3>
+            <div style="border-top:1px solid #3d4450;padding-top:12px;margin-bottom:16px;">
+                {% for item in cart_items %}
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;color:#c6d4df;">
+                    <span>{{ item.game.title|truncatechars:30 }}</span>
+                    <span>${{ item.game.get_discounted_price|floatformat:2 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="cart_total">
+                <span>Итого:</span>
+                <span>${{ total|floatformat:2 }}</span>
+            </div>
+            <a href="{% url 'checkout' %}" class="btn_checkout">К оплате</a>
+            <div style="font-size:11px;color:#8f98a0;text-align:center;margin-top:10px;">
+                Налог рассчитывается при оформлении заказа
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="empty_state">
+        <i class="fas fa-shopping-cart"></i>
+        <h2>Ваша корзина пуста</h2>
+        <p>Добавьте игры из <a href="{% url 'game_list' %}">магазина</a></p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

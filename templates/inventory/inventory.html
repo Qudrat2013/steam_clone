@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Инвентарь{% endblock %}
+
+{% block content %}
+<div class="steam-layout-3">
+    <aside class="steam-card">
+        <h3>Игры</h3>
+
+        <a href="{% url 'inventory' %}" class="steam-link">Все предметы</a>
+
+        {% for game in games %}
+            <a href="{% url 'inventory' %}?game={{ game.id }}" class="steam-side-link">
+                {{ game.title }}
+            </a>
+        {% empty %}
+            <div class="steam-muted">Нет игр</div>
+        {% endfor %}
+    </aside>
+
+    <section class="steam-card">
+        <div class="steam-between">
+            <h2>Ваш инвентарь</h2>
+            <a href="{% url 'market_list' %}" class="steam-btn steam-btn-blue">Открыть маркет</a>
+        </div>
+
+        <div class="steam-grid">
+            {% for inv in items %}
+                <div class="steam-panel">
+                    {% if inv.item.image %}
+                        <img src="{{ inv.item.image.url }}" alt="{{ inv.item.name }}" class="steam-item-img">
+                    {% else %}
+                        <div class="steam-item-img steam-placeholder">
+                            <i class="fas fa-box"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="steam-item-title">{{ inv.item.name }}</div>
+                    <div class="steam-muted">{{ inv.item.game.title }}</div>
+                    <div class="steam-rarity">{{ inv.item.get_rarity_display }}</div>
+
+                    <form method="post" action="{% url 'toggle_showcase' inv.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="steam-btn steam-btn-green steam-full-btn">
+                            {% if inv.show_in_profile %}
+                                Убрать из витрины
+                            {% else %}
+                                В витрину
+                            {% endif %}
+                        </button>
+                    </form>
+
+                    {% if inv.id in active_market_item_ids %}
+                        <div class="steam-disabled-btn">Уже на маркете</div>
+                    {% elif inv.id in active_trade_item_ids %}
+                        <div class="steam-disabled-btn">В активном трейде</div>
+                    {% elif inv.is_tradable %}
+                        <a href="{% url 'sell_item' inv.id %}" class="steam-btn steam-btn-blue steam-full-btn">
+                            Продать
+                        </a>
+                    {% else %}
+                        <div class="steam-disabled-btn">Нельзя продать</div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p class="steam-muted">Инвентарь пуст.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <aside class="steam-card">
+        <h3>Информация</h3>
+
+        {% if selected_item %}
+            {% if selected_item.item.image %}
+                <img src="{{ selected_item.item.image.url }}" alt="{{ selected_item.item.name }}" class="steam-info-img">
+            {% endif %}
+
+            <div class="steam-info-title">{{ selected_item.item.name }}</div>
+            <div class="steam-muted">{{ selected_item.item.game.title }}</div>
+            <div class="steam-rarity">{{ selected_item.item.get_rarity_display }}</div>
+
+            <p class="steam-description">
+                {{ selected_item.item.description|default:"Описание отсутствует." }}
+            </p>
+
+            <form method="post" action="{% url 'toggle_showcase' selected_item.id %}">
+                {% csrf_token %}
+                <button type="submit" class="steam-btn steam-btn-green steam-full-btn">
+                    {% if selected_item.show_in_profile %}
+                        Убрать из витрины
+                    {% else %}
+                        Добавить в витрину
+                    {% endif %}
+                </button>
+            </form>
+
+            {% if selected_item.id in active_market_item_ids %}
+                <div class="steam-disabled-btn">Уже выставлен на маркет</div>
+            {% elif selected_item.id in active_trade_item_ids %}
+                <div class="steam-disabled-btn">Участвует в активном трейде</div>
+            {% elif selected_item.is_tradable %}
+                <a href="{% url 'sell_item' selected_item.id %}" class="steam-btn steam-btn-blue steam-full-btn">
+                    Продать на маркете
+                </a>
+            {% endif %}
+        {% else %}
+            <p class="steam-muted">Выберите предмет.</p>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

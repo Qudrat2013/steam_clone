@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Сообщения{% endblock %}
+
+{% block content %}
+<div style="max-width:900px;margin:20px auto;background:#16202d;border-radius:12px;padding:20px;color:white;">
+    <h2>Друзья</h2>
+
+    {% for friend in friends %}
+        <div style="background:#1b2838;padding:12px 14px;border-radius:10px;margin-bottom:10px;">
+            <a href="{% url 'chat_with_user' friend.username %}" style="color:#67c1f5;">
+                {{ friend.username }}
+            </a>
+        </div>
+    {% empty %}
+        <p>У вас пока нет друзей.</p>
+    {% endfor %}
+</div>
+{% endblock %}

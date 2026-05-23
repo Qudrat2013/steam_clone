@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Список желаемого — Steam{% endblock %}
+{% block content %}
+<div style="padding:20px 0;">
+    <h1 style="font-size:24px;margin-bottom:20px;color:#fff;">Список желаемого</h1>
+
+    {% if wishlist %}
+        {% for item in wishlist %}
+        <div class="wishlist_item">
+            {% if item.game.header_image %}
+                <img class="wishlist_img" src="{{ item.game.header_image.url }}" alt="{{ item.game.title }}">
+            {% else %}
+                <div class="wishlist_img" style="background:linear-gradient(135deg,#1b2838,#2a475e);display:flex;align-items:center;justify-content:center;color:#4a6b8a;font-size:28px;">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+            {% endif %}
+
+            <div>
+                <a href="{{ item.game.get_absolute_url }}" class="wishlist_title">{{ item.game.title }}</a>
+                <div style="margin-top:6px;">
+                    {% if item.game.discount > 0 %}
+                        <span class="discount_badge">-{{ item.game.discount }}%</span>
+                        <span class="price_original" style="margin-left:6px;">${{ item.game.price }}</span>
+                        <span class="price_final" style="margin-left:6px;">${{ item.game.get_discounted_price|floatformat:2 }}</span>
+                    {% elif item.game.price == 0 %}
+                        <span class="price_free">Бесплатно</span>
+                    {% else %}
+                        <span class="price_final">${{ item.game.price }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="wishlist_actions">
+                <a href="{% url 'add_to_cart' item.game.id %}">
+                    <button class="btn_wishlist_cart"><i class="fas fa-cart-plus"></i> В корзину</button>
+                </a>
+                <a href="{% url 'toggle_wishlist' item.game.id %}">
+                    <button class="btn_wishlist_remove"><i class="fas fa-trash"></i> Удалить</button>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty_state">
+        <i class="fas fa-heart"></i>
+        <h2>Список желаемого пуст</h2>
+        <p>Добавляйте игры из <a href="{% url 'game_list' %}">магазина</a> нажав «В список желаемого»</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

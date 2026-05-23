@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Друзья{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px;margin:20px auto;color:white;">
+    <div style="background:#16202d;padding:20px;border-radius:12px;margin-bottom:20px;">
+        <h2>Поиск пользователей</h2>
+        <form method="get" style="display:flex;gap:10px;">
+            <input type="text" name="q" value="{{ query }}" placeholder="Введите ник..." style="flex:1;padding:12px;border:none;border-radius:8px;background:#1b2838;color:white;">
+            <button type="submit" style="padding:12px 18px;background:#4d8ab5;color:white;border:none;border-radius:8px;">Поиск</button>
+        </form>
+
+        {% if query %}
+            <div style="margin-top:15px;">
+                {% for user_obj in search_results %}
+                    <div style="background:#1b2838;padding:12px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;">
+                        <span>{{ user_obj.username }}</span>
+                        <div>
+                            <a href="{% url 'profile' user_obj.username %}" style="color:#67c1f5;margin-right:10px;">Профиль</a>
+                            <a href="{% url 'send_friend_request' user_obj.username %}" style="color:#8bc53f;">Добавить</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p style="color:#8f98a0;">Никого не найдено.</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div style="background:#16202d;padding:20px;border-radius:12px;">
+            <h2>Заявки в друзья</h2>
+            {% for req in incoming_requests %}
+                <div style="background:#1b2838;padding:14px;border-radius:10px;margin-bottom:12px;">
+                    <b>{{ req.sender.username }}</b>
+                    <div style="margin-top:10px;">
+                        <a href="{% url 'accept_friend_request' req.id %}" style="background:#5c7e10;color:white;padding:8px 14px;border-radius:6px;">Принять</a>
+                        <a href="{% url 'decline_friend_request' req.id %}" style="background:#a34c25;color:white;padding:8px 14px;border-radius:6px;">Отклонить</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p style="color:#8f98a0;">Нет заявок.</p>
+            {% endfor %}
+        </div>
+
+        <div style="background:#16202d;padding:20px;border-radius:12px;">
+            <h2>Мои друзья</h2>
+            {% for friend in friends %}
+                <div style="background:#1b2838;padding:14px;border-radius:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+                    <b>{{ friend.username }}</b>
+                    <div>
+                        <a href="{% url 'chat_with_user' friend.username %}" style="color:#67c1f5;margin-right:10px;">Чат</a>
+                        <a href="{% url 'trade_offer' friend.username %}" style="color:#8bc53f;margin-right:10px;">Трейд</a>
+                        <a href="{% url 'remove_friend' friend.username %}" style="color:#ff7777;">Удалить</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p style="color:#8f98a0;">У вас пока нет друзей.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

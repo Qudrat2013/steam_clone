@@ -1,0 +1,61 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{{ user_obj.username }}{% endblock %}
+
+{% block content %}
+<h1>{{ user_obj.username }}</h1>
+
+<div class="dash-card">
+    <form method="post">
+        {% csrf_token %}
+
+        <p>
+            <label>Баланс</label>
+            <input class="dash-input" name="balance" value="{{ user_obj.profile.balance }}">
+        </p>
+
+        <p>
+            <label>Уровень</label>
+            <input class="dash-input" name="steam_level" value="{{ user_obj.profile.steam_level }}">
+        </p>
+
+        <p>
+            <label>XP</label>
+            <input class="dash-input" name="xp" value="{{ user_obj.profile.xp }}">
+        </p>
+
+        <p>
+            <label>
+                <input type="checkbox" name="is_active" {% if user_obj.is_active %}checked{% endif %}>
+                Активен
+            </label>
+        </p>
+
+        <p>
+            <label>
+                <input type="checkbox" name="is_staff" {% if user_obj.is_staff %}checked{% endif %}>
+                Админ
+            </label>
+        </p>
+
+        <button class="dash-btn dash-btn-green" type="submit">Сохранить</button>
+    </form>
+</div>
+
+<div class="dash-card">
+    <h2>Покупки</h2>
+    {% for purchase in purchases %}
+        <div>{{ purchase.game.title }} — ${{ purchase.price_paid }}</div>
+    {% empty %}
+        <div>Покупок нет.</div>
+    {% endfor %}
+</div>
+
+<div class="dash-card">
+    <h2>Инвентарь</h2>
+    {% for inv in inventory_items %}
+        <div>{{ inv.item.name }} — {{ inv.item.game.title }}</div>
+    {% empty %}
+        <div>Инвентарь пуст.</div>
+    {% endfor %}
+</div>
+{% endblock %}

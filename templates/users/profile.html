@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }} — Профиль Steam{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px;margin:20px auto;color:white;">
+
+    <div style="background:linear-gradient(135deg,#1b2838,#2a475e);padding:25px;border-radius:12px;display:flex;gap:20px;align-items:center;">
+        <div style="width:96px;height:96px;border-radius:50%;border:3px solid #66c0f4;background:#1b2838;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+            {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" style="width:100%;height:100%;object-fit:cover;">
+            {% else %}
+                <span style="font-size:40px;color:#66c0f4;font-weight:700;">
+                    {{ profile_user.username.0|upper }}
+                </span>
+            {% endif %}
+        </div>
+
+        <div style="flex:1;">
+            <div style="font-size:30px;font-weight:700;">{{ profile_user.username }}</div>
+
+            <div style="margin-top:6px;">
+                {% if profile.status == 'online' %}
+                    <span style="color:#8bc53f;">● Онлайн</span>
+                {% else %}
+                    <span style="color:#8f98a0;">● Оффлайн</span>
+                {% endif %}
+            </div>
+
+            {% if profile.country %}
+                <div style="color:#c7d5e0;margin-top:5px;">{{ profile.country }}</div>
+            {% endif %}
+
+            {% if profile.bio %}
+                <div style="color:#c7d5e0;margin-top:10px;max-width:520px;">{{ profile.bio }}</div>
+            {% endif %}
+        </div>
+
+        <div style="text-align:center;background:#16202d;padding:16px;border-radius:12px;min-width:130px;">
+            <div style="font-size:14px;color:#8f98a0;">Уровень</div>
+            <div style="font-size:38px;color:#66c0f4;font-weight:700;">{{ profile.steam_level }}</div>
+            <div style="font-size:13px;color:#c7d5e0;">XP: {{ profile.xp }}/100</div>
+            <div style="font-size:13px;color:#8bc53f;margin-top:6px;">${{ profile.balance }}</div>
+        </div>
+
+        {% if request.user == profile_user %}
+            <a href="{% url 'edit_profile' %}" style="background:#4d8ab5;color:#fff;padding:10px 16px;border-radius:4px;font-size:13px;text-decoration:none;">
+                Редактировать
+            </a>
+        {% elif request.user.is_authenticated %}
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                {% if are_friends %}
+                    <a href="{% url 'trade_offer' profile_user.username %}" style="background:#5c7e10;color:#fff;padding:10px 16px;border-radius:4px;text-decoration:none;">Предложить обмен</a>
+                    <a href="{% url 'chat_with_user' profile_user.username %}" style="background:#4d8ab5;color:#fff;padding:10px 16px;border-radius:4px;text-decoration:none;">Написать</a>
+                    <a href="{% url 'remove_friend' profile_user.username %}" style="background:#a34c25;color:#fff;padding:10px 16px;border-radius:4px;text-decoration:none;">Удалить из друзей</a>
+                {% elif incoming_friend_request %}
+                    <span style="background:#2a475e;padding:10px 16px;border-radius:4px;">Пользователь отправил вам заявку</span>
+                {% elif outgoing_friend_request %}
+                    <span style="background:#2a475e;padding:10px 16px;border-radius:4px;">Заявка отправлена</span>
+                {% else %}
+                    <a href="{% url 'send_friend_request' profile_user.username %}" style="background:#4d8ab5;color:#fff;padding:10px 16px;border-radius:4px;text-decoration:none;">Добавить в друзья</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 330px;gap:20px;margin-top:20px;">
+
+        <div>
+            <div style="background:#16202d;padding:20px;border-radius:12px;margin-bottom:20px;">
+                <h2 style="margin-top:0;">Витрина предметов</h2>
+
+                {% if showcase_items %}
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;">
+                        {% for inv in showcase_items %}
+                            <div style="background:#1b2838;border-radius:10px;padding:12px;border:1px solid #2a475e;">
+                                {% if inv.item.image %}
+                                    <img src="{{ inv.item.image.url }}" alt="{{ inv.item.name }}" style="width:100%;height:110px;object-fit:cover;border-radius:8px;">
+                                {% else %}
+                                    <div style="height:110px;background:#2a475e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8f98a0;">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                {% endif %}
+                                <div style="font-weight:700;margin-top:10px;">{{ inv.item.name }}</div>
+                                <div style="font-size:13px;color:#8f98a0;">{{ inv.item.game.title }}</div>
+                                <div style="font-size:12px;color:#66c0f4;">{{ inv.item.get_rarity_display }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="color:#8f98a0;">Витрина пустая.</div>
+                {% endif %}
+            </div>
+
+            <div style="background:#16202d;padding:20px;border-radius:12px;margin-bottom:20px;">
+                <h2 style="margin-top:0;">Игры</h2>
+
+                {% if purchases %}
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;">
+                        {% for purchase in purchases %}
+                            <a href="{{ purchase.game.get_absolute_url }}" style="background:#1b2838;border-radius:10px;overflow:hidden;text-decoration:none;color:white;">
+                                {% if purchase.game.header_image %}
+                                    <img src="{{ purchase.game.header_image.url }}" alt="{{ purchase.game.title }}" style="width:100%;height:90px;object-fit:cover;">
+                                {% else %}
+                                    <div style="height:90px;background:#2a475e;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-gamepad"></i>
+                                    </div>
+                                {% endif %}
+                                <div style="padding:10px;font-weight:700;">{{ purchase.game.title }}</div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="color:#8f98a0;">Библиотека пуста.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <div style="background:#16202d;padding:20px;border-radius:12px;">
+                <h2 style="margin-top:0;">Достижения</h2>
+
+                {% for user_achievement in user_achievements %}
+                    <div style="background:#1b2838;padding:12px;border-radius:10px;margin-bottom:10px;display:flex;gap:10px;align-items:center;">
+                        {% if user_achievement.achievement.icon %}
+                            <img src="{{ user_achievement.achievement.icon.url }}" style="width:42px;height:42px;border-radius:6px;object-fit:cover;">
+                        {% else %}
+                            <div style="width:42px;height:42px;border-radius:6px;background:#2a475e;display:flex;align-items:center;justify-content:center;color:#66c0f4;">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <div style="font-weight:700;">{{ user_achievement.achievement.name }}</div>
+                            <div style="font-size:12px;color:#8f98a0;">{{ user_achievement.achievement.description }}</div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div style="color:#8f98a0;">Пока нет достижений.</div>
+                    
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

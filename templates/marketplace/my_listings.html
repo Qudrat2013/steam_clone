@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Мои продажи{% endblock %}
+
+{% block content %}
+<div style="max-width:1000px;margin:20px auto;color:white;">
+    <h1>Мои продажи</h1>
+
+    <div style="background:#16202d;padding:20px;border-radius:12px;margin-bottom:20px;">
+        <h2>Активные лоты</h2>
+
+        {% for listing in active_listings %}
+            <div style="background:#1b2838;padding:14px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <b>{{ listing.inventory_item.item.name }}</b>
+                    <div style="color:#8f98a0;">${{ listing.price }}</div>
+                </div>
+                <a href="{% url 'cancel_listing' listing.id %}" style="background:#a34c25;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;">Снять</a>
+            </div>
+        {% empty %}
+            <p style="color:#8f98a0;">Активных лотов нет.</p>
+        {% endfor %}
+    </div>
+
+    <div style="background:#16202d;padding:20px;border-radius:12px;">
+        <h2>Проданные</h2>
+
+        {% for listing in sold_listings %}
+            <div style="background:#1b2838;padding:14px;border-radius:10px;margin-bottom:10px;">
+                <b>{{ listing.inventory_item.item.name }}</b>
+                <div style="color:#8f98a0;">Цена: ${{ listing.price }}</div>
+                <div style="color:#8f98a0;">Покупатель: {{ listing.buyer.username }}</div>
+            </div>
+        {% empty %}
+            <p style="color:#8f98a0;">Продаж пока нет.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

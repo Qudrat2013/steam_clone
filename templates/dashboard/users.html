@@ -1,0 +1,47 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Пользователи{% endblock %}
+
+{% block content %}
+<h1>Пользователи</h1>
+
+<div class="dash-card">
+    <form method="get">
+        <input class="dash-input" type="text" name="q" value="{{ query }}" placeholder="Поиск по username">
+    </form>
+</div>
+
+<div class="dash-card">
+    <table class="dash-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Баланс</th>
+            <th>Уровень</th>
+            <th>Staff</th>
+            <th>Активен</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user_obj in users %}
+            <tr>
+                <td>{{ user_obj.id }}</td>
+                <td>{{ user_obj.username }}</td>
+                <td>${{ user_obj.profile.balance }}</td>
+                <td>{{ user_obj.profile.steam_level }}</td>
+                <td>{{ user_obj.is_staff }}</td>
+                <td>{{ user_obj.is_active }}</td>
+                <td>
+                    <a href="{% url 'dashboard_user_detail' user_obj.id %}" class="dash-btn dash-btn-blue">Открыть</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7">Пользователей нет.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

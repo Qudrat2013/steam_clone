@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/steam.css' %}">
+    <style>
+        body {
+            background: #0b1622;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .dash-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+
+        .dash-sidebar {
+            background: #111923;
+            padding: 20px;
+            border-right: 1px solid #2a475e;
+        }
+
+        .dash-logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: #67c1f5;
+            margin-bottom: 25px;
+        }
+
+        .dash-sidebar a {
+            display: block;
+            color: #c7d5e0;
+            text-decoration: none;
+            padding: 11px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .dash-sidebar a:hover {
+            background: #1b2838;
+            color: #fff;
+        }
+
+        .dash-content {
+            padding: 25px;
+        }
+
+        .dash-card {
+            background: #16202d;
+            border: 1px solid #2a475e;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .dash-stat {
+            font-size: 34px;
+            font-weight: 700;
+            color: #67c1f5;
+        }
+
+        .dash-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .dash-table th,
+        .dash-table td {
+            padding: 12px;
+            border-bottom: 1px solid #2a475e;
+            text-align: left;
+        }
+
+        .dash-table th {
+            color: #8f98a0;
+            font-size: 13px;
+        }
+
+        .dash-btn {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dash-btn-green { background: #5c7e10; }
+        .dash-btn-red { background: #a34c25; }
+        .dash-btn-blue { background: #4d8ab5; }
+
+        .dash-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #1b2838;
+            color: #fff;
+            box-sizing: border-box;
+        }
+
+        .dash-message {
+            background: #1b2838;
+            border: 1px solid #4d8ab5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="dash-layout">
+    <aside class="dash-sidebar">
+        <div class="dash-logo">STEAM ADMIN</div>
+
+        <a href="{% url 'dashboard_home' %}">Главная</a>
+        <a href="{% url 'dashboard_balance_requests' %}">Заявки баланса</a>
+        <a href="{% url 'dashboard_users' %}">Пользователи</a>
+        <a href="{% url 'dashboard_market' %}">Маркет</a>
+        <a href="{% url 'dashboard_trades' %}">Трейды</a>
+        <a href="{% url 'home' %}">Вернуться на сайт</a>
+        <a href="{% url 'admin:index' %}">Django Admin</a>
+    </aside>
+
+    <main class="dash-content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="dash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+</body>
+</html>

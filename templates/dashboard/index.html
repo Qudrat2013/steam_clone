@@ -1,0 +1,38 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Панель управления</h1>
+
+<div class="dash-grid">
+    <div class="dash-card">
+        <div>Заявки на баланс</div>
+        <div class="dash-stat">{{ pending_balance_count }}</div>
+    </div>
+
+    <div class="dash-card">
+        <div>Пользователи</div>
+        <div class="dash-stat">{{ users_count }}</div>
+    </div>
+
+    <div class="dash-card">
+        <div>Активные лоты</div>
+        <div class="dash-stat">{{ active_market_count }}</div>
+    </div>
+
+    <div class="dash-card">
+        <div>Активные трейды</div>
+        <div class="dash-stat">{{ pending_trades_count }}</div>
+    </div>
+
+    <div class="dash-card">
+        <div>Покупки</div>
+        <div class="dash-stat">{{ purchases_count }}</div>
+    </div>
+
+    <div class="dash-card">
+        <div>Предметы</div>
+        <div class="dash-stat">{{ items_count }}</div>
+    </div>
+</div>
+{% endblock %}

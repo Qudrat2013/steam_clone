@@ -1,0 +1,51 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Заявки баланса{% endblock %}
+
+{% block content %}
+<h1>Заявки на баланс</h1>
+
+<div class="dash-card">
+    <a href="?status=pending" class="dash-btn dash-btn-blue">Ожидают</a>
+    <a href="?status=approved" class="dash-btn dash-btn-green">Одобрены</a>
+    <a href="?status=declined" class="dash-btn dash-btn-red">Отклонены</a>
+    <a href="?" class="dash-btn dash-btn-blue">Все</a>
+</div>
+
+<div class="dash-card">
+    <table class="dash-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Пользователь</th>
+            <th>Сумма</th>
+            <th>Статус</th>
+            <th>Создана</th>
+            <th>Действие</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for req in requests %}
+            <tr>
+                <td>{{ req.id }}</td>
+                <td>{{ req.user.username }}</td>
+                <td>${{ req.amount }}</td>
+                <td>{{ req.get_status_display }}</td>
+                <td>{{ req.created_at }}</td>
+                <td>
+                    {% if req.status == 'pending' %}
+                        <a href="{% url 'dashboard_approve_balance' req.id %}" class="dash-btn dash-btn-green">Одобрить</a>
+                        <a href="{% url 'dashboard_decline_balance' req.id %}" class="dash-btn dash-btn-red">Отклонить</a>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">Заявок нет.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

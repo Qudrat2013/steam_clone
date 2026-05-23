@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Войти в Steam{% endblock %}
+
+{% block content %}
+<div class="auth_page">
+    <div class="auth_box">
+        <div class="auth_logo">
+            <svg viewBox="0 0 130 50" xmlns="http://www.w3.org/2000/svg" height="40">
+                <text x="0" y="40" font-family="Arial Black" font-size="42" font-weight="900" fill="#67c1f5">STEAM</text>
+            </svg>
+        </div>
+
+        <div class="auth_title">Вход в аккаунт</div>
+        <div class="auth_subtitle">Введите данные вашего аккаунта Steam</div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="form_errors">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.errors %}
+        <div class="form_errors">
+            Неверное имя пользователя или пароль.
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form_group">
+                <label for="id_username">Имя пользователя</label>
+                <input
+                    type="text"
+                    name="username"
+                    id="id_username"
+                    class="form_control"
+                    value="{{ form.username.value|default:'' }}"
+                    autofocus
+                    required
+                >
+            </div>
+
+            <div class="form_group">
+                <label for="id_password">Пароль</label>
+                <input
+                    type="password"
+                    name="password"
+                    id="id_password"
+                    class="form_control"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn_steam_green">Войти</button>
+        </form>
+
+        <div class="auth_footer" style="margin-top: 15px;">
+            <a href="{% url 'password_reset' %}">Забыли пароль?</a>
+        </div>
+
+        <div class="auth_footer">
+            Нет аккаунта? <a href="{% url 'register' %}">Создайте его бесплатно</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

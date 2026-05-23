@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Магазин Steam{% endblock %}
+
+{% block content %}
+<div class="steam_home_v2">
+
+    <div class="steam_home_title">
+        <h1>Рекомендуемое и интересное</h1>
+    </div>
+
+    {% if featured_games %}
+    <section class="steam_showcase">
+        <div class="steam_showcase_main">
+            {% for game in featured_games %}
+            <a href="{{ game.get_absolute_url }}" class="steam_showcase_slide {% if forloop.first %}active{% endif %}">
+                {% if game.background_image %}
+                    <img src="{{ game.background_image.url }}" alt="{{ game.title }}">
+                {% elif game.header_image %}
+                    <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
+                {% else %}
+                    <div class="steam_showcase_placeholder"><i class="fas fa-gamepad"></i></div>
+                {% endif %}
+
+                <div class="steam_showcase_info">
+                    <h2>{{ game.title }}</h2>
+                    <p>{{ game.short_description }}</p>
+
+                    <div class="steam_showcase_price">
+                        {% if game.discount > 0 %}
+                            <span class="discount_badge">-{{ game.discount }}%</span>
+                            <span class="price_original">${{ game.price }}</span>
+                            <span class="price_final">${{ game.get_discounted_price|floatformat:2 }}</span>
+                        {% elif game.price == 0 %}
+                            <span class="price_free">Бесплатно</span>
+                        {% else %}
+                            <span class="price_final">${{ game.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="steam_showcase_side">
+            {% for game in featured_games|slice:":4" %}
+            <a href="{{ game.get_absolute_url }}" class="steam_showcase_thumb">
+                {% if game.header_image %}
+                    <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
+                {% endif %}
+                <span>{{ game.title }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="steam_specials">
+        <div class="steam_block_header">
+            <h2>Специальные предложения</h2>
+            <a href="{% url 'game_list' %}">Смотреть все</a>
+        </div>
+
+        <div class="steam_special_grid">
+            {% for game in new_releases|slice:":6" %}
+            <a href="{{ game.get_absolute_url }}" class="steam_special_card">
+                {% if game.header_image %}
+                    <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
+                {% else %}
+                    <div class="steam_special_placeholder"><i class="fas fa-gamepad"></i></div>
+                {% endif %}
+
+                <div class="steam_special_body">
+                    <div class="steam_special_title">{{ game.title }}</div>
+
+                    <div class="steam_special_price">
+                        {% if game.discount > 0 %}
+                            <span class="discount_badge">-{{ game.discount }}%</span>
+                            <span class="price_original">${{ game.price }}</span>
+                            <span class="price_final">${{ game.get_discounted_price|floatformat:2 }}</span>
+                        {% elif game.price == 0 %}
+                            <span class="price_free">Бесплатно</span>
+                        {% else %}
+                            <span class="price_final">${{ game.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty_state">
+                <i class="fas fa-gamepad"></i>
+                <h2>Игры ещё не добавлены</h2>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% if top_sellers %}
+    <section class="steam_tabs_block">
+        <div class="steam_block_header">
+            <h2>Популярное</h2>
+            <a href="{% url 'game_list' %}">Больше</a>
+        </div>
+
+        <div class="steam_home_rows">
+            {% for game in top_sellers %}
+            <a href="{{ game.get_absolute_url }}" class="steam_home_row">
+                {% if game.header_image %}
+                    <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
+                {% else %}
+                    <div class="steam_home_row_placeholder"><i class="fas fa-gamepad"></i></div>
+                {% endif %}
+
+                <div class="steam_home_row_info">
+                    <div class="steam_home_row_title">{{ game.title }}</div>
+                    <div class="steam_home_row_tags">
+                        {% if game.category %}<span>{{ game.category.name }}</span>{% endif %}
+                        {% for tag in game.tags.all|slice:":2" %}
+                            <span>{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="steam_home_row_price">
+                    {% if game.discount > 0 %}
+                        <span class="discount_badge">-{{ game.discount }}%</span>
+                        <span class="price_final">${{ game.get_discounted_price|floatformat:2 }}</span>
+                    {% elif game.price == 0 %}
+                        <span class="price_free">Бесплатно</span>
+                    {% else %}
+                        <span class="price_final">${{ game.price }}</span>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+</div>
+{% endblock %}

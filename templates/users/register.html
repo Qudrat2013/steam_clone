@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Создать аккаунт Steam{% endblock %}
+
+{% block content %}
+<div class="auth_page">
+    <div class="auth_box" style="width:460px;">
+        <div class="auth_logo">
+            <svg viewBox="0 0 130 50" xmlns="http://www.w3.org/2000/svg" height="40">
+                <text x="0" y="40" font-family="Arial Black" font-size="42" font-weight="900" fill="#67c1f5">STEAM</text>
+            </svg>
+        </div>
+        <div class="auth_title">Создать аккаунт</div>
+        <div class="auth_subtitle">Это бесплатно и займёт не более минуты</div>
+
+        {% if form.errors %}
+        <div class="form_errors">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}<div>{{ error }}</div>{% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form_group">
+                <label>Имя пользователя</label>
+                <input type="text" name="username" class="form_control" value="{{ form.username.value|default:'' }}" autofocus>
+            </div>
+            <div class="form_group">
+                <label>Email адрес</label>
+                <input type="email" name="email" class="form_control" value="{{ form.email.value|default:'' }}">
+            </div>
+            <div class="form_group">
+                <label>Пароль</label>
+                <input type="password" name="password1" class="form_control">
+            </div>
+            <div class="form_group">
+                <label>Подтвердите пароль</label>
+                <input type="password" name="password2" class="form_control">
+            </div>
+            <div style="font-size:11px;color:#8f98a0;margin-bottom:14px;line-height:1.5;">
+                Создавая аккаунт, вы соглашаетесь с <a href="#">Соглашением подписчика Steam</a>
+                и <a href="#">Политикой конфиденциальности</a>.
+            </div>
+            <button type="submit" class="btn_steam_green">Создать аккаунт</button>
+        </form>
+
+        <div class="auth_footer">
+            Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Оформление покупки — Steam{% endblock %}
+{% block content %}
+<div class="checkout_page">
+    <h1>Оформление покупки</h1>
+    <div class="checkout_layout">
+        <div class="checkout_items">
+            {% for item in cart_items %}
+            <div style="display:flex;gap:12px;background:rgba(255,255,255,0.04);border:1px solid #3d4450;border-radius:3px;padding:10px;margin-bottom:8px;align-items:center;">
+                {% if item.game.header_image %}
+                    <img src="{{ item.game.header_image.url }}" style="width:100px;height:38px;object-fit:cover;border-radius:2px;">
+                {% endif %}
+                <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;color:#fff;">{{ item.game.title }}</div>
+                </div>
+                <div style="font-size:16px;font-weight:700;color:#c6d4df;">
+                    {% if item.game.price == 0 %}Бесплатно{% else %}${{ item.game.get_discounted_price|floatformat:2 }}{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="checkout_summary">
+            <h3 style="font-size:14px;color:#8f98a0;text-transform:uppercase;margin-bottom:14px;">Сводка заказа</h3>
+            {% for item in cart_items %}
+            <div class="checkout_total_row">
+                <span>{{ item.game.title|truncatechars:25 }}</span>
+                <span>${{ item.game.get_discounted_price|floatformat:2 }}</span>
+            </div>
+            {% endfor %}
+            <div class="checkout_total_row final">
+                <span>Итого</span>
+                <span style="color:#66c0f4;">${{ total|floatformat:2 }}</span>
+            </div>
+
+            <div class="checkout_note">
+                Нажимая «Оплатить», вы принимаете условия Соглашения подписчика Steam.
+                Все покупки окончательны.
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn_checkout">
+                    <i class="fas fa-lock"></i> Оплатить ${{ total|floatformat:2 }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Обмен с {{ receiver.username }}{% endblock %}
+
+{% block content %}
+<div style="padding:20px;color:white;">
+    <h2>Предложение обмена: {{ request.user.username }} ↔ {{ receiver.username }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div style="margin:20px 0;">
+            <label>Сообщение:</label>
+            <input type="text" name="message" style="width:100%;padding:10px;border-radius:8px;border:none;background:#1b2838;color:white;">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div style="background:#16202d;padding:16px;border-radius:12px;">
+                <h3>Ваши предметы</h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;">
+                    {% for inv in sender_items %}
+                        <label style="display:block;background:#1b2838;padding:10px;border-radius:10px;cursor:pointer;">
+                            <input type="checkbox" name="sender_items" value="{{ inv.id }}">
+                            <div style="margin-top:8px;font-weight:700;">{{ inv.item.name }}</div>
+                            <div style="font-size:13px;color:#8f98a0;">{{ inv.item.game.title }}</div>
+                        </label>
+                    {% empty %}
+                        <p>У вас нет предметов для обмена.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="background:#16202d;padding:16px;border-radius:12px;">
+                <h3>Предметы {{ receiver.username }}</h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;">
+                    {% for inv in receiver_items %}
+                        <label style="display:block;background:#1b2838;padding:10px;border-radius:10px;cursor:pointer;">
+                            <input type="checkbox" name="receiver_items" value="{{ inv.id }}">
+                            <div style="margin-top:8px;font-weight:700;">{{ inv.item.name }}</div>
+                            <div style="font-size:13px;color:#8f98a0;">{{ inv.item.game.title }}</div>
+                        </label>
+                    {% empty %}
+                        <p>У пользователя нет предметов для обмена.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" style="margin-top:20px;padding:12px 20px;background:#5c7e10;color:white;border:none;border-radius:8px;">
+            Отправить трейд
+        </button>
+    </form>
+</div>
+{% endblock %}

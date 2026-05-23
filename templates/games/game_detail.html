@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ game.title }} в Steam{% endblock %}
+
+{% block content %}
+<div class="game_detail_page">
+
+    <div style="font-size:12px;color:#8f98a0;padding:8px 0;">
+        <a href="{% url 'home' %}">Магазин</a> &rsaquo;
+        {% if game.category %}
+            <a href="{% url 'game_list' %}?category={{ game.category.slug }}">{{ game.category.name }}</a> &rsaquo;
+        {% endif %}
+        {{ game.title }}
+    </div>
+
+    <div class="game_title_area">
+        <h1>{{ game.title }}</h1>
+    </div>
+
+    <div class="game_main_area">
+        <div>
+            {% if screenshots %}
+                <img class="main_screenshot" src="{{ screenshots.0.image.url }}" alt="{{ game.title }}" style="width:100%;border-radius:3px;margin-bottom:8px;">
+                <div class="screenshot_thumbs">
+                    {% for shot in screenshots %}
+                        <img class="screenshot_thumb {% if forloop.first %}active{% endif %}"
+                             src="{{ shot.image.url }}" alt="screenshot {{ forloop.counter }}">
+                    {% endfor %}
+                </div>
+            {% elif game.header_image %}
+                <img src="{{ game.header_image.url }}" alt="{{ game.title }}" style="width:100%;border-radius:3px;">
+            {% else %}
+                <div style="width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#1b2838,#2a475e);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:60px;color:#4a6b8a;">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+            {% endif %}
+
+            <div class="game_description_section">
+                <h2>Об этой игре</h2>
+                <p>{{ game.description|linebreaks }}</p>
+            </div>
+
+            <div class="reviews_section">
+                <h2>Отзывы покупателей</h2>
+
+                {% if total_reviews > 0 %}
+                <div class="review_summary">
+                    <div class="review_percent {% if rating_percent >= 70 %}positive{% else %}negative{% endif %}">
+                        {{ rating_percent }}%
+                    </div>
+                    <div>
+                        <div style="font-size:15px;font-weight:700;color:#fff;">
+                            {% if rating_percent >= 95 %}Крайне положительные
+                            {% elif rating_percent >= 80 %}Очень положительные
+                            {% elif rating_percent >= 70 %}В основном положительные
+                            {% elif rating_percent >= 40 %}Смешанные
+                            {% else %}Отрицательные
+                            {% endif %}
+                        </div>
+                        <div class="review_label">Из {{ total_reviews }} отзывов пользователей</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if user.is_authenticated and user_owns %}
+                    {% if not user_review %}
+                    <div class="write_review">
+                        <h3>Написать отзыв</h3>
+                        <form method="post" action="{% url 'add_review' game.slug %}">
+                            {% csrf_token %}
+                            <div class="review_radio_row">
+                                <label class="review_radio_label">
+                                    <input type="radio" name="rating" value="positive" checked>
+                                    <span style="color:#66c0f4;">👍 Рекомендую</span>
+                                </label>
+                                <label class="review_radio_label">
+                                    <input type="radio" name="rating" value="negative">
+                                    <span style="color:#c75050;">👎 Не рекомендую</span>
+                                </label>
+                            </div>
+                            <textarea class="review_textarea" name="text" placeholder="Поделитесь своим мнением об игре..." required></textarea>
+                            <button type="submit" class="btn_submit_review">Опубликовать отзыв</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="review_card" style="background:rgba(74,107,138,0.2);border-color:#4a6b8a;">
+                        <div style="font-size:12px;color:#8f98a0;margin-bottom:8px;">Ваш отзыв:</div>
+                        <div style="font-size:14px;color:#fff;">
+                            {% if user_review.rating %}👍 Рекомендую{% else %}👎 Не рекомендую{% endif %}
+                        </div>
+                        <div style="margin-top:6px;color:#c6d4df;">{{ user_review.text }}</div>
+                    </div>
+                    {% endif %}
+                {% elif user.is_authenticated and not user_owns %}
+                    <div style="background:rgba(0,0,0,0.2);border:1px solid #3d4450;border-radius:3px;padding:12px;margin-bottom:16px;font-size:13px;color:#8f98a0;">
+                        Чтобы написать отзыв, вы должны владеть этой игрой.
+                    </div>
+                {% endif %}
+
+                {% for review in reviews %}
+                <div class="review_card">
+                    <div class="review_header">
+                        <div class="review_avatar">{{ review.user.username.0|upper }}</div>
+                        <div>
+                            <div class="review_username">{{ review.user.username }}</div>
+                            <div class="review_date">{{ review.created_at|date:"d.m.Y" }}</div>
+                        </div>
+                        <div class="review_thumb {% if review.rating %}up{% else %}down{% endif %}">
+                            {% if review.rating %}👍{% else %}👎{% endif %}
+                        </div>
+                    </div>
+                    <div class="review_text">{{ review.text }}</div>
+                </div>
+                {% empty %}
+                    <div style="color:#8f98a0;font-size:13px;padding:20px 0;">Отзывов пока нет. Будьте первым!</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="game_sidebar">
+            {% if game.header_image %}
+                <img class="game_capsule_img" src="{{ game.header_image.url }}" alt="{{ game.title }}">
+            {% else %}
+                <div class="game_capsule_placeholder"><i class="fas fa-gamepad"></i></div>
+            {% endif %}
+
+            <div class="game_short_desc">{{ game.short_description }}</div>
+
+            <table class="game_info_table">
+                <tr><td>Разработчик</td><td>{{ game.developer }}</td></tr>
+                <tr><td>Издатель</td><td>{{ game.publisher }}</td></tr>
+                <tr><td>Дата выхода</td><td>{{ game.release_date|date:"d.m.Y" }}</td></tr>
+                {% if game.category %}
+                <tr><td>Жанр</td><td><a href="{% url 'game_list' %}?category={{ game.category.slug }}">{{ game.category.name }}</a></td></tr>
+                {% endif %}
+            </table>
+
+            {% if game.tags.all %}
+            <div class="game_tags_row">
+                {% for tag in game.tags.all %}
+                    <a href="{% url 'game_list' %}?tag={{ tag.slug }}" class="game_tag">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="purchase_box">
+                <div class="purchase_box_title">Купить {{ game.title }}</div>
+
+                <div class="price_display">
+                    {% if game.discount > 0 %}
+                        <div class="discount_pill">-{{ game.discount }}%</div>
+                        <div class="price_column">
+                            <div class="original_price">${{ game.price }}</div>
+                            <div class="final_price">${{ game.get_discounted_price|floatformat:2 }}</div>
+                        </div>
+                    {% elif game.price == 0 %}
+                        <div class="price_column">
+                            <div class="final_price free">Бесплатно</div>
+                        </div>
+                    {% else %}
+                        <div class="price_column">
+                            <div class="final_price">${{ game.price }}</div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if user.is_authenticated %}
+                    {% if user_owns %}
+                        <a href="{% url 'library' %}" class="btn_go_library">
+                            <i class="fas fa-gamepad"></i> В библиотеке
+                        </a>
+
+                        {% if game.game_file %}
+                            <a href="{% url 'download_game' game.id %}" class="btn_add_cart" style="margin-top:8px;display:block;text-align:center;">
+                                <i class="fas fa-download"></i> Скачать / Играть
+                            </a>
+                        {% else %}
+                            <div style="margin-top:8px;text-align:center;background:#2a475e;color:#8f98a0;padding:10px;border-radius:3px;font-size:13px;">
+                                Файл игры недоступен
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'add_to_cart' game.id %}" class="btn_add_cart">
+                            В корзину
+                        </a>
+                        <a href="{% url 'toggle_wishlist' game.id %}" class="btn_add_wishlist">
+                            <i class="fas fa-heart"></i> В список желаемого
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn_add_cart">Войдите чтобы купить</a>
+                {% endif %}
+            </div>
+
+            {% if similar_games %}
+            <div style="margin-top:16px;">
+                <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#8f98a0;margin-bottom:10px;letter-spacing:0.5px;">Похожие игры</div>
+                {% for sg in similar_games %}
+                <a href="{{ sg.get_absolute_url }}" style="display:flex;gap:10px;margin-bottom:8px;align-items:center;">
+                    {% if sg.header_image %}
+                        <img src="{{ sg.header_image.url }}" alt="{{ sg.title }}" style="width:60px;height:30px;object-fit:cover;border-radius:2px;">
+                    {% endif %}
+                    <div style="font-size:12px;color:#c6d4df;">{{ sg.title }}</div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

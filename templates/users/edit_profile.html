@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Редактировать профиль{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;margin:20px auto;background:#16202d;color:white;padding:25px;border-radius:12px;">
+    <h1>Редактировать профиль</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div style="margin-bottom:15px;">
+            <label>Аватар</label>
+            {{ form.avatar }}
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label>О себе</label>
+            {{ form.bio }}
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label>Страна</label>
+            {{ form.country }}
+        </div>
+
+        <button type="submit" style="background:#5c7e10;color:white;border:none;padding:12px 18px;border-radius:6px;">
+            Сохранить
+        </button>
+
+        <a href="{% url 'profile' request.user.username %}" style="color:#67c1f5;margin-left:10px;">
+            Назад
+        </a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Библиотека — Steam{% endblock %}
+
+{% block content %}
+<div class="steam_library_page">
+
+    <aside class="steam_library_sidebar">
+        <div class="steam_library_sidebar_title">Библиотека</div>
+
+        {% for purchase in purchases %}
+            <a href="#game-{{ purchase.game.id }}" class="steam_library_game_link">
+                <i class="fas fa-gamepad"></i>
+                {{ purchase.game.title }}
+            </a>
+        {% empty %}
+            <div class="steam-muted">Игр пока нет</div>
+        {% endfor %}
+    </aside>
+
+    <main class="steam_library_content">
+        {% if purchases %}
+            {% for purchase in purchases %}
+            <section id="game-{{ purchase.game.id }}" class="steam_library_game_panel">
+                <div class="steam_library_hero">
+                    {% if purchase.game.header_image %}
+                        <img src="{{ purchase.game.header_image.url }}" alt="{{ purchase.game.title }}">
+                    {% else %}
+                        <div class="steam_library_placeholder">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="steam_library_hero_overlay">
+                        <h1>{{ purchase.game.title }}</h1>
+
+                        <div class="steam_library_actions">
+                            {% if purchase.game.game_file %}
+                                <a href="{% url 'download_game' purchase.game.id %}" class="steam_library_play_btn">
+                                    <i class="fas fa-download"></i>
+                                    Скачать / Установить
+                                </a>
+                            {% else %}
+                                <div class="steam_library_disabled_btn">
+                                    Файл игры недоступен
+                                </div>
+                            {% endif %}
+
+                            <a href="{{ purchase.game.get_absolute_url }}" class="steam_library_page_btn">
+                                Страница игры
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="steam_library_info_grid">
+                    <div class="steam_library_card">
+                        <h3>Описание</h3>
+                        <p>{{ purchase.game.short_description }}</p>
+                    </div>
+
+                    <div class="steam_library_card">
+                        <h3>Информация</h3>
+                        <div class="steam_library_info_row">
+                            <span>Разработчик</span>
+                            <b>{{ purchase.game.developer }}</b>
+                        </div>
+                        <div class="steam_library_info_row">
+                            <span>Издатель</span>
+                            <b>{{ purchase.game.publisher }}</b>
+                        </div>
+                        <div class="steam_library_info_row">
+                            <span>Дата выхода</span>
+                            <b>{{ purchase.game.release_date|date:"d.m.Y" }}</b>
+                        </div>
+                        <div class="steam_library_info_row">
+                            <span>Куплено</span>
+                            <b>{{ purchase.purchased_at|date:"d.m.Y" }}</b>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endfor %}
+        {% else %}
+            <div class="empty_state">
+                <i class="fas fa-gamepad"></i>
+                <h2>Библиотека пуста</h2>
+                <p>Купите игры в <a href="{% url 'game_list' %}">магазине</a></p>
+            </div>
+        {% endif %}
+    </main>
+
+</div>
+{% endblock %}

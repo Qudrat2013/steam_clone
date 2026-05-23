@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Все игры — Steam{% endblock %}
+
+{% block content %}
+<div class="steam_store_list_page">
+
+    <div class="steam_store_list_header">
+        <div>
+            <h1>
+                {% if query %}
+                    Результаты поиска: «{{ query }}»
+                {% else %}
+                    Новинки и рекомендации
+                {% endif %}
+            </h1>
+            <p>Просматривайте игры, скидки и рекомендации</p>
+        </div>
+    </div>
+
+    <div class="steam_store_layout">
+
+        <aside class="steam_filter_sidebar">
+            <form method="get" action="{% url 'game_list' %}">
+                {% if query %}
+                    <input type="hidden" name="q" value="{{ query }}">
+                {% endif %}
+
+                <div class="steam_filter_block">
+                    <div class="steam_filter_title">Жанры</div>
+
+                    {% for cat in categories %}
+                    <label class="steam_filter_option">
+                        <input type="radio" name="category" value="{{ cat.slug }}"
+                               {% if request.GET.category == cat.slug %}checked{% endif %}
+                               onchange="this.form.submit()">
+                        <span>{{ cat.name }}</span>
+                    </label>
+                    {% endfor %}
+
+                    {% if request.GET.category %}
+                        <a href="{% url 'game_list' %}{% if query %}?q={{ query }}{% endif %}" class="steam_filter_reset">
+                            × Сбросить жанр
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="steam_filter_block">
+                    <div class="steam_filter_title">Цена</div>
+
+                    <div class="steam_price_inputs">
+                        <input type="number" name="price_min" placeholder="От" value="{{ request.GET.price_min }}" min="0">
+                        <span>—</span>
+                        <input type="number" name="price_max" placeholder="До" value="{{ request.GET.price_max }}" min="0">
+                    </div>
+
+                    <button type="submit" class="steam_filter_btn">Применить</button>
+                </div>
+
+                <div class="steam_filter_block">
+                    <div class="steam_filter_title">Сортировка</div>
+
+                    <select name="sort" class="steam_sort_select" onchange="this.form.submit()">
+                        <option value="-created_at" {% if request.GET.sort == '-created_at' or not request.GET.sort %}selected{% endif %}>Новинки</option>
+                        <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>Цена: по возрастанию</option>
+                        <option value="-price" {% if request.GET.sort == '-price' %}selected{% endif %}>Цена: по убыванию</option>
+                        <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>По названию</option>
+                        <option value="-release_date" {% if request.GET.sort == '-release_date' %}selected{% endif %}>Дата выхода</option>
+                    </select>
+                </div>
+            </form>
+        </aside>
+
+        <main class="steam_store_results">
+            {% for game in games %}
+            <a href="{{ game.get_absolute_url }}" class="steam_store_row">
+                <div class="steam_store_row_img_wrap">
+                    {% if game.header_image %}
+                        <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
+                    {% else %}
+                        <div class="steam_store_row_placeholder">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="steam_store_row_info">
+                    <div class="steam_store_row_title">{{ game.title }}</div>
+                    <div class="steam_store_row_desc">
+                        {{ game.short_description|truncatechars:120 }}
+                    </div>
+
+                    <div class="steam_store_row_tags">
+                        {% if game.category %}
+                            <span>{{ game.category.name }}</span>
+                        {% endif %}
+
+                        {% for tag in game.tags.all|slice:":3" %}
+                            <span>{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="steam_store_row_date">
+                    {{ game.release_date|date:"d M Y" }}
+                </div>
+
+                <div class="steam_store_row_price">
+                    {% if game.discount > 0 %}
+                        <span class="discount_badge">-{{ game.discount }}%</span>
+                        <div>
+                            <div class="price_original">${{ game.price }}</div>
+                            <div class="price_final">${{ game.get_discounted_price|floatformat:2 }}</div>
+                        </div>
+                    {% elif game.price == 0 %}
+                        <span class="price_free">Бесплатно</span>
+                    {% else %}
+                        <span class="price_final">${{ game.price }}</span>
+                    {% endif %}
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty_state">
+                <i class="fas fa-search"></i>
+                <h2>Ничего не найдено</h2>
+                <p>
+                    Попробуйте изменить параметры поиска или
+                    <a href="{% url 'game_list' %}">сбросить фильтры</a>
+                </p>
+            </div>
+            {% endfor %}
+        </main>
+
+    </div>
+</div>
+{% endblock %}

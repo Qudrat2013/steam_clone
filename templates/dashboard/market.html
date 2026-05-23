@@ -1,0 +1,37 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Маркет{% endblock %}
+
+{% block content %}
+<h1>Маркет</h1>
+
+<div class="dash-card">
+    <table class="dash-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Предмет</th>
+            <th>Продавец</th>
+            <th>Покупатель</th>
+            <th>Цена</th>
+            <th>Статус</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for listing in listings %}
+            <tr>
+                <td>{{ listing.id }}</td>
+                <td>{{ listing.inventory_item.item.name }}</td>
+                <td>{{ listing.seller.username }}</td>
+                <td>{% if listing.buyer %}{{ listing.buyer.username }}{% else %}—{% endif %}</td>
+                <td>${{ listing.price }}</td>
+                <td>{{ listing.get_status_display }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">Лотов нет.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
