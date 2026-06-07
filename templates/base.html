@@ -38,11 +38,19 @@
                         <a href="{% url 'chat_list' %}"><i class="fas fa-comments"></i> Сообщения {% if unread_message_count > 0 %}({{ unread_message_count }}){% endif %}</a>
                         <a href="{% url 'trade_list' %}"><i class="fas fa-exchange-alt"></i> Обмены {% if pending_trade_count > 0 %}({{ pending_trade_count }}){% endif %}</a>
                         <a href="{% url 'inventory' %}"><i class="fas fa-box-open"></i> Инвентарь</a>
-                        <a href="{% url 'market_list' %}"><i class="fas fa-store"></i> Маркет</a>
+                        <a href="{% url 'groups:list' %}"><i class="fas fa-users"></i> Группы</a>
+                        <a href="#">Маркет</a>
                     </div>
                 </div>
             {% else %}
-                <a href="#" class="nav_link">СООБЩЕСТВО</a>
+                <div class="nav_dropdown">
+                    <span class="nav_link">
+                        СООБЩЕСТВО <i class="fas fa-caret-down"></i>
+                    </span>
+                    <div class="nav_dropdown_menu">
+                        <a href="{% url 'groups:list' %}"><i class="fas fa-users"></i> Группы</a>
+                    </div>
+                </div>
                 <a href="#" class="nav_link">О САЙТЕ</a>
                 <a href="#" class="nav_link">ПОДДЕРЖКА</a>
             {% endif %}
@@ -64,8 +72,11 @@
                         <a href="{% url 'library' %}"><i class="fas fa-gamepad"></i> Библиотека</a>
                         <a href="{% url 'wishlist' %}"><i class="fas fa-heart"></i> Желаемое</a>
                         <a href="{% url 'inventory' %}"><i class="fas fa-box-open"></i> Инвентарь</a>
-                        <a href="{% url 'market_list' %}"><i class="fas fa-store"></i> Маркет</a>
-                        <a href="{% url 'wallet' %}"><i class="fas fa-wallet"></i> Баланс: ${{ request.user.profile.balance }}</a>
+                        <a href="{% url 'groups:list' %}"><i class="fas fa-users"></i> Группы</a>
+                        <a href="#">Маркет</a>
+
+                        <a href="{% url 'wallet:deposit' %}"><i class="fas fa-wallet"></i> Баланс: {{ request.user.profile.balance }} UZS</a>
+
                         <a href="{% url 'notification_list' %}"><i class="fas fa-bell"></i> Уведомления {% if unread_notification_count > 0 %}({{ unread_notification_count }}){% endif %}</a>
 
                         {% if user.is_staff %}
@@ -98,7 +109,8 @@
             {% if user.is_authenticated %}
                 <a href="{% url 'wishlist' %}" class="tab">Желаемое</a>
                 <a href="{% url 'cart' %}" class="tab">Корзина</a>
-                <a href="{% url 'wallet' %}" class="tab">Баланс: ${{ request.user.profile.balance }}</a>
+                <a href="{% url 'groups:list' %}" class="tab {% if 'groups' in request.resolver_match.namespace %}active{% endif %}">Группы</a>
+                <a href="{% url 'wallet:deposit' %}" class="tab {% if request.resolver_match.url_name == 'deposit' %}active{% endif %}">Баланс: {{ request.user.profile.balance }} UZS</a>
             {% endif %}
         </div>
 
@@ -160,7 +172,8 @@
                 {% if user.is_authenticated %}
                     <a href="{% url 'library' %}">Библиотека</a>
                     <a href="{% url 'inventory' %}">Инвентарь</a>
-                    <a href="{% url 'market_list' %}">Маркет</a>
+                    <a href="{% url 'groups:list' %}">Группы</a>
+                    <a href="#">Маркет</a>
                 {% endif %}
             </div>
 
@@ -168,11 +181,20 @@
                 <div class="footer_title">Аккаунт</div>
                 {% if user.is_authenticated %}
                     <a href="{% url 'profile' user.username %}">Профиль</a>
-                    <a href="{% url 'wallet' %}">Баланс</a>
+                    <a href="{% url 'wallet:deposit' %}">Баланс</a>
                     <a href="{% url 'notification_list' %}">Уведомления</a>
                 {% else %}
                     <a href="{% url 'login' %}">Вход</a>
                     <a href="{% url 'register' %}">Регистрация</a>
+                {% endif %}
+            </div>
+
+            <div class="footer_col">
+                <div class="footer_title">Сообщество</div>
+                <a href="{% url 'groups:list' %}">Группы</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'friends_list' %}">Друзья</a>
+                    <a href="{% url 'chat_list' %}">Сообщения</a>
                 {% endif %}
             </div>
         </div>

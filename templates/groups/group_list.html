@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Группы Steam{% endblock %}
+
+{% block content %}
+<div class="groups-page">
+  <div class="groups-header">
+    <h1>Группы сообщества</h1>
+    <div class="groups-header-actions">
+      <form method="get" class="search-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="Поиск групп..." class="search-input">
+        <button type="submit" class="btn-steam">Найти</button>
+      </form>
+      {% if user.is_authenticated %}
+        <a href="{% url 'groups:create' %}" class="btn-steam btn-green">+ Создать группу</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="groups-grid">
+    {% for group in groups %}
+    <a href="{% url 'groups:detail' group.pk %}" class="group-card">
+      <div class="group-card-banner" style="{% if group.banner %}background-image: url('{{ group.banner.url }}');{% endif %}"></div>
+      <div class="group-card-body">
+        {% if group.avatar %}
+          <img src="{{ group.avatar.url }}" alt="{{ group.name }}" class="group-avatar">
+        {% else %}
+          <div class="group-avatar group-avatar-placeholder">{{ group.name|first|upper }}</div>
+        {% endif %}
+        <div class="group-card-info">
+          <h3>{{ group.name }}</h3>
+          <span class="group-tag">{{ group.tag }}</span>
+          <span class="group-members">{{ group.member_count }} участников</span>
+        </div>
+      </div>
+      {% if not group.is_public %}
+        <span class="group-private-badge">Закрытая</span>
+      {% endif %}
+    </a>
+    {% empty %}
+    <div class="empty-state">
+      <p>Групп не найдено{% if query %} по запросу «{{ query }}»{% endif %}.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if groups.has_other_pages %}
+  <div class="pagination">
+    {% if groups.has_previous %}
+      <a href="?page={{ groups.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="btn-steam">←</a>
+    {% endif %}
+    <span>Страница {{ groups.number }} из {{ groups.paginator.num_pages }}</span>
+    {% if groups.has_next %}
+      <a href="?page={{ groups.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="btn-steam">→</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

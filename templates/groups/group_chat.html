@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Чат — {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="group-chat-page">
+  <div class="chat-header">
+    <a href="{% url 'groups:detail' group.pk %}" class="back-link">← {{ group.name }}</a>
+    <h1>💬 Чат группы</h1>
+    <a href="{% url 'groups:forum' group.pk %}" class="btn-steam">📋 Форум</a>
+  </div>
+
+  <div class="chat-window" id="chat-window">
+    {% for msg in chat_messages %}
+    <div class="chat-message {% if msg.author == request.user %}chat-message-mine{% endif %}"
+         data-id="{{ msg.id }}">
+      <span class="chat-author">{{ msg.author.username }}</span>
+      <span class="chat-text">{{ msg.content }}</span>
+      <span class="chat-time">{{ msg.created_at|date:"H:i" }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <form class="chat-input-form" id="chat-form">
+    {% csrf_token %}
+    <input type="text" id="chat-input" class="form-control"
+           placeholder="Написать сообщение..." maxlength="500" autocomplete="off">
+    <button type="submit" class="btn-steam btn-green">Отправить</button>
+  </form>
+</div>
+
+<script>
+  const SEND_URL = "{% url 'groups:chat_send' group.pk %}";
+  const POLL_URL = "{% url 'groups:chat_messages' group.pk %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
+  const CURRENT_USER = "{{ request.user.username }}";
+
+  const chatWindow = document.getElementById('chat-window');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+
+  // Get last message id for polling
+  function getLastId() {
+    const msgs = chatWindow.querySelectorAll('.chat-message[data-id]');
+    if (!msgs.length) return 0;
+    return msgs[msgs.length - 1].dataset.id;
+  }
+
+  function appendMessage(msg) {
+    const div = document.createElement('div');
+    div.className = 'chat-message' + (msg.is_me || msg.author === CURRENT_USER ? ' chat-message-mine' : '');
+    div.dataset.id = msg.id;
+    div.innerHTML = `
+      <span class="chat-author">${msg.author}</span>
+      <span class="chat-text">${escapeHtml(msg.content)}</span>
+      <span class="chat-time">${msg.created_at}</span>
+    `;
+    chatWindow.appendChild(div);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Send message
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const content = chatInput.value.trim();
+    if (!content) return;
+    chatInput.value = '';
+    try {
+      const res = await fetch(SEND_URL, {
+        method: 'POST',
+        headers: {'X-CSRFToken': CSRF_TOKEN, 'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'content=' + encodeURIComponent(content),
+      });
+      const data = await res.json();
+      if (data.id) appendMessage({...data, is_me: true});
+    } catch (err) { console.error(err); }
+  });
+
+  // Poll for new messages every 2 seconds
+  async function pollMessages() {
+    try {
+      const res = await fetch(POLL_URL + '?last_id=' + getLastId());
+      const data = await res.json();
+      data.messages.forEach(appendMessage);
+    } catch (err) {}
+  }
+
+  // Scroll to bottom on load
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+
+  // Enter key sends message
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatForm.dispatchEvent(new Event('submit'));
+    }
+  });
+
+  setInterval(pollMessages, 2000);
+</script>
+{% endblock %}

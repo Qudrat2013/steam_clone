@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }} — {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="post-detail-page">
+  <a href="{% url 'groups:forum' group.pk %}" class="back-link">← Форум {{ group.name }}</a>
+
+  <article class="post-article">
+    <div class="post-article-header">
+      {% if post.pinned %}<span class="pin-badge">📌 Закреплено</span>{% endif %}
+      <h1>{{ post.title }}</h1>
+      <div class="post-meta">
+        Автор: <strong>{{ post.author.username }}</strong> · {{ post.created_at|date:"d.m.Y H:i" }}
+      </div>
+    </div>
+    <div class="post-body">{{ post.content|linebreaks }}</div>
+  </article>
+
+  <!-- Comments -->
+  <section class="comments-section">
+    <h2>Комментарии ({{ comments.count }})</h2>
+
+    {% for comment in comments %}
+    <div class="comment">
+      <div class="comment-header">
+        <strong>{{ comment.author.username }}</strong>
+        <span class="comment-time">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+      </div>
+      <div class="comment-body">{{ comment.content|linebreaks }}</div>
+    </div>
+    {% empty %}
+    <p class="empty-text">Комментариев пока нет.</p>
+    {% endfor %}
+
+    <!-- Comment form -->
+    <div class="comment-form">
+      <h3>Написать комментарий</h3>
+      <form method="post">
+        {% csrf_token %}
+        <textarea name="content" class="form-control" rows="3" placeholder="Ваш комментарий..." required></textarea>
+        <button type="submit" class="btn-steam btn-green" style="margin-top:8px;">Отправить</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

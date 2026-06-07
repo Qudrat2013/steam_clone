@@ -113,7 +113,56 @@
                     <div style="color:#8f98a0;">Библиотека пуста.</div>
                 {% endif %}
             </div>
-        </div>
+
+            {% if request.user == profile_user and active_devices %}
+            <div style="background:#16202d;padding:20px;border-radius:12px;margin-bottom:20px;">
+                <h2 style="margin-top:0;display:flex;justify-content:between;align-items:center;">
+                    <span>Безопасность аккаунта</span>
+                    <span style="font-size:14px;color:#8f98a0;margin-left:auto;">Активных устройств: {{ devices_count }}</span>
+                </h2>
+                
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;margin-top:10px;text-align:left;font-size:14px;">
+                        <thead>
+                            <tr style="border-bottom:2px solid #2a475e;color:#8f98a0;">
+                                <th style="padding:10px 5px;">Устройство</th>
+                                <th style="padding:10px 5px;">Браузер / ОС</th>
+                                <th style="padding:10px 5px;">IP Адрес</th>
+                                <th style="padding:10px 5px;text-align:right;">Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for device in active_devices %}
+                            <tr style="border-bottom:1px solid #1b2838;background:{% if device.session_key == current_session_key %}#1e2e3e{% else %}transparent{% endif %};">
+                                <td style="padding:12px 5px;font-weight:700;">
+                                    {% if device.device_type == "PC" %}🖥️ ПК
+                                    {% elif device.device_type == "Mobile" %}📱 Мобильный
+                                    {% else %}❓ Неизвестно{% endif %}
+                                </td>
+                                <td style="padding:12px 5px;color:#c7d5e0;">
+                                    {{ device.browser }} <span style="font-size:12px;color:#8f98a0;">на {{ device.os }}</span>
+                                </td>
+                                <td style="padding:12px 5px;"><code style="background:#2a475e;padding:3px 6px;border-radius:4px;color:#66c0f4;">{{ device.ip_address }}</code></td>
+                                <td style="padding:12px 5px;text-align:right;">
+                                    {% if device.session_key == current_session_key %}
+                                        <span style="color:#8bc53f;font-size:13px;font-weight:700;">Это устройство</span>
+                                    {% else %}
+                                        <form action="{% url 'kick_device' device.id %}" method="post" style="margin:0;display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" style="background:#a34c25;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px;">
+                                                Завершить сессию
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+            </div>
 
         <div>
             <div style="background:#16202d;padding:20px;border-radius:12px;">
@@ -135,7 +184,6 @@
                     </div>
                 {% empty %}
                     <div style="color:#8f98a0;">Пока нет достижений.</div>
-                    
                 {% endfor %}
             </div>
         </div>

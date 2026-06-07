@@ -1,5 +1,32 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
+
+class UserDevice(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        verbose_name="Пользователь", 
+        related_name="devices"
+    )
+    session_key = models.CharField(max_length=40, verbose_name="Ключ сессии", unique=True)
+    ip_address = models.GenericIPAddressField(verbose_name="IP адрес")
+    
+    # ДОБАВИЛИ ПОЛЯ ДЛЯ ГЕОЛОКАЦИИ СЮДА
+    country = models.CharField(max_length=100, default="Неизвестно", verbose_name="Страна")
+    city = models.CharField(max_length=100, default="Неизвестно", verbose_name="Город")
+    
+    device_type = models.CharField(max_length=50, verbose_name="Тип устройства")  # PC, Mobile, Tablet
+    browser = models.CharField(max_length=100, verbose_name="Браузер")
+    os = models.CharField(max_length=100, verbose_name="Операционная система")
+    last_activity = models.DateTimeField(auto_now=True, verbose_name="Последняя активность")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.device_type} ({self.country}, {self.city})"
+
+    class Meta:
+        verbose_name = "Устройство пользователя"
+        verbose_name_plural = "Устройства пользователей"
 
 
 class Profile(models.Model):

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}{{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="group-detail-page">
+  <!-- Banner -->
+  <div class="group-banner" style="{% if group.banner %}background-image: url('{{ group.banner.url }}');{% endif %}"></div>
+
+  <div class="group-detail-container">
+    <!-- Sidebar -->
+    <aside class="group-sidebar">
+      {% if group.avatar %}
+        <img src="{{ group.avatar.url }}" alt="{{ group.name }}" class="group-detail-avatar">
+      {% else %}
+        <div class="group-detail-avatar group-avatar-placeholder">{{ group.name|first|upper }}</div>
+      {% endif %}
+
+      <h1 class="group-name">{{ group.name }}</h1>
+      <span class="group-tag-badge">{{ group.tag }}</span>
+      <div class="group-stats">
+        <div class="stat"><span class="stat-value">{{ group.member_count }}</span><span class="stat-label">Участников</span></div>
+        <div class="stat"><span class="stat-value">{{ group.posts.count }}</span><span class="stat-label">Постов</span></div>
+      </div>
+
+      <div class="group-actions">
+        {% if user.is_authenticated %}
+          {% if membership %}
+            {% if membership.status == 'approved' %}
+              <a href="{% url 'groups:forum' group.pk %}" class="btn-steam btn-block">📋 Форум</a>
+              <a href="{% url 'groups:chat' group.pk %}" class="btn-steam btn-block">💬 Чат</a>
+              {% if membership.role != 'owner' %}
+                <a href="{% url 'groups:leave' group.pk %}" class="btn-steam btn-danger btn-block"
+                   onclick="return confirm('Покинуть группу?')">Покинуть</a>
+              {% endif %}
+            {% elif membership.status == 'banned' %}
+              <p class="text-danger">Вы заблокированы</p>
+            {% endif %}
+          {% else %}
+            <a href="{% url 'groups:join' group.pk %}" class="btn-steam btn-green btn-block">+ Вступить</a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'users:login' %}" class="btn-steam btn-block">Войти чтобы вступить</a>
+        {% endif %}
+      </div>
+
+      <div class="group-meta">
+        <p>Создана: {{ group.created_at|date:"d.m.Y" }}</p>
+        <p>Владелец: <a href="#">{{ group.owner.username }}</a></p>
+        {% if not group.is_public %}<p>🔒 Закрытая группа</p>{% endif %}
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="group-main">
+      {% if group.description %}
+      <section class="group-section">
+        <h2>О группе</h2>
+        <p>{{ group.description }}</p>
+      </section>
+      {% endif %}
+
+      <!-- Recent posts -->
+      <section class="group-section">
+        <div class="section-header">
+          <h2>Последние посты</h2>
+          {% if membership and membership.status == 'approved' %}
+            <a href="{% url 'groups:forum' group.pk %}" class="btn-steam btn-sm">Все посты</a>
+          {% endif %}
+        </div>
+        {% for post in posts %}
+        <div class="post-preview">
+          {% if post.pinned %}<span class="pin-badge">📌</span>{% endif %}
+          <a href="{% url 'groups:post_detail' group.pk post.pk %}" class="post-title">{{ post.title }}</a>
+          <div class="post-meta">
+            {{ post.author.username }} · {{ post.created_at|date:"d.m.Y H:i" }} · {{ post.comment_count }} комментариев
+          </div>
+        </div>
+        {% empty %}
+        <p class="empty-text">Постов пока нет.</p>
+        {% endfor %}
+      </section>
+
+      <!-- Members -->
+      <section class="group-section">
+        <h2>Участники ({{ group.member_count }})</h2>
+        <div class="members-list">
+          {% for m in members %}
+          <div class="member-item">
+            <span class="member-name">{{ m.user.username }}</span>
+            {% if m.role != 'member' %}
+              <span class="member-role role-{{ m.role }}">{{ m.get_role_display }}</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

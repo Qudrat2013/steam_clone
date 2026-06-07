@@ -33,6 +33,10 @@ INSTALLED_APPS = [
     'launcher_api',
     'drf_yasg',
     'rest_framework',
+    'groups',
+    
+    # Добавлено для отслеживания устройств
+    'django_user_agents',
 ]
 
 MIDDLEWARE = [
@@ -43,6 +47,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # Добавлено для парсинга User-Agent (устройств)
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 
 ROOT_URLCONF = 'steam_clone.urls'
@@ -115,3 +122,5 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 
 EMAIL_TIMEOUT = 20
+# Путь к папке с гео-базой MaxMind
+GEOIP_PATH = os.path.join(BASE_DIR, 'geoip')

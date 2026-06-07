@@ -1,5 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+
+# Импортируем все нужные функции из СВОЕГО приложения users.views
 from .views import (
     register_view,
     login_view,
@@ -8,6 +10,7 @@ from .views import (
     edit_profile,
     verify_email_view,
     resend_verification_code_view,
+    kick_device_view,  # Добавили импорт функции сюда
 )
 
 urlpatterns = [
@@ -39,5 +42,10 @@ urlpatterns = [
 
     # 👤 ПРОФИЛЬ (ВАЖНО: порядок!)
     path('profile/edit/', edit_profile, name='edit_profile'),
+    
+    # Путь для кика устройства должен быть ВЫШЕ, чем динамический <str:username>, 
+    # чтобы Django не думал, что 'kick' — это имя пользователя.
+    path('profile/kick/<int:device_id>/', kick_device_view, name='kick_device'),
+    
     path('profile/<str:username>/', profile_view, name='profile'),
 ]

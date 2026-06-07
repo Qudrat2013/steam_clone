@@ -2,71 +2,218 @@
 {% block title %}Чат с {{ other_user.username }}{% endblock %}
 
 {% block content %}
-<div style="max-width:900px;margin:20px auto;background:#16202d;border-radius:12px;padding:20px;color:white;">
-    <h2>Чат с {{ other_user.username }}</h2>
+<div class="chat-page">
+  <div class="chat-header">
+    <a href="{% url 'chat_list' %}" class="back-link">← Чаты</a>
+    <div class="chat-header-user">
+      <div class="chat-avatar">{{ other_user.username|first|upper }}</div>
+      <span class="chat-username">{{ other_user.username }}</span>
+    </div>
+    <a href="{% url 'profile' other_user.username %}" class="btn-steam btn-sm">Профиль</a>
+  </div>
 
-    <div id="chat-box" style="height:400px;overflow-y:auto;background:#1b2838;padding:15px;border-radius:10px;margin-bottom:15px;">
-        {% for msg in messages_list %}
-            <div style="margin-bottom:12px;text-align:{% if msg.sender == request.user %}right{% else %}left{% endif %};">
-                <div style="display:inline-block;max-width:70%;padding:10px 14px;border-radius:10px;background:{% if msg.sender == request.user %}#4d8ab5{% else %}#2a475e{% endif %};">
-                    {{ msg.text }}
-                </div>
-            </div>
-        {% empty %}
-            <p>Сообщений пока нет.</p>
+  <!-- Messages window -->
+  <div class="chat-window" id="chat-window">
+    {% for msg in messages_list %}
+    <div class="chat-message {% if msg.sender == request.user %}chat-message-mine{% endif %}"
+         data-id="{{ msg.id }}">
+      {% if msg.message_type == 'sticker' and msg.sticker %}
+        <img src="{{ msg.sticker.image.url }}"
+             alt="{{ msg.sticker.name }}"
+             class="chat-sticker-img"
+             title="{{ msg.sticker.name }}">
+      {% else %}
+        <span class="chat-text">{{ msg.text }}</span>
+      {% endif %}
+      <span class="chat-time">{{ msg.created_at|date:"H:i" }}</span>
+    </div>
+    {% empty %}
+    <div class="chat-empty">Начните общение! Отправьте первое сообщение 👋</div>
+    {% endfor %}
+  </div>
+
+  <!-- Input area -->
+  <div class="chat-input-area">
+
+    <!-- Sticker panel (hidden by default) -->
+    <div class="sticker-panel" id="sticker-panel" style="display:none;">
+      <div class="sticker-panel-header">
+        <span>Стикеры</span>
+        <button class="sticker-panel-close" id="sticker-close">✕</button>
+      </div>
+
+      {% if sticker_packs %}
+        <!-- Pack tabs -->
+        <div class="sticker-pack-tabs">
+          {% for pack in sticker_packs %}
+          <button class="sticker-pack-tab {% if forloop.first %}active{% endif %}"
+                  data-pack="{{ pack.id }}">
+            {{ pack.name }}
+          </button>
+          {% endfor %}
+        </div>
+
+        <!-- Stickers grid -->
+        {% for pack in sticker_packs %}
+        <div class="sticker-grid" id="pack-{{ pack.id }}"
+             style="{% if not forloop.first %}display:none{% endif %}">
+          {% for sticker in pack.stickers.all %}
+          <button class="sticker-btn" data-sticker-id="{{ sticker.id }}"
+                  title="{{ sticker.name }}">
+            <img src="{{ sticker.image.url }}" alt="{{ sticker.name }}">
+          </button>
+          {% empty %}
+          <p class="empty-text">Стикеров нет</p>
+          {% endfor %}
+        </div>
         {% endfor %}
+
+      {% else %}
+        <div class="sticker-empty">
+          <p>Стикеры ещё не добавлены.</p>
+          {% if request.user.is_staff %}
+          <a href="/admin/chat/stickerpack/add/" class="btn-steam btn-sm">+ Добавить пак</a>
+          {% endif %}
+        </div>
+      {% endif %}
     </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <div style="display:flex;gap:10px;">
-            <input type="text" name="text" placeholder="Введите сообщение..." style="flex:1;padding:12px;border:none;border-radius:8px;background:#1b2838;color:white;" autocomplete="off">
-            <button type="submit" style="padding:12px 18px;background:#5c7e10;color:white;border:none;border-radius:8px;">
-                Отправить
-            </button>
-        </div>
+    <!-- Message form -->
+    <form class="chat-form" id="chat-form">
+      {% csrf_token %}
+      <button type="button" class="sticker-toggle-btn" id="sticker-toggle"
+              title="Стикеры">😊</button>
+      <input type="text" id="chat-input" class="chat-text-input"
+             placeholder="Написать сообщение..." autocomplete="off" maxlength="2000">
+      <button type="submit" class="chat-send-btn">
+        <i class="fas fa-paper-plane"></i>
+      </button>
     </form>
+  </div>
 </div>
 
 <script>
-const chatBox = document.getElementById('chat-box');
-const messagesUrl = "{% url 'chat_messages_api' other_user.username %}";
+const SEND_URL = "{% url 'chat_send_api' other_user.username %}";
+const POLL_URL = "{% url 'chat_messages_api' other_user.username %}";
+const CSRF = "{{ csrf_token }}";
+const ME = "{{ request.user.username }}";
 
-function renderMessages(messages) {
-    if (!messages.length) {
-        chatBox.innerHTML = '<p>Сообщений пока нет.</p>';
-        return;
-    }
+const chatWindow = document.getElementById('chat-window');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+const stickerPanel = document.getElementById('sticker-panel');
+const stickerToggle = document.getElementById('sticker-toggle');
+const stickerClose = document.getElementById('sticker-close');
 
-    chatBox.innerHTML = messages.map(msg => `
-        <div style="margin-bottom:12px;text-align:${msg.is_mine ? 'right' : 'left'};">
-            <div style="display:inline-block;max-width:70%;padding:10px 14px;border-radius:10px;background:${msg.is_mine ? '#4d8ab5' : '#2a475e'};">
-                ${escapeHtml(msg.text)}
-                <div style="font-size:11px;color:#c7d5e0;margin-top:4px;">${msg.created_at}</div>
-            </div>
-        </div>
-    `).join('');
+// Scroll to bottom
+chatWindow.scrollTop = chatWindow.scrollHeight;
 
-    chatBox.scrollTop = chatBox.scrollHeight;
+function getLastId() {
+  const msgs = chatWindow.querySelectorAll('.chat-message[data-id]');
+  if (!msgs.length) return 0;
+  return msgs[msgs.length - 1].dataset.id;
 }
 
 function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-async function loadMessages() {
+function appendMessage(msg) {
+  // Remove empty state
+  const empty = chatWindow.querySelector('.chat-empty');
+  if (empty) empty.remove();
+
+  const div = document.createElement('div');
+  div.className = 'chat-message' + (msg.is_mine ? ' chat-message-mine' : '');
+  div.dataset.id = msg.id;
+
+  if (msg.message_type === 'sticker' && msg.sticker_url) {
+    div.innerHTML = `
+      <img src="${msg.sticker_url}" alt="${msg.sticker_name || 'стикер'}" class="chat-sticker-img">
+      <span class="chat-time">${msg.created_at}</span>
+    `;
+  } else {
+    div.innerHTML = `
+      <span class="chat-text">${escapeHtml(msg.text)}</span>
+      <span class="chat-time">${msg.created_at}</span>
+    `;
+  }
+
+  chatWindow.appendChild(div);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+// Send text message
+chatForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = chatInput.value.trim();
+  if (!text) return;
+  chatInput.value = '';
+  try {
+    const res = await fetch(SEND_URL, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'message_type=text&text=' + encodeURIComponent(text),
+    });
+    const data = await res.json();
+    if (data.id) appendMessage(data);
+  } catch(err) { console.error(err); }
+});
+
+// Send sticker
+document.querySelectorAll('.sticker-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const stickerId = btn.dataset.stickerId;
+    stickerPanel.style.display = 'none';
     try {
-        const response = await fetch(messagesUrl);
-        const data = await response.json();
-        renderMessages(data.messages);
-    } catch (e) {
-        console.log('chat update error');
-    }
+      const res = await fetch(SEND_URL, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'message_type=sticker&sticker_id=' + stickerId,
+      });
+      const data = await res.json();
+      if (data.id) appendMessage(data);
+    } catch(err) { console.error(err); }
+  });
+});
+
+// Sticker panel toggle
+stickerToggle.addEventListener('click', () => {
+  stickerPanel.style.display = stickerPanel.style.display === 'none' ? 'block' : 'none';
+});
+stickerClose.addEventListener('click', () => {
+  stickerPanel.style.display = 'none';
+});
+
+// Pack tabs
+document.querySelectorAll('.sticker-pack-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sticker-pack-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sticker-grid').forEach(g => g.style.display = 'none');
+    tab.classList.add('active');
+    document.getElementById('pack-' + tab.dataset.pack).style.display = 'grid';
+  });
+});
+
+// Enter to send
+chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    chatForm.dispatchEvent(new Event('submit'));
+  }
+});
+
+// Poll for new messages
+async function pollMessages() {
+  try {
+    const res = await fetch(POLL_URL + '?last_id=' + getLastId());
+    const data = await res.json();
+    (data.messages || []).forEach(msg => {
+      if (!msg.is_mine) appendMessage(msg);
+    });
+  } catch(err) {}
 }
 
-setInterval(loadMessages, 3000);
-chatBox.scrollTop = chatBox.scrollHeight;
+setInterval(pollMessages, 2000);
 </script>
 {% endblock %}

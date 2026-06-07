@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -25,13 +24,15 @@ urlpatterns = [
     path('trades/', include('trades.urls')),
     path('friends/', include('friends.urls')),
     path('chat/', include('chat.urls')),
+    path('groups/', include('groups.urls', namespace='groups')),
     path('market/', include('marketplace.urls')),
-    path('wallet/', include('wallet.urls')),
+
+    
+    # Wallet подключен строго с namespace
+    path('wallet/', include(('wallet.urls', 'wallet'), namespace='wallet')),
+    
     path('notifications/', include('notifications.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('launcher-api/', include('launcher_api.urls')),
-
-
-    # 🔥 Swagger
    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -6,11 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.contrib.sessions.models import Session  # Добавлено для работы с сессиями
 
 from friends.models import Friendship, FriendRequest
 from inventory.models import InventoryItem
-from .models import Profile
+from .models import Profile, UserDevice  # Добавили импорт модели UserDevice
 from .forms import RegisterForm, LoginForm, ProfileForm, VerifyEmailForm
+from .utils import register_user_device  # Импортируем утилиту регистрации девайса
 
 
 def generate_verification_code():
@@ -83,6 +85,10 @@ def verify_email_view(request):
                 profile.save()
 
                 login(request, user)
+                
+                # ТУТ: Регистрируем устройство при логине после верификации
+                register_user_device(request, user)
+
                 request.session.pop('verify_user_id', None)
 
                 messages.success(request, 'Почта успешно подтверждена.')
@@ -136,6 +142,10 @@ def login_view(request):
                 profile.save()
 
                 login(request, user)
+                
+                # ТУТ: Регистрируем устройство при обычном логине
+                register_user_device(request, user)
+
                 return redirect(request.GET.get('next', 'home'))
             else:
                 form.add_error(None, 'Неверное имя пользователя или пароль')
@@ -147,6 +157,11 @@ def login_view(request):
 
 def logout_view(request):
     if request.user.is_authenticated:
+        # ТУТ: Удаляем запись устройства перед выходом, чтобы не засорять БД
+        session_key = request.session.session_key
+        if session_key:
+            UserDevice.objects.filter(session_key=session_key).delete()
+
         profile, _ = Profile.objects.get_or_create(user=request.user)
         profile.status = 'offline'
         profile.save()
@@ -170,20 +185,32 @@ def profile_view(request, username):
     incoming_friend_request = None
     outgoing_friend_request = None
 
-    if request.user.is_authenticated and request.user != user:
-        are_friends = Friendship.are_friends(request.user, user)
+    # Новые переменные для устройств безопасности
+    active_devices = None
+    devices_count = 0
+    current_session_key = None
 
-        incoming_friend_request = FriendRequest.objects.filter(
-            sender=user,
-            receiver=request.user,
-            status='pending'
-        ).first()
+    if request.user.is_authenticated:
+        # Если пользователь смотрит СВОЙ собственный профиль, отдаем устройства
+        if request.user == user:
+            active_devices = request.user.devices.all().order_by('-last_activity')
+            devices_count = active_devices.count()
+            current_session_key = request.session.session_key
 
-        outgoing_friend_request = FriendRequest.objects.filter(
-            sender=request.user,
-            receiver=user,
-            status='pending'
-        ).first()
+        if request.user != user:
+            are_friends = Friendship.are_friends(request.user, user)
+
+            incoming_friend_request = FriendRequest.objects.filter(
+                sender=user,
+                receiver=request.user,
+                status='pending'
+            ).first()
+
+            outgoing_friend_request = FriendRequest.objects.filter(
+                sender=request.user,
+                receiver=user,
+                status='pending'
+            ).first()
 
     return render(request, 'users/profile.html', {
         'profile_user': user,
@@ -194,6 +221,11 @@ def profile_view(request, username):
         'are_friends': are_friends,
         'incoming_friend_request': incoming_friend_request,
         'outgoing_friend_request': outgoing_friend_request,
+        
+        # Добавлено в контекст для HTML шаблона
+        'active_devices': active_devices,
+        'devices_count': devices_count,
+        'current_session_key': current_session_key,
     })
 
 
@@ -211,3 +243,16 @@ def edit_profile(request):
         form = ProfileForm(instance=profile)
 
     return render(request, 'users/edit_profile.html', {'form': form})
+
+
+@login_required
+def kick_device_view(request, device_id):
+    """Принудительное завершение сессии устройства"""
+    if request.method == "POST":
+        device = get_object_or_404(UserDevice, id=device_id, user=request.user)
+        # Удаляем сессию из встроенной таблицы Django, чтобы пользователя разлогинило
+        Session.objects.filter(session_key=device.session_key).delete()
+        # Удаляем запись устройства из нашей таблицы
+        device.delete()
+        messages.success(request, 'Сессия устройства успешно завершена.')
+    return redirect('profile', username=request.user.username)

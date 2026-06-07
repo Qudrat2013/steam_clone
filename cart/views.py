@@ -3,6 +3,7 @@ import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import transaction  # Для безопасного списания денег
 
 from games.models import Game
 from inventory.models import Item, InventoryItem
@@ -31,6 +32,7 @@ def give_random_items_for_game(user, game):
 
 @login_required
 def cart_view(request):
+    # ИСПРАВЛЕНО: Добавлено явное указание поля user=
     cart_items = CartItem.objects.filter(user=request.user).select_related('game')
     total = sum(item.game.get_discounted_price() for item in cart_items)
     return render(request, 'cart/cart.html', {'cart_items': cart_items, 'total': total})
@@ -64,42 +66,58 @@ def checkout(request):
         messages.error(request, 'Ваша корзина пуста')
         return redirect('cart')
 
+    # Считаем общую стоимость всех игр в корзине
+    total_price = sum(item.game.get_discounted_price() for item in cart_items)
+
     if request.method == 'POST':
+        profile = request.user.profile
+
+        # ПРОВЕРКА: Если денег на балансе кошелька меньше, чем стоит корзина
+        if profile.balance < total_price:
+            messages.error(request, f'Недостаточно средств! К оплате: {total_price} UZS. Ваш баланс: {profile.balance} UZS.')
+            return redirect('cart')
+
         total_items_given = 0
         new_purchases = 0
 
-        for item in cart_items:
-            purchase, created = Purchase.objects.get_or_create(
-                user=request.user,
-                game=item.game,
-                defaults={'price_paid': item.game.get_discounted_price()}
-            )
+        # Оборачиваем в atomic, чтобы транзакция была безопасной
+        with transaction.atomic():
+            # СПИСЫВАЕМ ДЕНЬГИ С КОШЕЛЬКА профиля
+            profile.balance -= total_price
+            profile.save()
 
-            if created:
-                new_purchases += 1
-                total_items_given += give_random_items_for_game(request.user, item.game)
+            for item in cart_items:
+                purchase, created = Purchase.objects.get_or_create(
+                    user=request.user,
+                    game=item.game,
+                    defaults={'price_paid': item.game.get_discounted_price()}
+                )
 
-        if new_purchases > 0:
-            request.user.profile.add_xp(50 * new_purchases)
-            give_achievement(request.user, 'Первая покупка', 'Купите свою первую игру.')
+                if created:
+                    new_purchases += 1
+                    total_items_given += give_random_items_for_game(request.user, item.game)
 
-            if new_purchases >= 3:
-                give_achievement(request.user, 'Оптовый покупатель', 'Купите 3 игры за раз.')
+            if new_purchases > 0:
+                request.user.profile.add_xp(50 * new_purchases)
+                give_achievement(request.user, 'Первая покупка', 'Купите свою первую игру.')
 
-        cart_items.delete()
+                if new_purchases >= 3:
+                    give_achievement(request.user, 'Оптовый покупатель', 'Купите 3 игры за раз.')
+
+            # Очищаем корзину после успешной оплаты
+            cart_items.delete()
 
         if total_items_given > 0:
             messages.success(
                 request,
-                f'Покупка прошла успешно! Вы получили предметов: {total_items_given}.'
+                f'Покупка прошла успешно! Списано {total_price} UZS. Вы получили предметов: {total_items_given}.'
             )
         else:
-            messages.success(request, 'Покупка прошла успешно! Игры добавлены в библиотеку.')
+            messages.success(request, f'Покупка прошла успешно! Списано {total_price} UZS. Игры добавлены в библиотеку.')
 
         return redirect('library')
 
-    total = sum(item.game.get_discounted_price() for item in cart_items)
-    return render(request, 'cart/checkout.html', {'cart_items': cart_items, 'total': total})
+    return render(request, 'cart/checkout.html', {'cart_items': cart_items, 'total': total_price})
 
 
 @login_required
