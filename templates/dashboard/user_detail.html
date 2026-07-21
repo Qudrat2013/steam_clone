@@ -2,60 +2,194 @@
 {% block title %}{{ user_obj.username }}{% endblock %}
 
 {% block content %}
-<h1>{{ user_obj.username }}</h1>
-
-<div class="dash-card">
-    <form method="post">
-        {% csrf_token %}
-
-        <p>
-            <label>Баланс</label>
-            <input class="dash-input" name="balance" value="{{ user_obj.profile.balance }}">
-        </p>
-
-        <p>
-            <label>Уровень</label>
-            <input class="dash-input" name="steam_level" value="{{ user_obj.profile.steam_level }}">
-        </p>
-
-        <p>
-            <label>XP</label>
-            <input class="dash-input" name="xp" value="{{ user_obj.profile.xp }}">
-        </p>
-
-        <p>
-            <label>
-                <input type="checkbox" name="is_active" {% if user_obj.is_active %}checked{% endif %}>
-                Активен
-            </label>
-        </p>
-
-        <p>
-            <label>
-                <input type="checkbox" name="is_staff" {% if user_obj.is_staff %}checked{% endif %}>
-                Админ
-            </label>
-        </p>
-
-        <button class="dash-btn dash-btn-green" type="submit">Сохранить</button>
-    </form>
+<div class="flex-between">
+    <h1>
+        {{ user_obj.username }}
+        {% if user_obj.is_staff %}<span class="pill pill-purple">staff</span>{% endif %}
+        {% if not user_obj.is_active %}<span class="pill pill-red">inactive</span>{% endif %}
+    </h1>
+    <a href="{% url 'dashboard_users' %}" class="dash-btn dash-btn-ghost">← Назад</a>
 </div>
 
+<div class="two-col">
+    <div class="dash-card">
+        <h2>Профиль</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save">
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Баланс</label>
+                    <input class="dash-input" name="balance" value="{{ user_obj.profile.balance }}">
+                </div>
+                <div class="form-row">
+                    <label>Steam Points</label>
+                    <input class="dash-input" name="steam_points" value="{{ user_obj.profile.steam_points }}">
+                </div>
+                <div class="form-row">
+                    <label>Уровень</label>
+                    <input class="dash-input" name="steam_level" value="{{ user_obj.profile.steam_level }}">
+                </div>
+                <div class="form-row">
+                    <label>XP</label>
+                    <input class="dash-input" name="xp" value="{{ user_obj.profile.xp }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <label><input type="checkbox" name="is_active" {% if user_obj.is_active %}checked{% endif %}> Активен</label>
+            </div>
+            <div class="form-row">
+                <label><input type="checkbox" name="is_staff" {% if user_obj.is_staff %}checked{% endif %}> Staff / Admin</label>
+            </div>
+            <p class="muted">Email: {{ user_obj.email|default:"—" }} · ID: {{ user_obj.id }} · Регистрация: {{ user_obj.date_joined|date:"d.m.Y" }}</p>
+            <button class="dash-btn dash-btn-green" type="submit">Сохранить</button>
+        </form>
+    </div>
+
+    <div>
+        <div class="dash-card">
+            <h2>Изменить баланс</h2>
+            <form method="post" class="form-grid">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_balance">
+                <input class="dash-input" name="amount" placeholder="+1000 или -500" required>
+                <button class="dash-btn dash-btn-blue" type="submit">Применить</button>
+            </form>
+        </div>
+
+        <div class="dash-card">
+            <h2>Выдать игру</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="give_game">
+                <div class="form-row">
+                    <select class="dash-select" name="game_id" required>
+                        <option value="">— выберите игру —</option>
+                        {% for g in all_games %}<option value="{{ g.id }}">{{ g.title }}</option>{% endfor %}
+                    </select>
+                </div>
+                <button class="dash-btn dash-btn-green" type="submit">Выдать</button>
+            </form>
+        </div>
+
+        <div class="dash-card">
+            <h2>Выдать предмет</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="give_item">
+                <div class="form-row">
+                    <select class="dash-select" name="item_id" required>
+                        <option value="">— выберите предмет —</option>
+                        {% for it in all_items %}<option value="{{ it.id }}">{{ it.name }} ({{ it.game.title }})</option>{% endfor %}
+                    </select>
+                </div>
+                <button class="dash-btn dash-btn-green" type="submit">Выдать</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="two-col">
+    <div class="dash-card">
+        <h2><i class="fas fa-ban"></i> Бан / ограничения</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="ban">
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Тип</label>
+                    <select class="dash-select" name="ban_type">
+                        {% for val, label in ban_types %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Дней (пусто = навсегда)</label>
+                    <input class="dash-input" name="days" type="number" min="1" placeholder="7">
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Причина</label>
+                <textarea class="dash-textarea" name="reason" required></textarea>
+            </div>
+            <button class="dash-btn dash-btn-red" type="submit">Выдать бан</button>
+        </form>
+
+        <table class="dash-table" style="margin-top:16px">
+            <thead><tr><th>Тип</th><th>Причина</th><th>До</th><th></th></tr></thead>
+            <tbody>
+            {% for ban in bans %}
+                <tr>
+                    <td><span class="pill {% if ban.is_active %}pill-red{% else %}pill-gray{% endif %}">{{ ban.get_ban_type_display }}</span></td>
+                    <td>{{ ban.reason|truncatechars:50 }}</td>
+                    <td class="muted">{% if ban.ends_at %}{{ ban.ends_at|date:"d.m.Y" }}{% else %}∞{% endif %}</td>
+                    <td>
+                        {% if ban.is_active %}
+                        <form method="post" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="unban">
+                            <input type="hidden" name="ban_id" value="{{ ban.id }}">
+                            <button class="dash-btn dash-btn-sm dash-btn-green" type="submit">Снять</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="muted">Банов нет</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="dash-card">
+        <h2>Устройства</h2>
+        <form method="post" style="margin-bottom:12px">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="force_logout">
+            <button class="dash-btn dash-btn-orange dash-btn-sm" type="submit">Сбросить сессии</button>
+        </form>
+        <table class="dash-table">
+            <thead><tr><th>IP</th><th>Гео</th><th>Устройство</th><th>Активность</th></tr></thead>
+            <tbody>
+            {% for d in devices %}
+                <tr>
+                    <td>{{ d.ip_address }}</td>
+                    <td class="muted">{{ d.country }}, {{ d.city }}</td>
+                    <td>{{ d.device_type }} / {{ d.os }}</td>
+                    <td class="muted">{{ d.last_activity|date:"d.m H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="muted">Нет данных</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="two-col">
+    <div class="dash-card">
+        <h2>Покупки</h2>
+        {% for purchase in purchases %}
+            <div style="padding:6px 0;border-bottom:1px solid var(--border)">{{ purchase.game.title }} — {{ purchase.price_paid }} <span class="muted">{{ purchase.purchased_at|date:"d.m.Y" }}</span></div>
+        {% empty %}
+            <div class="muted">Покупок нет.</div>
+        {% endfor %}
+    </div>
+    <div class="dash-card">
+        <h2>Инвентарь</h2>
+        {% for inv in inventory_items %}
+            <div style="padding:6px 0;border-bottom:1px solid var(--border)">{{ inv.item.name }} <span class="muted">{{ inv.item.game.title }}</span></div>
+        {% empty %}
+            <div class="muted">Инвентарь пуст.</div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if tickets %}
 <div class="dash-card">
-    <h2>Покупки</h2>
-    {% for purchase in purchases %}
-        <div>{{ purchase.game.title }} — ${{ purchase.price_paid }}</div>
-    {% empty %}
-        <div>Покупок нет.</div>
+    <h2>Тикеты пользователя</h2>
+    {% for t in tickets %}
+        <div><a href="{% url 'dashboard_ticket_detail' t.id %}" style="color:var(--accent)">#{{ t.id }}</a> {{ t.subject }} <span class="pill">{{ t.get_status_display }}</span></div>
     {% endfor %}
 </div>
-
-<div class="dash-card">
-    <h2>Инвентарь</h2>
-    {% for inv in inventory_items %}
-        <div>{{ inv.item.name }} — {{ inv.item.game.title }}</div>
-    {% empty %}
-        <div>Инвентарь пуст.</div>
-    {% endfor %}
-</div>
+{% endif %}
 {% endblock %}

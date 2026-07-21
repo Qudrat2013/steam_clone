@@ -1,0 +1,50 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Жалоба #{{ report.id }}{% endblock %}
+{% block content %}
+<div class="flex-between">
+    <h1>Жалоба #{{ report.id }}</h1>
+    <a href="{% url 'dashboard_reports' %}" class="dash-btn dash-btn-ghost">← Назад</a>
+</div>
+<div class="two-col">
+    <div class="dash-card">
+        <p><strong>От:</strong> <a href="{% url 'dashboard_user_detail' report.reporter.id %}" style="color:var(--accent)">{{ report.reporter.username }}</a></p>
+        <p><strong>На:</strong> {% if report.reported_user %}<a href="{% url 'dashboard_user_detail' report.reported_user.id %}" style="color:var(--accent)">{{ report.reported_user.username }}</a>{% else %}—{% endif %}</p>
+        <p><strong>Тип:</strong> {{ report.get_target_type_display }} {% if report.target_id %}#{{ report.target_id }}{% endif %}</p>
+        <p><strong>Причина:</strong> <span class="pill pill-orange">{{ report.get_reason_display }}</span></p>
+        <p><strong>Статус:</strong> {{ report.get_status_display }}</p>
+        <p class="muted">{{ report.created_at|date:"d.m.Y H:i" }}</p>
+        <h2>Описание</h2>
+        <div style="white-space:pre-wrap;background:#1b2838;padding:12px;border-radius:8px">{{ report.description }}</div>
+    </div>
+    <div class="dash-card">
+        <h2>Действия модератора</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <label>Заметка</label>
+                <textarea class="dash-textarea" name="admin_note">{{ report.admin_note }}</textarea>
+            </div>
+            <div class="form-row">
+                <label><input type="checkbox" name="ban_user"> Забанить reported user</label>
+            </div>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Тип бана</label>
+                    <select class="dash-select" name="ban_type">
+                        {% for val, label in ban_types %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Дней</label>
+                    <input class="dash-input" name="days" type="number" placeholder="пусто = навсегда">
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+                <button class="dash-btn dash-btn-green" name="action" value="action" type="submit">Принять меры</button>
+                <button class="dash-btn dash-btn-red" name="action" value="dismiss" type="submit">Отклонить</button>
+                <button class="dash-btn dash-btn-orange" name="action" value="reviewing" type="submit">В проверку</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

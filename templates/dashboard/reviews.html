@@ -1,0 +1,31 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Отзывы{% endblock %}
+{% block content %}
+<h1>Модерация отзывов</h1>
+<div class="dash-card">
+    <form method="get"><input class="dash-input" name="q" value="{{ q }}" placeholder="Поиск по тексту / user / игре"></form>
+</div>
+<div class="dash-card">
+    <table class="dash-table">
+        <thead><tr><th>User</th><th>Игра</th><th>Оценка</th><th>Текст</th><th>Дата</th><th></th></tr></thead>
+        <tbody>
+        {% for r in reviews %}
+            <tr>
+                <td>{{ r.user.username }}</td>
+                <td>{{ r.game.title }}</td>
+                <td>{% if r.rating %}<span class="pill pill-green">👍</span>{% else %}<span class="pill pill-red">👎</span>{% endif %}</td>
+                <td>{{ r.text|truncatechars:80 }}</td>
+                <td class="muted">{{ r.created_at|date:"d.m.Y" }}</td>
+                <td>
+                    <form method="post" action="{% url 'dashboard_review_delete' r.id %}" onsubmit="return confirm('Удалить?')">{% csrf_token %}
+                        <button class="dash-btn dash-btn-sm dash-btn-red" type="submit">Del</button>
+                    </form>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="muted">Отзывов нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

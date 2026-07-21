@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Подарить {{ game.title }} — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page sp-page--narrow">
+    <div class="sp-hero sp-hero--pink">
+        <h1><i class="fas fa-gift"></i> Подарить игру</h1>
+        <p>{{ game.title }} · {{ price }} UZS</p>
+    </div>
+    <div class="sp-card">
+        {% if game.header_image %}
+            <img class="sp-card-img" src="{{ game.header_image.url }}" alt="{{ game.title }}">
+        {% endif %}
+        {% if friends %}
+        <form method="post" class="sp-form">
+            {% csrf_token %}
+            <label>Кому подарить</label>
+            <select name="receiver" required>
+                {% for f in friends %}
+                    <option value="{{ f.id }}">{{ f.username }}</option>
+                {% endfor %}
+            </select>
+            <label>Сообщение (необязательно)</label>
+            <textarea name="message" maxlength="250" rows="3" placeholder="С днём рождения!"></textarea>
+            <button type="submit" class="sp-btn sp-btn--green"><i class="fas fa-paper-plane"></i> Отправить подарок · {{ price }} UZS</button>
+        </form>
+        {% else %}
+            <div class="sp-empty">
+                <p>Добавьте друзей, чтобы дарить игры.</p>
+                <a href="{% url 'friends_list' %}" class="sp-btn sp-btn--blue">Друзья</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

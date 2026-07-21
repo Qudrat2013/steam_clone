@@ -1,0 +1,40 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Распродажи{% endblock %}
+{% block content %}
+<h1>Распродажи</h1>
+<div class="two-col">
+    <div class="dash-card">
+        <h2>Создать</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-row"><label>Название</label><input class="dash-input" name="title" placeholder="Summer Sale" required></div>
+            <div class="form-row"><label>Подзаголовок</label><input class="dash-input" name="subtitle"></div>
+            <div class="form-grid">
+                <div class="form-row"><label>Начало</label><input class="dash-input" type="datetime-local" name="starts_at" required></div>
+                <div class="form-row"><label>Конец</label><input class="dash-input" type="datetime-local" name="ends_at" required></div>
+                <div class="form-row"><label>Доп. скидка %</label><input class="dash-input" type="number" name="extra_discount" value="10" min="0" max="90"></div>
+                <div class="form-row"><label>Цвет баннера</label><input class="dash-input" type="color" name="banner_color" value="#1a9fff"></div>
+            </div>
+            <div class="form-row"><label><input type="checkbox" name="is_active" checked> Активна</label></div>
+            <button class="dash-btn dash-btn-green" type="submit">Создать</button>
+        </form>
+    </div>
+    <div class="dash-card">
+        <h2>Список</h2>
+        {% for s in sales %}
+            <div style="padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;border-left:4px solid {{ s.banner_color }}">
+                <div class="flex-between">
+                    <strong>{{ s.title }}</strong>
+                    {% if s.is_live %}<span class="pill pill-green">LIVE</span>{% elif s.is_active %}<span class="pill pill-blue">active</span>{% else %}<span class="pill pill-gray">off</span>{% endif %}
+                </div>
+                <div class="muted">{{ s.starts_at|date:"d.m.Y H:i" }} — {{ s.ends_at|date:"d.m.Y H:i" }} · +{{ s.extra_discount }}%</div>
+                <form method="post" action="{% url 'dashboard_sale_toggle' s.id %}" style="margin-top:8px">{% csrf_token %}
+                    <button class="dash-btn dash-btn-sm dash-btn-ghost" type="submit">Toggle</button>
+                </form>
+            </div>
+        {% empty %}
+            <p class="muted">Распродаж нет</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

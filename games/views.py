@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Avg
+from django.conf import settings
+import os
 from .models import Game, Category, Tag, Review
 
 
@@ -25,7 +27,6 @@ def game_list(request):
     categories = Category.objects.all()
     tags = Tag.objects.all()
 
-    # Поиск
     query = request.GET.get('q')
     if query:
         games = games.filter(
@@ -34,17 +35,14 @@ def game_list(request):
             Q(developer__icontains=query)
         )
 
-    # Фильтр по категории
     category_slug = request.GET.get('category')
     if category_slug:
         games = games.filter(category__slug=category_slug)
 
-    # Фильтр по тегу
     tag_slug = request.GET.get('tag')
     if tag_slug:
         games = games.filter(tags__slug=tag_slug)
 
-    # Фильтр по цене
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
     if price_min:
@@ -52,7 +50,6 @@ def game_list(request):
     if price_max:
         games = games.filter(price__lte=price_max)
 
-    # Сортировка
     sort = request.GET.get('sort', '-created_at')
     games = games.order_by(sort)
 
@@ -69,13 +66,11 @@ def game_detail(request, slug):
     game = get_object_or_404(Game, slug=slug, is_active=True)
     screenshots = game.screenshots.all()
     reviews = game.reviews.all().order_by('-created_at')
-    
-    # Рейтинг
+
     positive = reviews.filter(rating=True).count()
     total = reviews.count()
     rating_percent = int((positive / total) * 100) if total > 0 else 0
 
-    # Проверка: купил ли пользователь игру
     user_owns = False
     user_review = None
     if request.user.is_authenticated:
@@ -86,10 +81,14 @@ def game_detail(request, slug):
         except Review.DoesNotExist:
             pass
 
-    # Похожие игры
     similar_games = Game.objects.filter(
         category=game.category, is_active=True
     ).exclude(id=game.id)[:4]
+
+    # Абсолютный путь к exe файлу на диске — для лаунчера
+    game_file_abs_path = ""
+    if game.game_file:
+        game_file_abs_path = os.path.join(settings.MEDIA_ROOT, str(game.game_file))
 
     context = {
         'game': game,
@@ -100,6 +99,7 @@ def game_detail(request, slug):
         'user_owns': user_owns,
         'user_review': user_review,
         'similar_games': similar_games,
+        'game_file_abs_path': game_file_abs_path,  # <-- путь к exe для лаунчера
     }
     return render(request, 'games/game_detail.html', context)
 
@@ -116,9 +116,10 @@ def add_review(request, slug):
         )
         messages.success(request, 'Отзыв добавлен!')
     return redirect('game_detail', slug=slug)
+
+
 from django.http import FileResponse, Http404
 from cart.models import Purchase
-from django.contrib.auth.decorators import login_required
 
 
 @login_required

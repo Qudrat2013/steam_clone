@@ -1,0 +1,37 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Игры{% endblock %}
+{% block content %}
+<div class="flex-between">
+    <h1>Игры</h1>
+    <a href="{% url 'dashboard_game_new' %}" class="dash-btn dash-btn-green"><i class="fas fa-plus"></i> Новая игра</a>
+</div>
+<div class="dash-card">
+    <form method="get"><input class="dash-input" name="q" value="{{ q }}" placeholder="Поиск по названию / разработчику"></form>
+</div>
+<div class="dash-card">
+    <table class="dash-table">
+        <thead><tr><th>ID</th><th>Название</th><th>Цена</th><th>Скидка</th><th>Продажи</th><th>Featured</th><th>Active</th><th></th></tr></thead>
+        <tbody>
+        {% for g in games %}
+            <tr>
+                <td>{{ g.id }}</td>
+                <td><strong>{{ g.title }}</strong><div class="muted">{{ g.developer }}</div></td>
+                <td>{{ g.price }}</td>
+                <td>{% if g.discount %}-{{ g.discount }}%{% else %}—{% endif %}</td>
+                <td>{{ g.sales }}</td>
+                <td>{% if g.is_featured %}<span class="pill pill-blue">yes</span>{% else %}—{% endif %}</td>
+                <td>{% if g.is_active %}<span class="pill pill-green">on</span>{% else %}<span class="pill pill-red">off</span>{% endif %}</td>
+                <td style="display:flex;gap:4px">
+                    <a class="dash-btn dash-btn-sm dash-btn-blue" href="{% url 'dashboard_game_edit' g.id %}">Edit</a>
+                    <form method="post" action="{% url 'dashboard_game_toggle' g.id %}">{% csrf_token %}
+                        <button class="dash-btn dash-btn-sm dash-btn-ghost" type="submit">{% if g.is_active %}Off{% else %}On{% endif %}</button>
+                    </form>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="8" class="muted">Игр нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

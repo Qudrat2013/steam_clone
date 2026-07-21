@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Для вас — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero sp-hero--purple">
+        <div>
+            <h1><i class="fas fa-magic"></i> Рекомендации для вас</h1>
+            <p>На основе вашей библиотеки и популярных скидок</p>
+        </div>
+        <div class="sp-actions">
+            <a href="{% url 'discovery_queue' %}" class="sp-btn sp-btn--blue">Очередь открытий</a>
+            <a href="{% url 'random_game' %}" class="sp-btn sp-btn--ghost">Удиви меня</a>
+        </div>
+    </div>
+
+    <div class="sp-grid sp-grid--games">
+        {% for r in recs %}
+        <a class="sp-game-card" href="{{ r.game.get_absolute_url }}">
+            {% if r.game.header_image %}<img src="{{ r.game.header_image.url }}" alt="">{% else %}<div class="sp-placeholder"></div>{% endif %}
+            <div class="sp-game-card-body">
+                <b>{{ r.game.title }}</b>
+                <span class="sp-reason">{{ r.reason }}</span>
+                <div class="sp-meta-row">
+                    {% if r.game.discount %}<span class="sp-badge-sale">−{{ r.game.discount }}%</span>{% endif %}
+                    <span class="sp-price">{{ r.game.get_discounted_price }} UZS</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="sp-empty">Купите пару игр — появятся умные рекомендации</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

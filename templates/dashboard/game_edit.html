@@ -1,0 +1,42 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{% if game %}{{ game.title }}{% else %}Новая игра{% endif %}{% endblock %}
+{% block content %}
+<div class="flex-between">
+    <h1>{% if game %}Редактировать: {{ game.title }}{% else %}Новая игра{% endif %}</h1>
+    <a href="{% url 'dashboard_games' %}" class="dash-btn dash-btn-ghost">← К списку</a>
+</div>
+<div class="dash-card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div class="form-row"><label>Название *</label><input class="dash-input" name="title" value="{{ game.title|default:'' }}" required></div>
+            <div class="form-row"><label>Разработчик</label><input class="dash-input" name="developer" value="{{ game.developer|default:'' }}"></div>
+            <div class="form-row"><label>Издатель</label><input class="dash-input" name="publisher" value="{{ game.publisher|default:'' }}"></div>
+            <div class="form-row"><label>Категория</label>
+                <select class="dash-select" name="category">
+                    <option value="">—</option>
+                    {% for c in categories %}<option value="{{ c.id }}" {% if game and game.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-row"><label>Цена</label><input class="dash-input" name="price" value="{{ game.price|default:'0' }}"></div>
+            <div class="form-row"><label>Скидка %</label><input class="dash-input" name="discount" type="number" min="0" max="99" value="{{ game.discount|default:'0' }}"></div>
+        </div>
+        <div class="form-row"><label>Краткое описание</label><input class="dash-input" name="short_description" value="{{ game.short_description|default:'' }}"></div>
+        <div class="form-row"><label>Описание</label><textarea class="dash-textarea" name="description" style="min-height:160px">{{ game.description|default:'' }}</textarea></div>
+        <div class="form-grid">
+            <div class="form-row"><label>Header image{% if not game %} *{% endif %}</label><input class="dash-input" type="file" name="header_image" accept="image/*"></div>
+            <div class="form-row"><label>Background</label><input class="dash-input" type="file" name="background_image" accept="image/*"></div>
+            <div class="form-row"><label>Файл игры (.exe)</label><input class="dash-input" type="file" name="game_file"></div>
+        </div>
+        <div class="form-row">
+            <label>Теги</label>
+            <select class="dash-select" name="tags" multiple size="5">
+                {% for t in tags %}<option value="{{ t.id }}" {% if game and t in game.tags.all %}selected{% endif %}>{{ t.name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="form-row"><label><input type="checkbox" name="is_featured" {% if game.is_featured %}checked{% endif %}> Featured (на главной)</label></div>
+        <div class="form-row"><label><input type="checkbox" name="is_active" {% if not game or game.is_active %}checked{% endif %}> Активна</label></div>
+        <button class="dash-btn dash-btn-green" type="submit">Сохранить</button>
+    </form>
+</div>
+{% endblock %}

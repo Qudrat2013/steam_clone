@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Новости {{ game.title }} — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero">
+        <h1>Новости: {{ game.title }}</h1>
+        <a href="{{ game.get_absolute_url }}" class="sp-btn sp-btn--ghost">К игре</a>
+    </div>
+    <div class="sp-list">
+        {% for n in news_list %}
+        <article class="sp-news-card">
+            <div class="sp-news-meta">
+                {% if n.is_update %}<span class="sp-tag">Update</span>{% endif %}
+                <span class="sp-muted">{{ n.created_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            <h2>{{ n.title }}</h2>
+            <p>{{ n.body|linebreaks }}</p>
+        </article>
+        {% empty %}
+        <div class="sp-empty">Для этой игры новостей нет</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

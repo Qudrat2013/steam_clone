@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Удиви меня — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page sp-page--narrow">
+    <div class="sp-hero sp-hero--purple">
+        <h1><i class="fas fa-dice"></i> Удиви меня</h1>
+        <p>Случайная игра из магазина</p>
+    </div>
+    {% if game %}
+    <div class="sp-discovery-card">
+        <div class="sp-discovery-media">
+            {% if game.header_image %}<img src="{{ game.header_image.url }}" alt="">{% endif %}
+        </div>
+        <div class="sp-discovery-body">
+            <h2>{{ game.title }}</h2>
+            <p>{{ game.short_description }}</p>
+            <div class="sp-meta-row">
+                {% if game.discount %}<span class="sp-badge-sale">−{{ game.discount }}%</span>{% endif %}
+                <span class="sp-price">{{ game.get_discounted_price }} UZS</span>
+            </div>
+            <div class="sp-actions">
+                <a href="{{ game.get_absolute_url }}" class="sp-btn sp-btn--blue">Открыть</a>
+                <a href="{% url 'random_game' %}" class="sp-btn sp-btn--green"><i class="fas fa-sync"></i> Ещё раз</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'toggle_wishlist' game.id %}" class="sp-btn sp-btn--ghost"><i class="fas fa-heart"></i> Желаемое</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="sp-empty">Нет доступных игр</div>
+    {% endif %}
+</div>
+{% endblock %}

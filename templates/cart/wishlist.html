@@ -19,7 +19,7 @@
                 <a href="{{ item.game.get_absolute_url }}" class="wishlist_title">{{ item.game.title }}</a>
                 <div style="margin-top:6px;">
                     {% if item.game.discount > 0 %}
-                        <span class="discount_badge">-{{ item.game.discount }}%</span>
+                        <span class="discount_badge">{{ item.game.discount }}%</span>
                         <span class="price_original" style="margin-left:6px;">${{ item.game.price }}</span>
                         <span class="price_final" style="margin-left:6px;">${{ item.game.get_discounted_price|floatformat:2 }}</span>
                     {% elif item.game.price == 0 %}

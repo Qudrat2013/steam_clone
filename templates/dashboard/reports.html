@@ -1,0 +1,32 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Жалобы{% endblock %}
+{% block content %}
+<h1>Жалобы / Модерация</h1>
+<div class="dash-tabs">
+    {% for val, label in statuses %}
+        <a href="?status={{ val }}" class="{% if status == val %}active{% endif %}">{{ label }}</a>
+    {% endfor %}
+    <a href="?status=" class="{% if status == '' %}active{% endif %}">Все</a>
+</div>
+<div class="dash-card">
+    <table class="dash-table">
+        <thead><tr><th>#</th><th>От</th><th>На</th><th>Тип</th><th>Причина</th><th>Статус</th><th>Дата</th><th></th></tr></thead>
+        <tbody>
+        {% for r in reports %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.reporter.username }}</td>
+                <td>{% if r.reported_user %}{{ r.reported_user.username }}{% else %}—{% endif %}</td>
+                <td class="muted">{{ r.get_target_type_display }}</td>
+                <td>{{ r.get_reason_display }}</td>
+                <td><span class="pill {% if r.status == 'pending' %}pill-orange{% elif r.status == 'action_taken' %}pill-green{% else %}pill-gray{% endif %}">{{ r.get_status_display }}</span></td>
+                <td class="muted">{{ r.created_at|date:"d.m H:i" }}</td>
+                <td><a class="dash-btn dash-btn-sm dash-btn-blue" href="{% url 'dashboard_report_detail' r.id %}">Открыть</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="8" class="muted">Жалоб нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

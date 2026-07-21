@@ -12,7 +12,7 @@ class UserDeviceAdmin(admin.ModelAdmin):
     # Фильтры в правой панели
     list_filter = ('device_type', 'os', 'browser', 'country', 'city', 'last_activity')
     
-    # Запрещаем редактировать эти поля в админке, чтобы ничего не сломать
+
     readonly_fields = ('user', 'session_key', 'ip_address', 'country', 'city', 'device_type', 'browser', 'os', 'last_activity')
 
     # Красивое распределение полей внутри карточки устройства

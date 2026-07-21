@@ -1,0 +1,64 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Статистика{% endblock %}
+{% block content %}
+<h1>Аналитика</h1>
+<div class="two-col">
+    <div class="dash-card">
+        <h2>Топ игр по продажам</h2>
+        <table class="dash-table">
+            <thead><tr><th>#</th><th>Игра</th><th>Продажи</th></tr></thead>
+            <tbody>
+            {% for g in top_games %}
+                <tr><td>{{ forloop.counter }}</td><td>{{ g.title }}</td><td><strong>{{ g.sales }}</strong></td></tr>
+            {% empty %}<tr><td colspan="3" class="muted">—</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="dash-card">
+        <h2>Топ покупателей</h2>
+        <table class="dash-table">
+            <thead><tr><th>#</th><th>User</th><th>Покупок</th></tr></thead>
+            <tbody>
+            {% for u in top_users %}
+                <tr><td>{{ forloop.counter }}</td><td>{{ u.username }}</td><td><strong>{{ u.buys }}</strong></td></tr>
+            {% empty %}<tr><td colspan="3" class="muted">—</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="two-col">
+    <div class="dash-card">
+        <h2>По категориям</h2>
+        <table class="dash-table">
+            <thead><tr><th>Категория</th><th>Игр</th><th>Продаж</th></tr></thead>
+            <tbody>
+            {% for c in by_category %}
+                <tr><td>{{ c.name }}</td><td>{{ c.games }}</td><td>{{ c.sales }}</td></tr>
+            {% empty %}<tr><td colspan="3" class="muted">—</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="dash-card">
+        <h2>Тикеты по категориям</h2>
+        <table class="dash-table">
+            <thead><tr><th>Категория</th><th>Кол-во</th></tr></thead>
+            <tbody>
+            {% for t in ticket_by_cat %}
+                <tr><td>{{ t.category }}</td><td>{{ t.c }}</td></tr>
+            {% empty %}<tr><td colspan="2" class="muted">—</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="dash-card">
+    <h2>Продажи за 30 дней</h2>
+    <table class="dash-table">
+        <thead><tr><th>День</th><th>Покупок</th><th>Выручка</th></tr></thead>
+        <tbody>
+        {% for d in daily %}
+            <tr><td>{{ d.day }}</td><td>{{ d.count }}</td><td>{{ d.revenue }}</td></tr>
+        {% empty %}<tr><td colspan="3" class="muted">Нет данных</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

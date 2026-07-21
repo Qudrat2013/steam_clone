@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Распродажи — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero sp-hero--sale">
+        <h1><i class="fas fa-fire"></i> Распродажи</h1>
+        <p>Лучшие скидки прямо сейчас</p>
+    </div>
+
+    {% for s in live_sales %}
+    <div class="sp-sale-banner" style="--sale-color: {{ s.banner_color }}">
+        <h2>{{ s.title }}</h2>
+        <p>{{ s.subtitle }}</p>
+        <span class="sp-muted">До {{ s.ends_at|date:"d.m.Y H:i" }}{% if s.extra_discount %} · +{{ s.extra_discount }}% ко всем{% endif %}</span>
+    </div>
+    {% empty %}
+    <p class="sp-muted">Глобальных событий нет — но скидки на игры всё равно работают.</p>
+    {% endfor %}
+
+    {% if upcoming %}
+    <h2 class="sp-section-title">Скоро</h2>
+    {% for s in upcoming %}
+        <div class="sp-list-item"><b>{{ s.title }}</b> <span class="sp-muted">с {{ s.starts_at|date:"d.m.Y" }}</span></div>
+    {% endfor %}
+    {% endif %}
+
+    <h2 class="sp-section-title">Горячие скидки</h2>
+    <div class="sp-grid sp-grid--games">
+        {% for g in deals %}
+        <a class="sp-game-card" href="{{ g.get_absolute_url }}">
+            {% if g.header_image %}<img src="{{ g.header_image.url }}" alt="">{% endif %}
+            <div class="sp-game-card-body">
+                <b>{{ g.title }}</b>
+                <div class="sp-meta-row">
+                    <span class="sp-badge-sale">−{{ g.discount }}%</span>
+                    <span class="sp-price">{{ g.get_discounted_price }} UZS</span>
+                    <span class="sp-price-old">{{ g.price }}</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="sp-empty">Сейчас нет игр со скидкой</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

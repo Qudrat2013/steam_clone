@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import login_api, library_api
+from . import views
 
 urlpatterns = [
-    path('login/', login_api, name='launcher_login_api'),
-    path('library/', library_api, name='launcher_library_api'),
+    # Теперь страница будет доступна по пути: http://127.0.0.1:8000/launcher-api/game/
+    path('game/', views.launcher_game_page, name='launcher_game'),
 ]

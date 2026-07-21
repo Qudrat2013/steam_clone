@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Моя статистика — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero sp-hero--blue">
+        <h1><i class="fas fa-chart-bar"></i> Моя статистика</h1>
+        <p>Уровень {{ level }} · {{ points }} очков · серия daily {{ streak }}</p>
+    </div>
+
+    <div class="sp-stats-grid">
+        <div class="sp-stat"><div class="sp-stat-n">{{ total_hours }}</div><div class="sp-stat-l">часов в играх</div></div>
+        <div class="sp-stat"><div class="sp-stat-n">{{ total_sessions }}</div><div class="sp-stat-l">сессий</div></div>
+        <div class="sp-stat"><div class="sp-stat-n">{{ library_count }}</div><div class="sp-stat-l">игр в библиотеке</div></div>
+        <div class="sp-stat"><div class="sp-stat-n">{{ achievements }}</div><div class="sp-stat-l">достижений</div></div>
+        <div class="sp-stat"><div class="sp-stat-n">{{ friends_count }}</div><div class="sp-stat-l">друзей</div></div>
+        <div class="sp-stat"><div class="sp-stat-n">{{ review_count }}</div><div class="sp-stat-l">отзывов</div></div>
+        <div class="sp-stat"><div class="sp-stat-n">{{ wishlist_count }}</div><div class="sp-stat-l">в желаемом</div></div>
+        <div class="sp-stat"><div class="sp-stat-n">{{ gifts_sent }}/{{ gifts_recv }}</div><div class="sp-stat-l">подарки out/in</div></div>
+    </div>
+
+    <h2 class="sp-section-title">Топ игр по времени</h2>
+    <div class="sp-list">
+        {% for pt in top_games %}
+        <div class="sp-list-item">
+            <span class="sp-rank">#{{ forloop.counter }}</span>
+            <a href="{{ pt.game.get_absolute_url }}"><b>{{ pt.game.title }}</b></a>
+            <span>{{ pt.hours_display }}</span>
+        </div>
+        {% empty %}
+        <div class="sp-empty">Сыграйте хотя бы одну игру из библиотеки</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

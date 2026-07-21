@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Подарки — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero sp-hero--pink">
+        <h1><i class="fas fa-gifts"></i> Подарки</h1>
+        <p>Входящие и отправленные</p>
+    </div>
+
+    <h2 class="sp-section-title">Входящие</h2>
+    <div class="sp-list">
+        {% for g in incoming %}
+        <div class="sp-list-item">
+            <div>
+                <b>{{ g.game.title }}</b> от <a href="{% url 'profile' g.sender.username %}">{{ g.sender.username }}</a>
+                <div class="sp-muted">{{ g.created_at|date:"d.m.Y H:i" }} · {{ g.get_status_display }}</div>
+                {% if g.message %}<div class="sp-quote">«{{ g.message }}»</div>{% endif %}
+            </div>
+            {% if g.status == 'pending' %}
+            <div class="sp-actions">
+                <form method="post" action="{% url 'gift_respond' g.id %}">{% csrf_token %}
+                    <input type="hidden" name="action" value="accept">
+                    <button class="sp-btn sp-btn--green" type="submit">Принять</button>
+                </form>
+                <form method="post" action="{% url 'gift_respond' g.id %}">{% csrf_token %}
+                    <input type="hidden" name="action" value="decline">
+                    <button class="sp-btn sp-btn--ghost" type="submit">Отклонить</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="sp-muted">Нет входящих подарков</div>
+        {% endfor %}
+    </div>
+
+    <h2 class="sp-section-title">Отправленные</h2>
+    <div class="sp-list">
+        {% for g in outgoing %}
+        <div class="sp-list-item">
+            <div>
+                <b>{{ g.game.title }}</b> → <a href="{% url 'profile' g.receiver.username %}">{{ g.receiver.username }}</a>
+                <div class="sp-muted">{{ g.get_status_display }} · {{ g.price_paid }} UZS</div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="sp-muted">Вы ещё никому не дарили игры</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

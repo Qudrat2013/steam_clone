@@ -1,0 +1,43 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Возвраты{% endblock %}
+{% block content %}
+<h1>Запросы на возврат</h1>
+<div class="dash-tabs">
+    <a href="?status=pending" class="{% if status == 'pending' %}active{% endif %}">Ожидают</a>
+    <a href="?status=approved" class="{% if status == 'approved' %}active{% endif %}">Одобрены</a>
+    <a href="?status=declined" class="{% if status == 'declined' %}active{% endif %}">Отклонены</a>
+    <a href="?status=" class="{% if status == '' %}active{% endif %}">Все</a>
+</div>
+<div class="dash-card">
+    <table class="dash-table">
+        <thead><tr><th>#</th><th>User</th><th>Игра</th><th>Сумма</th><th>Причина</th><th>Статус</th><th>Дата</th><th></th></tr></thead>
+        <tbody>
+        {% for r in refunds %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td><a href="{% url 'dashboard_user_detail' r.user.id %}" style="color:var(--accent)">{{ r.user.username }}</a></td>
+                <td>{% if r.purchase %}{{ r.purchase.game.title }}{% else %}{{ r.game_title }}{% endif %}</td>
+                <td>{% if r.amount %}{{ r.amount }}{% elif r.purchase %}{{ r.purchase.price_paid }}{% else %}—{% endif %}</td>
+                <td>{{ r.reason|truncatechars:50 }}</td>
+                <td><span class="pill {% if r.status == 'pending' %}pill-orange{% elif r.status == 'approved' %}pill-green{% else %}pill-red{% endif %}">{{ r.get_status_display }}</span></td>
+                <td class="muted">{{ r.created_at|date:"d.m H:i" }}</td>
+                <td>
+                    {% if r.status == 'pending' %}
+                    <form method="post" action="{% url 'dashboard_refund_action' r.id %}" style="display:flex;gap:4px;flex-wrap:wrap">
+                        {% csrf_token %}
+                        <input class="dash-input" name="admin_note" placeholder="заметка" style="width:120px;padding:5px">
+                        <button class="dash-btn dash-btn-sm dash-btn-green" name="action" value="approve">✓</button>
+                        <button class="dash-btn dash-btn-sm dash-btn-red" name="action" value="decline">✗</button>
+                    </form>
+                    {% else %}
+                        <span class="muted">{% if r.handled_by %}{{ r.handled_by.username }}{% endif %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="8" class="muted">Заявок нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

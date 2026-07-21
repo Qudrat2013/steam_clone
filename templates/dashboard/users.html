@@ -2,11 +2,23 @@
 {% block title %}Пользователи{% endblock %}
 
 {% block content %}
-<h1>Пользователи</h1>
+<div class="flex-between">
+    <h1>Пользователи</h1>
+</div>
 
 <div class="dash-card">
-    <form method="get">
-        <input class="dash-input" type="text" name="q" value="{{ query }}" placeholder="Поиск по username">
+    <form method="get" class="form-grid">
+        <div class="form-row">
+            <input class="dash-input" type="text" name="q" value="{{ query }}" placeholder="Поиск: username, email, ID">
+        </div>
+        <div class="form-row">
+            <select class="dash-select" name="filter" onchange="this.form.submit()">
+                <option value="">Все</option>
+                <option value="staff" {% if filter_by == 'staff' %}selected{% endif %}>Staff</option>
+                <option value="inactive" {% if filter_by == 'inactive' %}selected{% endif %}>Неактивные</option>
+                <option value="banned" {% if filter_by == 'banned' %}selected{% endif %}>Забаненные</option>
+            </select>
+        </div>
     </form>
 </div>
 
@@ -16,10 +28,11 @@
         <tr>
             <th>ID</th>
             <th>Username</th>
+            <th>Email</th>
             <th>Баланс</th>
             <th>Уровень</th>
-            <th>Staff</th>
-            <th>Активен</th>
+            <th>Роль</th>
+            <th>Статус</th>
             <th></th>
         </tr>
         </thead>
@@ -27,19 +40,18 @@
         {% for user_obj in users %}
             <tr>
                 <td>{{ user_obj.id }}</td>
-                <td>{{ user_obj.username }}</td>
-                <td>${{ user_obj.profile.balance }}</td>
+                <td><strong>{{ user_obj.username }}</strong></td>
+                <td class="muted">{{ user_obj.email|default:"—" }}</td>
+                <td>{{ user_obj.profile.balance }}</td>
                 <td>{{ user_obj.profile.steam_level }}</td>
-                <td>{{ user_obj.is_staff }}</td>
-                <td>{{ user_obj.is_active }}</td>
+                <td>{% if user_obj.is_staff %}<span class="pill pill-purple">staff</span>{% else %}<span class="pill">user</span>{% endif %}</td>
+                <td>{% if user_obj.is_active %}<span class="pill pill-green">active</span>{% else %}<span class="pill pill-red">banned</span>{% endif %}</td>
                 <td>
-                    <a href="{% url 'dashboard_user_detail' user_obj.id %}" class="dash-btn dash-btn-blue">Открыть</a>
+                    <a href="{% url 'dashboard_user_detail' user_obj.id %}" class="dash-btn dash-btn-blue dash-btn-sm">Открыть</a>
                 </td>
             </tr>
         {% empty %}
-            <tr>
-                <td colspan="7">Пользователей нет.</td>
-            </tr>
+            <tr><td colspan="8" class="muted">Пользователей нет.</td></tr>
         {% endfor %}
         </tbody>
     </table>

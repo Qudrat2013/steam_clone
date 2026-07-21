@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Новое обращение{% endblock %}
+{% block content %}
+<div class="sp-page" style="max-width:640px;margin:0 auto;padding:24px 16px 60px">
+  <a href="{% url 'support_home' %}" style="color:#67c1f5;text-decoration:none">← Поддержка</a>
+  <h1 style="color:#fff">Создать обращение</h1>
+  <form method="post" style="background:#16202d;border:1px solid #2a475e;border-radius:8px;padding:24px">
+    {% csrf_token %}
+    <div style="margin-bottom:14px">
+      <label style="display:block;color:#8f98a0;font-size:12px;margin-bottom:4px">Категория</label>
+      <select name="category" style="width:100%;padding:10px;background:#1b2838;border:1px solid #2a475e;border-radius:6px;color:#fff">
+        {% for val, label in categories %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+      </select>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;color:#8f98a0;font-size:12px;margin-bottom:4px">Тема</label>
+      <input name="subject" required maxlength="200" style="width:100%;padding:10px;background:#1b2838;border:1px solid #2a475e;border-radius:6px;color:#fff;box-sizing:border-box" placeholder="Кратко опишите проблему">
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;color:#8f98a0;font-size:12px;margin-bottom:4px">Игра (если применимо)</label>
+      <select name="game_id" style="width:100%;padding:10px;background:#1b2838;border:1px solid #2a475e;border-radius:6px;color:#fff">
+        <option value="">— не выбрано —</option>
+        {% for g in games %}<option value="{{ g.id }}">{{ g.title }}</option>{% endfor %}
+      </select>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;color:#8f98a0;font-size:12px;margin-bottom:4px">Описание</label>
+      <textarea name="body" required rows="8" style="width:100%;padding:10px;background:#1b2838;border:1px solid #2a475e;border-radius:6px;color:#fff;box-sizing:border-box;font-family:inherit" placeholder="Подробно расскажите, что произошло…"></textarea>
+    </div>
+    <button type="submit" style="background:#1a9fff;color:#fff;border:none;padding:12px 24px;border-radius:4px;font-weight:700;cursor:pointer">Отправить</button>
+  </form>
+</div>
+{% endblock %}

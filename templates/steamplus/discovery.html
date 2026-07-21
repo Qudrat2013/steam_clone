@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Очередь открытий — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero sp-hero--purple">
+        <div>
+            <h1><i class="fas fa-compass"></i> Очередь открытий</h1>
+            <p>Игры, подобранные под вас. Осталось в очереди: <b>{{ remaining }}</b></p>
+        </div>
+        <a href="{% url 'recommendations' %}" class="sp-btn sp-btn--ghost">Для вас</a>
+    </div>
+
+    {% if game %}
+    <div class="sp-discovery-card">
+        <div class="sp-discovery-media">
+            {% if game.header_image %}
+                <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
+            {% else %}
+                <div class="sp-placeholder"><i class="fas fa-gamepad"></i></div>
+            {% endif %}
+            {% if game.discount %}<span class="sp-badge-sale">−{{ game.discount }}%</span>{% endif %}
+        </div>
+        <div class="sp-discovery-body">
+            <h2>{{ game.title }}</h2>
+            <p class="sp-muted">{{ game.developer }} · {{ game.publisher }}</p>
+            <p>{{ game.short_description }}</p>
+            <div class="sp-meta-row">
+                <span class="sp-price">{{ game.get_discounted_price }} UZS</span>
+                {% if total_reviews %}
+                    <span class="sp-rating {% if rating_percent >= 70 %}is-good{% else %}is-mixed{% endif %}">
+                        {{ rating_percent }}% положительных ({{ total_reviews }})
+                    </span>
+                {% endif %}
+            </div>
+            <div class="sp-actions">
+                <form method="post" action="{% url 'discovery_action' game.id %}">{% csrf_token %}
+                    <input type="hidden" name="action" value="interested">
+                    <button class="sp-btn sp-btn--blue" type="submit"><i class="fas fa-thumbs-up"></i> Интересно</button>
+                </form>
+                <form method="post" action="{% url 'discovery_action' game.id %}">{% csrf_token %}
+                    <input type="hidden" name="action" value="wishlist">
+                    <button class="sp-btn sp-btn--green" type="submit"><i class="fas fa-heart"></i> В желаемое</button>
+                </form>
+                <form method="post" action="{% url 'discovery_action' game.id %}">{% csrf_token %}
+                    <input type="hidden" name="action" value="skip">
+                    <button class="sp-btn sp-btn--ghost" type="submit"><i class="fas fa-times"></i> Не интересно</button>
+                </form>
+                <a class="sp-btn sp-btn--ghost" href="{{ game.get_absolute_url }}">Страница игры</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="sp-empty">
+        <i class="fas fa-check-circle"></i>
+        <h2>Очередь пуста</h2>
+        <p>Вы просмотрели все рекомендации. Загляните позже или откройте раздел «Для вас».</p>
+        <a href="{% url 'recommendations' %}" class="sp-btn sp-btn--blue">Рекомендации</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

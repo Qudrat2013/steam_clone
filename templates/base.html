@@ -5,205 +5,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Steam{% endblock %}</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Motiva+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
     <link rel="stylesheet" href="{% static 'css/steam.css' %}">
+    <link rel="stylesheet" href="{% static 'css/steam-pro.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="steam-body">
 
-<div id="global_header" class="steam_header_v3">
-    <div class="header_inner steam_header_inner_v3">
+{# ===== GLOBAL HEADER (как у Steam) ===== #}
+<header id="global_header" class="steam-gh">
+    <div class="steam-gh__inner">
+        <a href="{% url 'home' %}" class="steam-gh__logo" aria-label="STEAM">
+            <svg class="steam-gh__logo-svg" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="30" r="22" fill="#1b2838" stroke="#c7d5e0" stroke-width="2.5"/>
+                <circle cx="30" cy="30" r="8" fill="#c7d5e0"/>
+                <circle cx="48" cy="18" r="7" fill="#c7d5e0"/>
+                <path d="M36 24 L48 18" stroke="#c7d5e0" stroke-width="4" stroke-linecap="round"/>
+                <text x="64" y="38" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900" fill="#c7d5e0" letter-spacing="2">STEAM</text>
+            </svg>
+        </a>
 
-        <div class="header_logo">
-            <a href="{% url 'home' %}" class="steam_logo_text">STEAM</a>
-        </div>
-
-        <div class="header_links steam_nav_v3">
-            <a href="{% url 'home' %}" class="nav_link">МАГАЗИН</a>
-
+        <nav class="steam-gh__nav">
+            <a href="{% url 'home' %}" class="steam-gh__link">МАГАЗИН</a>
             {% if user.is_authenticated %}
-                <a href="{% url 'library' %}" class="nav_link">БИБЛИОТЕКА</a>
-
-                <div class="nav_dropdown">
-                    <span class="nav_link">
-                        СООБЩЕСТВО <i class="fas fa-caret-down"></i>
-                    </span>
-
-                    <div class="nav_dropdown_menu">
+                <a href="{% url 'library' %}" class="steam-gh__link">БИБЛИОТЕКА</a>
+                <div class="steam-gh__dd">
+                    <button type="button" class="steam-gh__link steam-gh__dd-btn">СООБЩЕСТВО <i class="fas fa-caret-down"></i></button>
+                    <div class="steam-gh__dd-menu">
                         <a href="{% url 'friends_list' %}"><i class="fas fa-user-friends"></i> Друзья</a>
-                        <a href="{% url 'chat_list' %}"><i class="fas fa-comments"></i> Сообщения {% if unread_message_count > 0 %}({{ unread_message_count }}){% endif %}</a>
-                        <a href="{% url 'trade_list' %}"><i class="fas fa-exchange-alt"></i> Обмены {% if pending_trade_count > 0 %}({{ pending_trade_count }}){% endif %}</a>
+                        <a href="{% url 'chat_list' %}"><i class="fas fa-comments"></i> Сообщения{% if unread_message_count %} ({{ unread_message_count }}){% endif %}</a>
+                        <a href="{% url 'trade_list' %}"><i class="fas fa-exchange-alt"></i> Обмены{% if pending_trade_count %} ({{ pending_trade_count }}){% endif %}</a>
                         <a href="{% url 'inventory' %}"><i class="fas fa-box-open"></i> Инвентарь</a>
                         <a href="{% url 'groups:list' %}"><i class="fas fa-users"></i> Группы</a>
-                        <a href="#">Маркет</a>
+                        <a href="{% url 'market_list' %}"><i class="fas fa-store"></i> Маркет</a>
+                        <a href="{% url 'activity_feed' %}"><i class="fas fa-stream"></i> Лента</a>
+                        <a href="{% url 'discovery_queue' %}"><i class="fas fa-compass"></i> Очередь открытий</a>
+                        <a href="{% url 'leaderboard' %}"><i class="fas fa-trophy"></i> Лидерборд</a>
                     </div>
                 </div>
+                <a href="{% url 'support_home' %}" class="steam-gh__link">ПОДДЕРЖКА</a>
             {% else %}
-                <div class="nav_dropdown">
-                    <span class="nav_link">
-                        СООБЩЕСТВО <i class="fas fa-caret-down"></i>
-                    </span>
-                    <div class="nav_dropdown_menu">
-                        <a href="{% url 'groups:list' %}"><i class="fas fa-users"></i> Группы</a>
-                    </div>
-                </div>
-                <a href="#" class="nav_link">О САЙТЕ</a>
-                <a href="#" class="nav_link">ПОДДЕРЖКА</a>
+                <a href="{% url 'groups:list' %}" class="steam-gh__link">СООБЩЕСТВО</a>
+                <a href="{% url 'support_home' %}" class="steam-gh__link">ПОДДЕРЖКА</a>
             {% endif %}
-        </div>
+        </nav>
 
-        <div class="header_account">
+        <div class="steam-gh__account">
             {% if user.is_authenticated %}
-                <div class="user_menu">
-                    <span class="username_link">
-                        {{ user.username }}
-                        {% if unread_notification_count > 0 %}
-                            <span class="mini_count">{{ unread_notification_count }}</span>
-                        {% endif %}
+                <a href="{% url 'wallet:deposit' %}" class="steam-gh__wallet" title="Кошелёк">
+                    <i class="fas fa-wallet"></i>
+                    <span>{{ request.user.profile.balance }} UZS</span>
+                </a>
+                <div class="steam-gh__dd steam-gh__user">
+                    <button type="button" class="steam-gh__user-btn">
+                        <span class="steam-gh__avatar">{{ user.username|first|upper }}</span>
+                        <span class="steam-gh__uname">{{ user.username }}</span>
+                        {% if unread_notification_count %}<span class="steam-gh__badge">{{ unread_notification_count }}</span>{% endif %}
                         <i class="fas fa-caret-down"></i>
-                    </span>
-
-                    <div class="user_dropdown">
+                    </button>
+                    <div class="steam-gh__dd-menu steam-gh__dd-menu--right">
                         <a href="{% url 'profile' user.username %}"><i class="fas fa-user"></i> Профиль</a>
                         <a href="{% url 'library' %}"><i class="fas fa-gamepad"></i> Библиотека</a>
                         <a href="{% url 'wishlist' %}"><i class="fas fa-heart"></i> Желаемое</a>
                         <a href="{% url 'inventory' %}"><i class="fas fa-box-open"></i> Инвентарь</a>
-                        <a href="{% url 'groups:list' %}"><i class="fas fa-users"></i> Группы</a>
-                        <a href="#">Маркет</a>
-
-                        <a href="{% url 'wallet:deposit' %}"><i class="fas fa-wallet"></i> Баланс: {{ request.user.profile.balance }} UZS</a>
-
-                        <a href="{% url 'notification_list' %}"><i class="fas fa-bell"></i> Уведомления {% if unread_notification_count > 0 %}({{ unread_notification_count }}){% endif %}</a>
-
+                        <a href="{% url 'wallet:deposit' %}"><i class="fas fa-wallet"></i> Баланс</a>
+                        <a href="{% url 'points_shop' %}"><i class="fas fa-coins"></i> Points Shop ({{ user_steam_points }})</a>
+                        <a href="{% url 'daily_bonus' %}"><i class="fas fa-calendar-check"></i> Daily bonus</a>
+                        <a href="{% url 'gifts_inbox' %}"><i class="fas fa-gift"></i> Подарки{% if pending_gifts_count %} ({{ pending_gifts_count }}){% endif %}</a>
+                        <a href="{% url 'stats_dashboard' %}"><i class="fas fa-chart-bar"></i> Статистика</a>
+                        <a href="{% url 'notification_list' %}"><i class="fas fa-bell"></i> Уведомления{% if unread_notification_count %} ({{ unread_notification_count }}){% endif %}</a>
+                        <a href="{% url 'support_home' %}"><i class="fas fa-life-ring"></i> Поддержка</a>
+                        <a href="{% url 'support_tickets' %}"><i class="fas fa-ticket-alt"></i> Мои тикеты</a>
+                        <a href="{% url 'support_redeem' %}"><i class="fas fa-ticket"></i> Промокод</a>
                         {% if user.is_staff %}
-                            <a href="{% url 'dashboard_home' %}"><i class="fas fa-tools"></i> Dashboard</a>
+                            <a href="{% url 'dashboard_home' %}"><i class="fas fa-tools"></i> Admin Dashboard</a>
                         {% endif %}
-
-                        <div class="dropdown_divider"></div>
+                        <div class="steam-gh__dd-div"></div>
                         <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Выйти</a>
                     </div>
                 </div>
-
-                <a href="{% url 'cart' %}" class="cart_link">
+                <a href="{% url 'cart' %}" class="steam-gh__cart" title="Корзина">
                     <i class="fas fa-shopping-cart"></i>
-                    {% if cart_count > 0 %}
-                        <span class="cart_badge">{{ cart_count }}</span>
-                    {% endif %}
+                    {% if cart_count %}<span class="steam-gh__cart-n">{{ cart_count }}</span>{% endif %}
                 </a>
             {% else %}
-                <a href="{% url 'login' %}" class="btn_login">Войти</a>
-                <a href="{% url 'register' %}" class="btn_register">Регистрация</a>
+                <a href="{% url 'login' %}" class="steam-gh__login">войти</a>
+                <span class="steam-gh__sep">|</span>
+                <a href="{% url 'register' %}" class="steam-gh__register">регистрация</a>
             {% endif %}
         </div>
     </div>
+</header>
 
-    <div class="supernav_container steam_supernav_v3">
-        <div class="supernav">
-            <a href="{% url 'home' %}" class="tab {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Главная</a>
-            <a href="{% url 'game_list' %}" class="tab {% if request.resolver_match.url_name == 'game_list' %}active{% endif %}">Новинки и рекомендации</a>
-
+{# ===== STORE NAV ===== #}
+<div class="steam-store-nav-wrap">
+    <div class="steam-store-nav">
+        <div class="steam-store-nav__tabs">
+            <a href="{% url 'home' %}" class="steam-store-nav__tab {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">Ваш магазин</a>
+            <a href="{% url 'game_list' %}" class="steam-store-nav__tab {% if request.resolver_match.url_name == 'game_list' %}is-active{% endif %}">Новинки</a>
+            <a href="{% url 'sales_hub' %}" class="steam-store-nav__tab {% if request.resolver_match.url_name == 'sales_hub' %}is-active{% endif %}">Скидки</a>
+            <a href="{% url 'news_list' %}" class="steam-store-nav__tab {% if request.resolver_match.url_name == 'news_list' %}is-active{% endif %}">Новости</a>
+            <a href="{% url 'random_game' %}" class="steam-store-nav__tab {% if request.resolver_match.url_name == 'random_game' %}is-active{% endif %}">🎲 Random</a>
             {% if user.is_authenticated %}
-                <a href="{% url 'wishlist' %}" class="tab">Желаемое</a>
-                <a href="{% url 'cart' %}" class="tab">Корзина</a>
-                <a href="{% url 'groups:list' %}" class="tab {% if 'groups' in request.resolver_match.namespace %}active{% endif %}">Группы</a>
-                <a href="{% url 'wallet:deposit' %}" class="tab {% if request.resolver_match.url_name == 'deposit' %}active{% endif %}">Баланс: {{ request.user.profile.balance }} UZS</a>
+                <a href="{% url 'recommendations' %}" class="steam-store-nav__tab {% if request.resolver_match.url_name == 'recommendations' %}is-active{% endif %}">Для вас</a>
+                <a href="{% url 'wishlist' %}" class="steam-store-nav__tab {% if request.resolver_match.url_name == 'wishlist' %}is-active{% endif %}">Желаемое</a>
+                <a href="{% url 'cart' %}" class="steam-store-nav__tab {% if request.resolver_match.url_name == 'cart' %}is-active{% endif %}">Корзина{% if cart_count %} ({{ cart_count }}){% endif %}</a>
             {% endif %}
         </div>
-
-        <div class="searchbar">
-            <form action="{% url 'game_list' %}" method="get">
-                <input type="text" name="q" placeholder="Поиск в магазине" value="{{ request.GET.q }}">
-                <button type="submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
+        <form class="steam-search" action="{% url 'game_list' %}" method="get" id="steam-search-form">
+            <input type="text" name="q" id="steam-search-input" placeholder="поиск в магазине" value="{{ request.GET.q }}" autocomplete="off">
+            <button type="submit" aria-label="Поиск"><i class="fas fa-search"></i></button>
+            <div id="steam-search-suggest" class="steam-search-suggest" hidden></div>
+        </form>
     </div>
 </div>
 
+{% if active_sale %}
+<div class="steam-toast steam-toast--sale" style="background: {{ active_sale.banner_color }};">
+    🔥 {{ active_sale.title }}{% if active_sale.subtitle %} — {{ active_sale.subtitle }}{% endif %}
+    · до {{ active_sale.ends_at|date:"d.m.Y" }}
+    <a href="{% url 'sales_hub' %}">Смотреть</a>
+</div>
+{% endif %}
+{% if user.is_authenticated and pending_gifts_count > 0 %}
+<div class="steam-toast steam-toast--green">
+    Вам {{ pending_gifts_count }} подарок{% if pending_gifts_count != 1 %}а{% endif %}!
+    <a href="{% url 'gifts_inbox' %}">Открыть</a>
+</div>
+{% endif %}
 {% if user.is_authenticated and unread_notification_count > 0 %}
-<div class="steam_notice steam_notice_blue">
+<div class="steam-toast steam-toast--blue">
     У вас {{ unread_notification_count }} нов{% if unread_notification_count == 1 %}ое уведомление{% else %}ых уведомлений{% endif %}.
     <a href="{% url 'notification_list' %}">Открыть</a>
 </div>
 {% endif %}
-
 {% if user.is_authenticated and pending_trade_count > 0 %}
-<div class="steam_notice steam_notice_blue">
+<div class="steam-toast steam-toast--blue">
     У вас {{ pending_trade_count }} нов{% if pending_trade_count == 1 %}ое предложение обмена{% else %}ых предложений обмена{% endif %}.
     <a href="{% url 'trade_list' %}">Открыть</a>
 </div>
 {% endif %}
-
 {% if user.is_authenticated and unread_message_count > 0 %}
-<div class="steam_notice steam_notice_green">
+<div class="steam-toast steam-toast--green">
     У вас {{ unread_message_count }} нов{% if unread_message_count == 1 %}ое сообщение{% else %}ых сообщений{% endif %}.
     <a href="{% url 'chat_list' %}">Открыть чат</a>
 </div>
 {% endif %}
 
 {% if messages %}
-<div class="messages_container">
+<div class="messages_container steam-messages">
     {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
             {{ message }}
-            <button class="close_alert">×</button>
+            <button class="close_alert" type="button">×</button>
         </div>
     {% endfor %}
 </div>
 {% endif %}
 
-<div id="page_root">
+<main id="page_root" class="steam-page">
     {% block content %}{% endblock %}
-</div>
+</main>
 
-<div id="footer_spacer"></div>
-
-<div id="footer" class="steam_footer_v3">
-    <div class="footer_inner">
-        <div class="footer_logo steam_footer_logo">STEAM</div>
-
-        <div class="footer_links_wrap">
-            <div class="footer_col">
-                <div class="footer_title">Платформа</div>
-                <a href="{% url 'home' %}">Магазин</a>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'library' %}">Библиотека</a>
-                    <a href="{% url 'inventory' %}">Инвентарь</a>
+<footer id="footer" class="steam-footer">
+    <div class="steam-footer__inner">
+        <div class="steam-footer__rule"></div>
+        <div class="steam-footer__top">
+            <div class="steam-footer__brand">
+                <span class="steam-footer__logo">STEAM</span>
+                <p>Учебный клон Steam Store. Дизайн вдохновлён store.steampowered.com</p>
+            </div>
+            <div class="steam-footer__cols">
+                <div class="steam-footer__col">
+                    <div class="steam-footer__h">Платформа</div>
+                    <a href="{% url 'home' %}">Магазин</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'library' %}">Библиотека</a>
+                        <a href="{% url 'inventory' %}">Инвентарь</a>
+                        <a href="{% url 'market_list' %}">Маркет</a>
+                    {% endif %}
+                </div>
+                <div class="steam-footer__col">
+                    <div class="steam-footer__h">Аккаунт</div>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' user.username %}">Профиль</a>
+                        <a href="{% url 'wallet:deposit' %}">Кошелёк</a>
+                        <a href="{% url 'notification_list' %}">Уведомления</a>
+                    {% else %}
+                        <a href="{% url 'login' %}">Вход</a>
+                        <a href="{% url 'register' %}">Регистрация</a>
+                    {% endif %}
+                </div>
+                <div class="steam-footer__col">
+                    <div class="steam-footer__h">Сообщество</div>
                     <a href="{% url 'groups:list' %}">Группы</a>
-                    <a href="#">Маркет</a>
-                {% endif %}
-            </div>
-
-            <div class="footer_col">
-                <div class="footer_title">Аккаунт</div>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'profile' user.username %}">Профиль</a>
-                    <a href="{% url 'wallet:deposit' %}">Баланс</a>
-                    <a href="{% url 'notification_list' %}">Уведомления</a>
-                {% else %}
-                    <a href="{% url 'login' %}">Вход</a>
-                    <a href="{% url 'register' %}">Регистрация</a>
-                {% endif %}
-            </div>
-
-            <div class="footer_col">
-                <div class="footer_title">Сообщество</div>
-                <a href="{% url 'groups:list' %}">Группы</a>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'friends_list' %}">Друзья</a>
-                    <a href="{% url 'chat_list' %}">Сообщения</a>
-                {% endif %}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'friends_list' %}">Друзья</a>
+                        <a href="{% url 'chat_list' %}">Сообщения</a>
+                    {% endif %}
+                    <a href="/swagger/">API / Swagger</a>
+                </div>
             </div>
         </div>
-
-        <div class="footer_copy">
-            Игровая платформа для учебного проекта. Все изображения, игры и материалы принадлежат их владельцам.
+        <div class="steam-footer__copy">
+            © Steam Clone · Все торговые марки принадлежат их владельцам. Это не официальный продукт Valve.
         </div>
     </div>
-</div>
+</footer>
 
 <script src="{% static 'js/steam.js' %}"></script>
 {% block extra_js %}{% endblock %}

@@ -108,7 +108,7 @@
 
                 <div class="steam_store_row_price">
                     {% if game.discount > 0 %}
-                        <span class="discount_badge">-{{ game.discount }}%</span>
+                        <span class="discount_badge">{{ game.discount }}%</span>
                         <div>
                             <div class="price_original">${{ game.price }}</div>
                             <div class="price_final">${{ game.get_discounted_price|floatformat:2 }}</div>

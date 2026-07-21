@@ -1,35 +1,35 @@
 {% extends 'dashboard/base_dashboard.html' %}
 {% block title %}Маркет{% endblock %}
-
 {% block content %}
-<h1>Маркет</h1>
-
+<h1>Торговая площадка</h1>
+<div class="dash-tabs">
+    <a href="?" class="{% if not status %}active{% endif %}">Все</a>
+    <a href="?status=active" class="{% if status == 'active' %}active{% endif %}">Активные</a>
+    <a href="?status=sold" class="{% if status == 'sold' %}active{% endif %}">Проданы</a>
+    <a href="?status=cancelled" class="{% if status == 'cancelled' %}active{% endif %}">Отменены</a>
+</div>
 <div class="dash-card">
     <table class="dash-table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Предмет</th>
-            <th>Продавец</th>
-            <th>Покупатель</th>
-            <th>Цена</th>
-            <th>Статус</th>
-        </tr>
-        </thead>
+        <thead><tr><th>#</th><th>Предмет</th><th>Продавец</th><th>Цена</th><th>Статус</th><th>Дата</th><th></th></tr></thead>
         <tbody>
-        {% for listing in listings %}
+        {% for l in listings %}
             <tr>
-                <td>{{ listing.id }}</td>
-                <td>{{ listing.inventory_item.item.name }}</td>
-                <td>{{ listing.seller.username }}</td>
-                <td>{% if listing.buyer %}{{ listing.buyer.username }}{% else %}—{% endif %}</td>
-                <td>${{ listing.price }}</td>
-                <td>{{ listing.get_status_display }}</td>
+                <td>{{ l.id }}</td>
+                <td>{% if l.inventory_item %}{{ l.inventory_item.item.name }}{% else %}—{% endif %}</td>
+                <td><a href="{% url 'dashboard_user_detail' l.seller.id %}" style="color:var(--accent)">{{ l.seller.username }}</a></td>
+                <td>{{ l.price }}</td>
+                <td><span class="pill">{{ l.get_status_display|default:l.status }}</span></td>
+                <td class="muted">{{ l.created_at|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {% if l.status == 'active' %}
+                    <form method="post" action="{% url 'dashboard_market_cancel' l.id %}">{% csrf_token %}
+                        <button class="dash-btn dash-btn-sm dash-btn-red" type="submit">Снять</button>
+                    </form>
+                    {% endif %}
+                </td>
             </tr>
         {% empty %}
-            <tr>
-                <td colspan="6">Лотов нет.</td>
-            </tr>
+            <tr><td colspan="7" class="muted">Лотов нет</td></tr>
         {% endfor %}
         </tbody>
     </table>

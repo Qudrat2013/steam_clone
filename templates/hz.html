@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam Clone - Панель управления играми</title>
+    <style>
+        body {
+            background-color: #1b2838;
+            color: #ffffff;
+            font-family: 'Motiva Sans', Arial, sans-serif;
+            padding: 40px;
+            margin: 0;
+        }
+        .launcher-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #171a21;
+            padding: 35px;
+            border-radius: 8px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.7);
+            border: 1px solid #2a475e;
+            text-align: center;
+        }
+        h1 {
+            color: #66c0f4;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        p {
+            color: #acb2b8;
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .btn {
+            flex: 1;
+            max-width: 200px;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .btn-launch {
+            background: linear-gradient(to bottom, #a3cf06 0%, #7ca316 100%);
+            color: #fff;
+            border-bottom: 2px solid #5c7e10;
+        }
+        .btn-launch:hover {
+            background: linear-gradient(to bottom, #bbf108 0%, #8ebc1a 100%);
+            box-shadow: 0 0 12px rgba(163, 207, 6, 0.5);
+        }
+        .btn-stop {
+            background: linear-gradient(to bottom, #d93636 0%, #a62424 100%);
+            color: #fff;
+            border-bottom: 2px solid #731717;
+        }
+        .btn-stop:hover {
+            background: linear-gradient(to bottom, #f34747 0%, #bd2c2c 100%);
+            box-shadow: 0 0 12px rgba(217, 54, 54, 0.5);
+        }
+        .status-panel {
+            display: inline-block;
+            padding: 8px 18px;
+            background: #2a475e;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #66c0f4;
+            font-weight: bold;
+            border: 1px solid #3b6485;
+        }
+    </style>
+
+    <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+</head>
+<body>
+
+    <div class="launcher-container">
+        <h1>Управление Игрой</h1>
+        <p>Запуск и остановка внешних .exe файлов через API лаунчера</p>
+
+        <div class="btn-group">
+            <button class="btn btn-launch" onclick="launchExecutable('notepad.exe')">▶ Играть</button>
+            <button class="btn btn-stop" onclick="stopExecutable()">⏹ Закрыть игру</button>
+        </div>
+
+        <div id="connection-status" class="status-panel">Подключение к лаунчеру...</div>
+    </div>
+
+    <script type="text/javascript">
+        let pyBackend = null;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const statusBox = document.getElementById("connection-status");
+
+            // Проверяем, запущена ли страница внутри Qt WebEngine лаунчера
+            if (typeof qt !== 'undefined') {
+                new QWebChannel(qt.webChannelTransport, function(channel) {
+                    // Связываемся с объектом pyBridge из Python
+                    pyBackend = channel.objects.pyBridge;
+                    statusBox.innerText = "СТАТУС: ЛАУНЧЕР ПОДКЛЮЧЕН";
+                    statusBox.style.color = "#a3cf06";
+                    statusBox.style.background = "#1e2a07";
+                    statusBox.style.borderColor = "#445e03";
+                });
+            } else {
+                statusBox.innerText = "СТАТУС: ОБЫЧНЫЙ БРАУЗЕР (ФУНКЦИИ ИГР ОТКЛЮЧЕНЫ)";
+                statusBox.style.color = "#f44336";
+                statusBox.style.background = "#2d1212";
+                statusBox.style.borderColor = "#632323";
+            }
+        });
+
+        function launchExecutable(exePath) {
+            if (pyBackend) {
+                pyBackend.launchGame(exePath);
+            } else {
+                alert("Ошибка: Запуск игры возможен только через официальный лаунчер Steam Clone!");
+            }
+        }
+
+        function stopExecutable() {
+            if (pyBackend) {
+                pyBackend.stopGame();
+            }
+        }
+    </script>
+</body>
+</html>

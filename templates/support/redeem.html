@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Промокод{% endblock %}
+{% block content %}
+<div class="sp-page" style="max-width:520px;margin:0 auto;padding:24px 16px 60px">
+  <a href="{% url 'support_home' %}" style="color:#67c1f5;text-decoration:none">← Поддержка</a>
+  <h1 style="color:#fff">Активировать промокод</h1>
+  <form method="post" style="background:#16202d;border:1px solid #2a475e;border-radius:8px;padding:24px;margin-bottom:24px">
+    {% csrf_token %}
+    <label style="display:block;color:#8f98a0;font-size:12px;margin-bottom:4px">Код</label>
+    <input name="code" required style="width:100%;padding:14px;background:#1b2838;border:1px solid #2a475e;border-radius:6px;color:#fff;box-sizing:border-box;font-size:18px;letter-spacing:2px;text-transform:uppercase;text-align:center" placeholder="XXXXXXXX">
+    <button type="submit" style="width:100%;margin-top:14px;background:#5c7e10;color:#fff;border:none;padding:12px;border-radius:4px;font-weight:700;cursor:pointer;font-size:15px">Активировать</button>
+  </form>
+  {% if history %}
+  <h2 style="color:#67c1f5;font-size:15px">История</h2>
+  {% for h in history %}
+    <div style="color:#c7d5e0;padding:8px 0;border-bottom:1px solid #2a475e">
+      <code style="color:#67c1f5">{{ h.promo.code }}</code> — {{ h.promo.get_reward_type_display }} ({{ h.promo.reward_value }})
+      <span style="color:#8f98a0;font-size:12px"> · {{ h.created_at|date:"d.m.Y" }}</span>
+    </div>
+  {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

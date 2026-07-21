@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Новости — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero">
+        <h1><i class="fas fa-newspaper"></i> Новости и обновления</h1>
+    </div>
+    <div class="sp-list">
+        {% for n in news_list %}
+        <article class="sp-news-card">
+            <div class="sp-news-meta">
+                <a href="{{ n.game.get_absolute_url }}">{{ n.game.title }}</a>
+                {% if n.is_update %}<span class="sp-tag">Update</span>{% endif %}
+                <span class="sp-muted">{{ n.created_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            <h2>{{ n.title }}</h2>
+            <p>{{ n.body|truncatewords:60 }}</p>
+            <a href="{% url 'game_news' n.game.slug %}">Все новости игры →</a>
+        </article>
+        {% empty %}
+        <div class="sp-empty">Новостей пока нет. Добавьте Game News в админке.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

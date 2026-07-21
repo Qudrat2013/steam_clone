@@ -43,3 +43,109 @@ document.querySelectorAll('.screenshot_thumb').forEach(thumb => {
         thumb.classList.add('active');
     });
 });
+
+// ===== ЗАПУСК ИГРЫ ЧЕРЕЗ ЛАУНЧЕР =====
+
+/**
+ * Запускает игру через PyQt мост.
+ * gamePath — путь к .exe файлу (абсолютный или относительный рядом с launcher.py)
+ */
+function launchGame(gamePath) {
+    if (!window._pyBridge) {
+        // Если открыто в обычном браузере, а не в лаунчере — скачиваем
+        console.warn('[Launcher] Мост не найден — открыто в браузере, не в лаунчере.');
+        return false;
+    }
+    window._pyBridge.launchGame(gamePath);
+    return true;
+}
+
+/**
+ * Останавливает запущенную игру через PyQt мост.
+ */
+function stopGame() {
+    if (!window._pyBridge) return;
+    window._pyBridge.stopGame();
+}
+
+// Вешаем обработчики на кнопки запуска игры
+// Кнопка должна иметь класс btn_launch_game и атрибут data-path="путь/к/игре.exe"
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.btn_launch_game').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const path = btn.dataset.path;
+            if (!path) {
+                alert('Путь к игре не указан!');
+                return;
+            }
+
+            const launched = launchGame(path);
+
+            // Если мост не доступен (обычный браузер) — fallback на скачивание
+            if (!launched) {
+                const fallback = btn.dataset.fallback;
+                if (fallback) window.location.href = fallback;
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn_stop_game').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            stopGame();
+        });
+    });
+});
+// ===== LIVE SEARCH SUGGEST =====
+(function () {
+    const input = document.getElementById('steam-search-input');
+    const box = document.getElementById('steam-search-suggest');
+    if (!input || !box) return;
+
+    let timer = null;
+    let lastQ = '';
+
+    function hide() {
+        box.hidden = true;
+        box.innerHTML = '';
+    }
+
+    function render(results) {
+        if (!results.length) {
+            hide();
+            return;
+        }
+        box.innerHTML = results.map(r => {
+            const disc = r.discount ? `<span style="color:#beee11">-${r.discount}%</span> ` : '';
+            const img = r.image ? `<img src="${r.image}" alt="">` : '<div style="width:72px;height:34px;background:#111;border-radius:4px"></div>';
+            return `<a href="${r.url}">${img}<div><div class="ss-title">${r.title}</div><div class="ss-meta">${r.developer || ''} · ${disc}${r.price} UZS</div></div></a>`;
+        }).join('');
+        box.hidden = false;
+    }
+
+    input.addEventListener('input', () => {
+        const q = input.value.trim();
+        clearTimeout(timer);
+        if (q.length < 2) {
+            hide();
+            return;
+        }
+        timer = setTimeout(async () => {
+            if (q === lastQ) return;
+            lastQ = q;
+            try {
+                const res = await fetch(`/plus/search/suggest/?q=${encodeURIComponent(q)}`);
+                const data = await res.json();
+                render(data.results || []);
+            } catch (e) {
+                hide();
+            }
+        }, 220);
+    });
+
+    input.addEventListener('blur', () => setTimeout(hide, 180));
+    document.addEventListener('click', (e) => {
+        if (!box.contains(e.target) && e.target !== input) hide();
+    });
+})();

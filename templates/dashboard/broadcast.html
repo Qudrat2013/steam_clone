@@ -1,0 +1,33 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Рассылка{% endblock %}
+{% block content %}
+<h1>Массовая рассылка</h1>
+<div class="two-col">
+    <div class="dash-card">
+        <h2>Новое уведомление</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-row"><label>Заголовок</label><input class="dash-input" name="title" required></div>
+            <div class="form-row"><label>Текст</label><textarea class="dash-textarea" name="message" required></textarea></div>
+            <div class="form-row"><label>Кому</label>
+                <select class="dash-select" name="target">
+                    {% for val, label in targets %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+                </select>
+            </div>
+            <button class="dash-btn dash-btn-orange" type="submit" onclick="return confirm('Отправить рассылку?')"><i class="fas fa-bullhorn"></i> Отправить</button>
+        </form>
+    </div>
+    <div class="dash-card">
+        <h2>История</h2>
+        {% for b in history %}
+            <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+                <strong>{{ b.title }}</strong>
+                <div class="muted">{{ b.get_target_display }} · {{ b.sent_count }} users · {{ b.created_at|date:"d.m.Y H:i" }}</div>
+                <div>{{ b.message|truncatechars:100 }}</div>
+            </div>
+        {% empty %}
+            <p class="muted">Рассылок ещё не было</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

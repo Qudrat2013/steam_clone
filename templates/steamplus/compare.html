@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Игры друзей — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero">
+        <h1><i class="fas fa-users"></i> Что есть у друзей</h1>
+        <p>Игры, которых нет у вас · друзей: {{ friends_count }}</p>
+    </div>
+    <div class="sp-list">
+        {% for row in friend_games %}
+        <div class="sp-list-item">
+            <div>
+                <a href="{% url 'game_detail' row.game__slug %}"><b>{{ row.game__title }}</b></a>
+                <div class="sp-muted">Есть у {{ row.owners }} друзей{% if row.game__discount %} · −{{ row.game__discount }}%{% endif %}</div>
+            </div>
+            <span class="sp-price">{{ row.game__price }} UZS</span>
+        </div>
+        {% empty %}
+        <div class="sp-empty">
+            {% if friends_count == 0 %}
+                Добавьте друзей, чтобы сравнивать библиотеки.
+            {% else %}
+                У друзей нет игр, которых нет у вас — вы собрали всё!
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

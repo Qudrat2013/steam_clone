@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Недавно играли — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero">
+        <h1><i class="fas fa-history"></i> Недавно играли</h1>
+        <a href="{% url 'stats_dashboard' %}" class="sp-btn sp-btn--ghost">Статистика</a>
+    </div>
+    <div class="sp-list">
+        {% for pt in playtimes %}
+        <div class="sp-list-item sp-list-item--game">
+            {% if pt.game.header_image %}<img src="{{ pt.game.header_image.url }}" alt="">{% endif %}
+            <div>
+                <a href="{{ pt.game.get_absolute_url }}"><b>{{ pt.game.title }}</b></a>
+                <div class="sp-muted">{{ pt.hours_display }} · {{ pt.sessions }} сессий</div>
+                {% if pt.last_played %}<div class="sp-muted">Последний запуск: {{ pt.last_played|timesince }} назад</div>{% endif %}
+            </div>
+            <form method="post" action="{% url 'play_game' pt.game.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="minutes" value="30">
+                <button class="sp-btn sp-btn--green" type="submit"><i class="fas fa-play"></i> Играть</button>
+            </form>
+        </div>
+        {% empty %}
+        <div class="sp-empty">Запустите игру из библиотеки — здесь появится история.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

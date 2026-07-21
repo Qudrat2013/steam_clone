@@ -34,21 +34,33 @@
                         <h1>{{ purchase.game.title }}</h1>
 
                         <div class="steam_library_actions">
+                            <form method="post" action="{% url 'play_game' purchase.game.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="minutes" value="30">
+                                <button type="submit" class="steam_library_play_btn" style="border:none;cursor:pointer;">
+                                    <i class="fas fa-play"></i>
+                                    Играть (+30 мин)
+                                </button>
+                            </form>
+
                             {% if purchase.game.game_file %}
-                                <a href="{% url 'download_game' purchase.game.id %}" class="steam_library_play_btn">
+                                <a href="{% url 'download_game' purchase.game.id %}" class="steam_library_page_btn">
                                     <i class="fas fa-download"></i>
-                                    Скачать / Установить
+                                    Скачать
                                 </a>
-                            {% else %}
-                                <div class="steam_library_disabled_btn">
-                                    Файл игры недоступен
-                                </div>
                             {% endif %}
 
                             <a href="{{ purchase.game.get_absolute_url }}" class="steam_library_page_btn">
                                 Страница игры
                             </a>
                         </div>
+                        {% if purchase.playtime %}
+                        <div style="margin-top:8px;color:#8f98a0;font-size:13px;">
+                            <i class="fas fa-clock"></i>
+                            Наиграно: {{ purchase.playtime.hours_display }}
+                            · {{ purchase.playtime.sessions }} сессий
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 

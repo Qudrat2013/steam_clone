@@ -1,38 +1,148 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Главная{% endblock %}
 
 {% block content %}
-<h1>Панель управления</h1>
+<div class="flex-between">
+    <h1>Панель управления</h1>
+    <span class="muted">Steam Admin · real-time overview</span>
+</div>
 
 <div class="dash-grid">
+    <div class="dash-stat-card warn">
+        <div class="label"><i class="fas fa-headset"></i> Открытые тикеты</div>
+        <div class="value">{{ open_tickets }}</div>
+        <div class="sub"><a href="{% url 'dashboard_tickets' %}" style="color:inherit">Открыть →</a></div>
+    </div>
+    <div class="dash-stat-card danger">
+        <div class="label"><i class="fas fa-flag"></i> Жалобы</div>
+        <div class="value">{{ pending_reports }}</div>
+        <div class="sub"><a href="{% url 'dashboard_reports' %}" style="color:inherit">Модерация →</a></div>
+    </div>
+    <div class="dash-stat-card warn">
+        <div class="label"><i class="fas fa-undo"></i> Возвраты</div>
+        <div class="value">{{ pending_refunds }}</div>
+    </div>
+    <div class="dash-stat-card warn">
+        <div class="label"><i class="fas fa-wallet"></i> Заявки баланса</div>
+        <div class="value">{{ pending_balance_count }}</div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="label"><i class="fas fa-users"></i> Пользователи</div>
+        <div class="value">{{ users_count }}</div>
+        <div class="sub">+{{ new_users_week }} за неделю</div>
+    </div>
+    <div class="dash-stat-card ok">
+        <div class="label"><i class="fas fa-coins"></i> Выручка</div>
+        <div class="value" style="font-size:20px">{{ revenue }}</div>
+        <div class="sub">неделя: {{ revenue_week }}</div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="label"><i class="fas fa-shopping-bag"></i> Покупки</div>
+        <div class="value">{{ purchases_count }}</div>
+        <div class="sub">+{{ purchases_week }} за неделю</div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="label"><i class="fas fa-gamepad"></i> Игры</div>
+        <div class="value">{{ games_count }}</div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="label"><i class="fas fa-store"></i> Лоты маркета</div>
+        <div class="value">{{ active_market_count }}</div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="label"><i class="fas fa-exchange-alt"></i> Трейды</div>
+        <div class="value">{{ pending_trades_count }}</div>
+    </div>
+    <div class="dash-stat-card danger">
+        <div class="label"><i class="fas fa-ban"></i> Активные баны</div>
+        <div class="value">{{ active_bans }}</div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="label"><i class="fas fa-cube"></i> Предметы</div>
+        <div class="value">{{ items_count }}</div>
+    </div>
+</div>
+
+<div class="three-col">
     <div class="dash-card">
-        <div>Заявки на баланс</div>
-        <div class="dash-stat">{{ pending_balance_count }}</div>
+        <h2>Покупки за 14 дней</h2>
+        {% if chart_values %}
+        <div class="chart-bars">
+            {% for v in chart_values %}
+                <div class="bar" style="height: {% if chart_max %}{% widthratio v chart_max 100 %}{% else %}2{% endif %}%;" title="{{ v }}"></div>
+            {% endfor %}
+        </div>
+        <div class="chart-labels">
+            {% for l in chart_labels %}<span>{{ l }}</span>{% endfor %}
+        </div>
+        {% endif %}
     </div>
 
     <div class="dash-card">
-        <div>Пользователи</div>
-        <div class="dash-stat">{{ users_count }}</div>
+        <h2>Быстрые действия</h2>
+        <p><a class="dash-btn dash-btn-blue" href="{% url 'dashboard_tickets' %}" style="width:100%;justify-content:center;margin-bottom:8px"><i class="fas fa-headset"></i> Тикеты</a></p>
+        <p><a class="dash-btn dash-btn-orange" href="{% url 'dashboard_reports' %}" style="width:100%;justify-content:center;margin-bottom:8px"><i class="fas fa-flag"></i> Жалобы</a></p>
+        <p><a class="dash-btn dash-btn-green" href="{% url 'dashboard_game_new' %}" style="width:100%;justify-content:center;margin-bottom:8px"><i class="fas fa-plus"></i> Новая игра</a></p>
+        <p><a class="dash-btn" href="{% url 'dashboard_broadcast' %}" style="width:100%;justify-content:center;margin-bottom:8px"><i class="fas fa-bullhorn"></i> Рассылка</a></p>
+        <p><a class="dash-btn dash-btn-ghost" href="{% url 'dashboard_promos' %}" style="width:100%;justify-content:center"><i class="fas fa-ticket-alt"></i> Промокод</a></p>
+    </div>
+</div>
+
+<div class="two-col">
+    <div class="dash-card">
+        <div class="flex-between"><h2 class="mb-0">Открытые тикеты</h2><a href="{% url 'dashboard_tickets' %}" class="muted">Все</a></div>
+        <table class="dash-table">
+            <thead><tr><th>#</th><th>Тема</th><th>User</th><th>Приоритет</th></tr></thead>
+            <tbody>
+            {% for t in recent_tickets %}
+                <tr>
+                    <td><a href="{% url 'dashboard_ticket_detail' t.id %}" style="color:var(--accent)">#{{ t.id }}</a></td>
+                    <td>{{ t.subject|truncatechars:40 }}</td>
+                    <td>{{ t.user.username }}</td>
+                    <td><span class="pill {% if t.priority == 'urgent' %}pill-red{% elif t.priority == 'high' %}pill-orange{% else %}pill-blue{% endif %}">{{ t.get_priority_display }}</span></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="muted">Нет открытых тикетов 🎉</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <div class="dash-card">
-        <div>Активные лоты</div>
-        <div class="dash-stat">{{ active_market_count }}</div>
+        <div class="flex-between"><h2 class="mb-0">Жалобы</h2><a href="{% url 'dashboard_reports' %}" class="muted">Все</a></div>
+        <table class="dash-table">
+            <thead><tr><th>От</th><th>На</th><th>Причина</th></tr></thead>
+            <tbody>
+            {% for r in recent_reports %}
+                <tr>
+                    <td>{{ r.reporter.username }}</td>
+                    <td>{% if r.reported_user %}{{ r.reported_user.username }}{% else %}—{% endif %}</td>
+                    <td><a href="{% url 'dashboard_report_detail' r.id %}" style="color:var(--accent)">{{ r.get_reason_display }}</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3" class="muted">Жалоб нет</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <div class="dash-card">
-        <div>Активные трейды</div>
-        <div class="dash-stat">{{ pending_trades_count }}</div>
-    </div>
-
-    <div class="dash-card">
-        <div>Покупки</div>
-        <div class="dash-stat">{{ purchases_count }}</div>
-    </div>
-
-    <div class="dash-card">
-        <div>Предметы</div>
-        <div class="dash-stat">{{ items_count }}</div>
-    </div>
+<div class="dash-card">
+    <div class="flex-between"><h2 class="mb-0">Последние покупки</h2><a href="{% url 'dashboard_purchases' %}" class="muted">Все</a></div>
+    <table class="dash-table">
+        <thead><tr><th>User</th><th>Игра</th><th>Цена</th><th>Дата</th></tr></thead>
+        <tbody>
+        {% for p in recent_purchases %}
+            <tr>
+                <td><a href="{% url 'dashboard_user_detail' p.user.id %}" style="color:var(--accent)">{{ p.user.username }}</a></td>
+                <td>{{ p.game.title }}</td>
+                <td>{{ p.price_paid }}</td>
+                <td class="muted">{{ p.purchased_at|date:"d.m.Y H:i" }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="4" class="muted">Покупок пока нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Лента активности — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page sp-page--split">
+    <div class="sp-main">
+        <div class="sp-hero">
+            <h1><i class="fas fa-stream"></i> Лента активности</h1>
+            <p>Что происходит у вас и у друзей</p>
+        </div>
+        <div class="sp-feed">
+            {% for a in activities %}
+            <div class="sp-feed-item">
+                <div class="sp-feed-avatar">{{ a.user.username|first|upper }}</div>
+                <div class="sp-feed-body">
+                    <div class="sp-feed-head">
+                        <a href="{% url 'profile' a.user.username %}"><b>{{ a.user.username }}</b></a>
+                        <span class="sp-feed-type">{{ a.get_activity_type_display }}</span>
+                        <span class="sp-muted">{{ a.created_at|timesince }} назад</span>
+                    </div>
+                    <div class="sp-feed-text">{{ a.text }}</div>
+                    {% if a.game %}
+                        <a class="sp-feed-game" href="{{ a.game.get_absolute_url }}">
+                            {% if a.game.header_image %}<img src="{{ a.game.header_image.url }}" alt="">{% endif %}
+                            {{ a.game.title }}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="sp-empty">Пока тихо. Сыграйте в игру или добавьте друзей!</div>
+            {% endfor %}
+        </div>
+    </div>
+    <aside class="sp-side">
+        <h3>Друзья онлайн</h3>
+        {% for f in online_friends %}
+            <a class="sp-friend-row" href="{% url 'profile' f.username %}">
+                <span class="sp-dot sp-dot--online"></span>
+                <span>{{ f.username }}</span>
+                {% if f.profile.custom_status %}<small class="sp-muted">{{ f.profile.custom_status }}</small>{% endif %}
+            </a>
+        {% empty %}
+            <p class="sp-muted">Никого онлайн</p>
+        {% endfor %}
+        <a href="{% url 'friends_playing' %}" class="sp-btn sp-btn--ghost sp-btn--block">Все друзья</a>
+        <a href="{% url 'daily_bonus' %}" class="sp-btn sp-btn--blue sp-btn--block"><i class="fas fa-gift"></i> Daily bonus</a>
+    </aside>
+</div>
+{% endblock %}

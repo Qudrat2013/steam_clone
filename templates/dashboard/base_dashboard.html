@@ -3,134 +3,278 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Dashboard{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/steam.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %} · Steam Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        body {
-            background: #0b1622;
-            color: #fff;
-            font-family: Arial, sans-serif;
+        :root {
+            --bg: #0b1622;
+            --panel: #111923;
+            --card: #16202d;
+            --border: #2a475e;
+            --text: #c7d5e0;
+            --muted: #8f98a0;
+            --accent: #67c1f5;
+            --green: #5c7e10;
+            --red: #a34c25;
+            --blue: #4d8ab5;
+            --orange: #c5803a;
+            --purple: #6b5b95;
         }
-
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: #fff;
+            font-family: "Noto Sans", Arial, sans-serif;
+            font-size: 14px;
+        }
         .dash-layout {
             display: grid;
-            grid-template-columns: 240px 1fr;
+            grid-template-columns: 250px 1fr;
             min-height: 100vh;
         }
-
         .dash-sidebar {
-            background: #111923;
-            padding: 20px;
-            border-right: 1px solid #2a475e;
+            background: var(--panel);
+            padding: 18px 14px;
+            border-right: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
         }
-
         .dash-logo {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 900;
-            color: #67c1f5;
-            margin-bottom: 25px;
+            color: var(--accent);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
         }
-
+        .dash-logo span { color: var(--muted); font-size: 11px; font-weight: 600; display: block; letter-spacing: 0; }
+        .dash-nav-section {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 16px 8px 6px;
+        }
         .dash-sidebar a {
-            display: block;
-            color: #c7d5e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
             text-decoration: none;
-            padding: 11px 12px;
+            padding: 9px 12px;
             border-radius: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 2px;
+            font-size: 13px;
         }
-
-        .dash-sidebar a:hover {
+        .dash-sidebar a i { width: 18px; text-align: center; opacity: .85; }
+        .dash-sidebar a:hover, .dash-sidebar a.is-active {
             background: #1b2838;
             color: #fff;
         }
-
-        .dash-content {
-            padding: 25px;
+        .dash-sidebar a .badge {
+            margin-left: auto;
+            background: var(--red);
+            color: #fff;
+            font-size: 11px;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-weight: 700;
         }
-
+        .dash-content { padding: 24px 28px 40px; max-width: 1400px; }
+        .dash-content h1 { margin: 0 0 18px; font-size: 26px; font-weight: 700; }
+        .dash-content h2 { margin: 0 0 12px; font-size: 18px; color: var(--accent); }
         .dash-card {
-            background: #16202d;
-            border: 1px solid #2a475e;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 18px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
-
         .dash-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
         }
-
-        .dash-stat {
-            font-size: 34px;
-            font-weight: 700;
-            color: #67c1f5;
+        .dash-stat-card {
+            background: linear-gradient(145deg, #16202d, #1b2838);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
         }
-
-        .dash-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .dash-table th,
-        .dash-table td {
-            padding: 12px;
-            border-bottom: 1px solid #2a475e;
+        .dash-stat-card .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+        .dash-stat-card .value { font-size: 28px; font-weight: 800; color: var(--accent); }
+        .dash-stat-card .sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
+        .dash-stat-card.warn .value { color: #e5a54b; }
+        .dash-stat-card.danger .value { color: #e06c54; }
+        .dash-stat-card.ok .value { color: #90ba3c; }
+        .dash-table { width: 100%; border-collapse: collapse; }
+        .dash-table th, .dash-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
             text-align: left;
+            vertical-align: top;
         }
-
-        .dash-table th {
-            color: #8f98a0;
-            font-size: 13px;
-        }
-
+        .dash-table th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+        .dash-table tr:hover td { background: rgba(103,193,245,.04); }
         .dash-btn {
-            display: inline-block;
-            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
             border-radius: 6px;
             color: #fff;
             text-decoration: none;
             border: none;
             cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            background: var(--blue);
         }
-
-        .dash-btn-green { background: #5c7e10; }
-        .dash-btn-red { background: #a34c25; }
-        .dash-btn-blue { background: #4d8ab5; }
-
-        .dash-input {
+        .dash-btn:hover { filter: brightness(1.1); }
+        .dash-btn-green { background: var(--green); }
+        .dash-btn-red { background: var(--red); }
+        .dash-btn-blue { background: var(--blue); }
+        .dash-btn-orange { background: var(--orange); }
+        .dash-btn-sm { padding: 5px 10px; font-size: 12px; }
+        .dash-btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .dash-input, .dash-select, .dash-textarea {
             width: 100%;
-            padding: 10px;
-            border: none;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
             border-radius: 8px;
             background: #1b2838;
             color: #fff;
-            box-sizing: border-box;
+            font-size: 14px;
+            font-family: inherit;
         }
-
+        .dash-textarea { min-height: 100px; resize: vertical; }
+        .dash-input:focus, .dash-select:focus, .dash-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+        .form-row { margin-bottom: 12px; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
         .dash-message {
             background: #1b2838;
-            border: 1px solid #4d8ab5;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border-left: 3px solid var(--accent);
+            padding: 12px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
         }
+        .dash-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .dash-tabs a {
+            padding: 7px 14px;
+            border-radius: 20px;
+            background: #1b2838;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            border: 1px solid transparent;
+        }
+        .dash-tabs a.active, .dash-tabs a:hover {
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #1b2838;
+            color: var(--text);
+        }
+        .pill-green { background: #2a3f0f; color: #a4d007; }
+        .pill-red { background: #3f1a0f; color: #e06c54; }
+        .pill-blue { background: #0f2a3f; color: #67c1f5; }
+        .pill-orange { background: #3f2a0f; color: #e5a54b; }
+        .pill-purple { background: #2a1a3f; color: #b794f4; }
+        .pill-gray { background: #222; color: #8f98a0; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+        @media (max-width: 900px) {
+            .dash-layout { grid-template-columns: 1fr; }
+            .dash-sidebar { height: auto; position: relative; }
+            .form-grid, .two-col, .three-col { grid-template-columns: 1fr; }
+        }
+        .muted { color: var(--muted); }
+        .mb-0 { margin-bottom: 0; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .ticket-bubble {
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            max-width: 90%;
+        }
+        .ticket-bubble.staff { background: #1a3a4a; border: 1px solid #2a5a7a; margin-left: 0; }
+        .ticket-bubble.user { background: #1b2838; border: 1px solid var(--border); margin-left: auto; }
+        .ticket-bubble.internal { background: #3a2a1a; border: 1px dashed var(--orange); font-style: italic; }
+        .ticket-bubble .meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+        .chart-bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding-top: 10px; }
+        .chart-bars .bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--accent), #1a9fff55);
+            border-radius: 3px 3px 0 0;
+            min-height: 2px;
+            position: relative;
+        }
+        .chart-labels { display: flex; gap: 4px; margin-top: 4px; }
+        .chart-labels span { flex: 1; text-align: center; font-size: 9px; color: var(--muted); overflow: hidden; }
     </style>
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 <div class="dash-layout">
     <aside class="dash-sidebar">
-        <div class="dash-logo">STEAM ADMIN</div>
+        <div class="dash-logo">STEAM ADMIN<span>Control Panel</span></div>
 
-        <a href="{% url 'dashboard_home' %}">Главная</a>
-        <a href="{% url 'dashboard_balance_requests' %}">Заявки баланса</a>
-        <a href="{% url 'dashboard_users' %}">Пользователи</a>
-        <a href="{% url 'dashboard_market' %}">Маркет</a>
-        <a href="{% url 'dashboard_trades' %}">Трейды</a>
-        <a href="{% url 'home' %}">Вернуться на сайт</a>
-        <a href="{% url 'admin:index' %}">Django Admin</a>
+        <div class="dash-nav-section">Обзор</div>
+        <a href="{% url 'dashboard_home' %}"><i class="fas fa-home"></i> Главная</a>
+        <a href="{% url 'dashboard_stats' %}"><i class="fas fa-chart-line"></i> Статистика</a>
+
+        <div class="dash-nav-section">Поддержка</div>
+        <a href="{% url 'dashboard_tickets' %}"><i class="fas fa-headset"></i> Тикеты</a>
+        <a href="{% url 'dashboard_reports' %}"><i class="fas fa-flag"></i> Жалобы</a>
+        <a href="{% url 'dashboard_refunds' %}"><i class="fas fa-undo"></i> Возвраты</a>
+        <a href="{% url 'dashboard_bans' %}"><i class="fas fa-ban"></i> Баны</a>
+        <a href="{% url 'dashboard_faq' %}"><i class="fas fa-book"></i> FAQ</a>
+
+        <div class="dash-nav-section">Пользователи</div>
+        <a href="{% url 'dashboard_users' %}"><i class="fas fa-users"></i> Пользователи</a>
+        <a href="{% url 'dashboard_devices' %}"><i class="fas fa-laptop"></i> Устройства</a>
+        <a href="{% url 'dashboard_balance_requests' %}"><i class="fas fa-wallet"></i> Заявки баланса</a>
+        <a href="{% url 'dashboard_broadcast' %}"><i class="fas fa-bullhorn"></i> Рассылка</a>
+
+        <div class="dash-nav-section">Магазин</div>
+        <a href="{% url 'dashboard_games' %}"><i class="fas fa-gamepad"></i> Игры</a>
+        <a href="{% url 'dashboard_items' %}"><i class="fas fa-cube"></i> Предметы</a>
+        <a href="{% url 'dashboard_purchases' %}"><i class="fas fa-receipt"></i> Покупки</a>
+        <a href="{% url 'dashboard_sales' %}"><i class="fas fa-tags"></i> Распродажи</a>
+        <a href="{% url 'dashboard_news' %}"><i class="fas fa-newspaper"></i> Новости</a>
+        <a href="{% url 'dashboard_promos' %}"><i class="fas fa-ticket-alt"></i> Промокоды</a>
+        <a href="{% url 'dashboard_reviews' %}"><i class="fas fa-star"></i> Отзывы</a>
+
+        <div class="dash-nav-section">Экономика</div>
+        <a href="{% url 'dashboard_market' %}"><i class="fas fa-store"></i> Маркет</a>
+        <a href="{% url 'dashboard_trades' %}"><i class="fas fa-exchange-alt"></i> Трейды</a>
+
+        <div class="dash-nav-section">Система</div>
+        <a href="{% url 'dashboard_audit' %}"><i class="fas fa-clipboard-list"></i> Аудит-лог</a>
+        <a href="{% url 'home' %}"><i class="fas fa-external-link-alt"></i> На сайт</a>
+        <a href="{% url 'admin:index' %}"><i class="fas fa-cog"></i> Django Admin</a>
     </aside>
 
     <main class="dash-content">
@@ -139,9 +283,9 @@
                 <div class="dash-message">{{ message }}</div>
             {% endfor %}
         {% endif %}
-
         {% block content %}{% endblock %}
     </main>
 </div>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

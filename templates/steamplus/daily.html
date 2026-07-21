@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Daily Bonus — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page sp-page--narrow">
+    <div class="sp-hero sp-hero--gold">
+        <div>
+            <h1><i class="fas fa-calendar-check"></i> Ежедневный бонус</h1>
+            <p>Заходите каждый день — серия растёт, награда больше</p>
+        </div>
+        <div class="sp-points-pill">Серия: {{ streak }} дн.</div>
+    </div>
+
+    <div class="sp-card sp-card--center">
+        {% if already %}
+            <div class="sp-big-icon is-done"><i class="fas fa-check-circle"></i></div>
+            <h2>Бонус уже получен сегодня</h2>
+            <p class="sp-muted">Завтра: ~{{ next_points }} очков при серии {{ streak|add:1 }}</p>
+        {% else %}
+            <div class="sp-big-icon"><i class="fas fa-gift"></i></div>
+            <h2>+{{ next_points }} очков</h2>
+            <p class="sp-muted">Серия станет: {{ preview_streak }} дн. · +XP</p>
+            <form method="post">
+                {% csrf_token %}
+                <button class="sp-btn sp-btn--green sp-btn--lg" type="submit">
+                    <i class="fas fa-hand-holding-heart"></i> Забрать бонус
+                </button>
+            </form>
+        {% endif %}
+        <p class="sp-muted" style="margin-top:16px">У вас {{ points }} Steam Points</p>
+    </div>
+
+    {% if history %}
+    <h2 class="sp-section-title">История</h2>
+    <div class="sp-list">
+        {% for h in history %}
+        <div class="sp-list-item">
+            <span>{{ h.claim_date|date:"d.m.Y" }}</span>
+            <span>+{{ h.points_awarded }} pts · +{{ h.xp_awarded }} XP · streak {{ h.streak }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

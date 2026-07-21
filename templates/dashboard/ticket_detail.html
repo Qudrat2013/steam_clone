@@ -1,0 +1,98 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Тикет #{{ ticket.id }}{% endblock %}
+{% block content %}
+<div class="flex-between">
+    <h1>Тикет #{{ ticket.id }} — {{ ticket.subject }}</h1>
+    <a href="{% url 'dashboard_tickets' %}" class="dash-btn dash-btn-ghost">← К списку</a>
+</div>
+
+<div class="three-col">
+    <div>
+        <div class="dash-card">
+            {% for m in ticket_messages %}
+                <div class="ticket-bubble {% if m.is_internal %}internal{% elif m.is_staff_reply %}staff{% else %}user{% endif %}">
+                    <div class="meta">
+                        <strong>{{ m.author.username }}</strong>
+                        {% if m.is_staff_reply %}<span class="pill pill-blue">Support</span>{% endif %}
+                        {% if m.is_internal %}<span class="pill pill-orange">internal</span>{% endif %}
+                        · {{ m.created_at|date:"d.m.Y H:i" }}
+                    </div>
+                    <div style="white-space:pre-wrap">{{ m.body }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="dash-card">
+            <h2>Ответить</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reply">
+                <div class="form-row">
+                    <textarea class="dash-textarea" name="body" placeholder="Ответ пользователю..." required style="min-height:120px"></textarea>
+                </div>
+                <div class="form-row">
+                    <label><input type="checkbox" name="is_internal"> Внутренняя заметка (user не видит)</label>
+                </div>
+                <button class="dash-btn dash-btn-green" type="submit">Отправить</button>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <div class="dash-card">
+            <h2>Управление</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update">
+                <div class="form-row">
+                    <label>Статус</label>
+                    <select class="dash-select" name="status">
+                        {% for val, label in statuses %}
+                            <option value="{{ val }}" {% if ticket.status == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Приоритет</label>
+                    <select class="dash-select" name="priority">
+                        {% for val, label in priorities %}
+                            <option value="{{ val }}" {% if ticket.priority == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Категория</label>
+                    <select class="dash-select" name="category">
+                        {% for val, label in categories %}
+                            <option value="{{ val }}" {% if ticket.category == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Назначить</label>
+                    <select class="dash-select" name="assigned_to">
+                        <option value="">— не менять —</option>
+                        <option value="me">Мне</option>
+                        <option value="none">Снять</option>
+                    </select>
+                </div>
+                <button class="dash-btn dash-btn-blue" type="submit">Обновить</button>
+            </form>
+        </div>
+
+        <div class="dash-card">
+            <h2>Пользователь</h2>
+            <p><a href="{% url 'dashboard_user_detail' ticket.user.id %}" style="color:var(--accent);font-size:16px;font-weight:700">{{ ticket.user.username }}</a></p>
+            <p class="muted">Баланс: {{ ticket.user.profile.balance }}</p>
+            <p class="muted">Уровень: {{ ticket.user.profile.steam_level }}</p>
+            <p class="muted">Создан: {{ ticket.created_at|date:"d.m.Y H:i" }}</p>
+            {% if ticket.related_game %}
+                <p>Игра: {{ ticket.related_game.title }}</p>
+            {% endif %}
+            {% if ticket.assigned_to %}
+                <p>Агент: {{ ticket.assigned_to.username }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

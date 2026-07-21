@@ -1,37 +1,28 @@
 {% extends 'dashboard/base_dashboard.html' %}
 {% block title %}Трейды{% endblock %}
-
 {% block content %}
-<h1>Трейды</h1>
-
+<h1>Обмены</h1>
+<div class="dash-tabs">
+    <a href="?" class="{% if not status %}active{% endif %}">Все</a>
+    <a href="?status=pending" class="{% if status == 'pending' %}active{% endif %}">Ожидают</a>
+    <a href="?status=accepted" class="{% if status == 'accepted' %}active{% endif %}">Приняты</a>
+    <a href="?status=declined" class="{% if status == 'declined' %}active{% endif %}">Отклонены</a>
+    <a href="?status=cancelled" class="{% if status == 'cancelled' %}active{% endif %}">Отменены</a>
+</div>
 <div class="dash-card">
     <table class="dash-table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Отправитель</th>
-            <th>Получатель</th>
-            <th>Статус</th>
-            <th>Создан</th>
-            <th></th>
-        </tr>
-        </thead>
+        <thead><tr><th>#</th><th>От</th><th>Кому</th><th>Статус</th><th>Дата</th></tr></thead>
         <tbody>
-        {% for trade in trades %}
+        {% for t in trades %}
             <tr>
-                <td>{{ trade.id }}</td>
-                <td>{{ trade.sender.username }}</td>
-                <td>{{ trade.receiver.username }}</td>
-                <td>{{ trade.get_status_display }}</td>
-                <td>{{ trade.created_at }}</td>
-                <td>
-                    <a href="{% url 'trade_detail' trade.id %}" class="dash-btn dash-btn-blue">Открыть</a>
-                </td>
+                <td>{{ t.id }}</td>
+                <td><a href="{% url 'dashboard_user_detail' t.sender.id %}" style="color:var(--accent)">{{ t.sender.username }}</a></td>
+                <td><a href="{% url 'dashboard_user_detail' t.receiver.id %}" style="color:var(--accent)">{{ t.receiver.username }}</a></td>
+                <td><span class="pill">{{ t.get_status_display|default:t.status }}</span></td>
+                <td class="muted">{{ t.created_at|date:"d.m.Y H:i" }}</td>
             </tr>
         {% empty %}
-            <tr>
-                <td colspan="6">Трейдов нет.</td>
-            </tr>
+            <tr><td colspan="5" class="muted">Трейдов нет</td></tr>
         {% endfor %}
         </tbody>
     </table>

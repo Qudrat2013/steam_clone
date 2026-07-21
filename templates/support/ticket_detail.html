@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Тикет #{{ ticket.id }}{% endblock %}
+{% block content %}
+<div class="sp-page" style="max-width:800px;margin:0 auto;padding:24px 16px 60px">
+  <a href="{% url 'support_tickets' %}" style="color:#67c1f5;text-decoration:none">← Мои тикеты</a>
+  <h1 style="color:#fff;margin:12px 0 4px">#{{ ticket.id }} · {{ ticket.subject }}</h1>
+  <p style="color:#8f98a0;margin:0 0 20px">
+    {{ ticket.get_category_display }} ·
+    <span style="background:#1b2838;padding:2px 8px;border-radius:10px;font-size:12px">{{ ticket.get_status_display }}</span>
+    · {{ ticket.created_at|date:"d.m.Y H:i" }}
+  </p>
+
+  <div style="margin-bottom:20px">
+    {% for m in ticket_messages %}
+      <div style="background:{% if m.is_staff_reply %}#1a3a4a{% else %}#16202d{% endif %};border:1px solid {% if m.is_staff_reply %}#2a5a7a{% else %}#2a475e{% endif %};border-radius:8px;padding:14px;margin-bottom:10px{% if not m.is_staff_reply %};margin-left:40px{% else %};margin-right:40px{% endif %}">
+        <div style="font-size:12px;color:#8f98a0;margin-bottom:6px">
+          <strong style="color:#fff">{{ m.author.username }}</strong>
+          {% if m.is_staff_reply %}<span style="color:#67c1f5"> · Steam Support</span>{% endif %}
+          · {{ m.created_at|date:"d.m.Y H:i" }}
+        </div>
+        <div style="color:#c7d5e0;white-space:pre-wrap;line-height:1.5">{{ m.body }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if ticket.is_open %}
+  <form method="post" style="background:#16202d;border:1px solid #2a475e;border-radius:8px;padding:16px">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="reply">
+    <textarea name="body" required rows="4" style="width:100%;padding:10px;background:#1b2838;border:1px solid #2a475e;border-radius:6px;color:#fff;box-sizing:border-box;font-family:inherit;margin-bottom:10px" placeholder="Ваш ответ…"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="submit" style="background:#1a9fff;color:#fff;border:none;padding:10px 18px;border-radius:4px;font-weight:700;cursor:pointer">Отправить</button>
+      <button type="submit" name="action" value="close" style="background:#3d4450;color:#fff;border:none;padding:10px 18px;border-radius:4px;cursor:pointer" formnovalidate>Закрыть тикет</button>
+    </div>
+  </form>
+  {% else %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="action" value="reopen" style="background:#5c7e10;color:#fff;border:none;padding:10px 18px;border-radius:4px;cursor:pointer">Открыть снова</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

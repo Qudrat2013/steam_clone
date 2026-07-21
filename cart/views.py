@@ -99,10 +99,29 @@ def checkout(request):
 
             if new_purchases > 0:
                 request.user.profile.add_xp(50 * new_purchases)
+                # Steam Points за покупки
+                try:
+                    p = request.user.profile
+                    p.steam_points = (p.steam_points or 0) + (10 * new_purchases)
+                    p.save(update_fields=['steam_points'])
+                except Exception:
+                    pass
                 give_achievement(request.user, 'Первая покупка', 'Купите свою первую игру.')
 
                 if new_purchases >= 3:
                     give_achievement(request.user, 'Оптовый покупатель', 'Купите 3 игры за раз.')
+
+                try:
+                    from steamplus.utils import log_activity
+                    for item in list(cart_items):
+                        log_activity(
+                            request.user,
+                            'purchase',
+                            f'купил «{item.game.title}»',
+                            game=item.game,
+                        )
+                except Exception:
+                    pass
 
             # Очищаем корзину после успешной оплаты
             cart_items.delete()
@@ -122,8 +141,23 @@ def checkout(request):
 
 @login_required
 def library(request):
-    purchases = Purchase.objects.filter(user=request.user).select_related('game').order_by('-purchased_at')
-    return render(request, 'cart/library.html', {'purchases': purchases})
+    purchases = list(
+        Purchase.objects.filter(user=request.user).select_related('game').order_by('-purchased_at')
+    )
+    try:
+        from steamplus.models import Playtime
+        pt_map = {
+            pt.game_id: pt
+            for pt in Playtime.objects.filter(user=request.user)
+        }
+        for p in purchases:
+            p.playtime = pt_map.get(p.game_id)
+    except Exception:
+        for p in purchases:
+            p.playtime = None
+    return render(request, 'cart/library.html', {
+        'purchases': purchases,
+    })
 
 
 @login_required

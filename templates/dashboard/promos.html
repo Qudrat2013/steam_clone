@@ -1,0 +1,54 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Промокоды{% endblock %}
+{% block content %}
+<h1>Промокоды</h1>
+<div class="two-col">
+    <div class="dash-card">
+        <h2>Создать промокод</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-row"><label>Код</label><input class="dash-input" name="code" placeholder="SUMMER2026" required style="text-transform:uppercase"></div>
+                <div class="form-row"><label>Тип награды</label>
+                    <select class="dash-select" name="reward_type">
+                        {% for val, label in reward_types %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-row"><label>Значение</label><input class="dash-input" name="reward_value" value="1000" required></div>
+                <div class="form-row"><label>Макс. активаций</label><input class="dash-input" name="max_uses" type="number" value="100" min="1"></div>
+            </div>
+            <div class="form-row"><label>Игра (для reward=game)</label>
+                <select class="dash-select" name="game_id">
+                    <option value="">—</option>
+                    {% for g in games %}<option value="{{ g.id }}">{{ g.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-row"><label>Описание</label><input class="dash-input" name="description"></div>
+            <button class="dash-btn dash-btn-green" type="submit">Создать</button>
+        </form>
+    </div>
+    <div class="dash-card">
+        <h2>Список</h2>
+        <table class="dash-table">
+            <thead><tr><th>Код</th><th>Тип</th><th>Значение</th><th>Исп.</th><th></th></tr></thead>
+            <tbody>
+            {% for p in promos %}
+                <tr>
+                    <td><code style="color:var(--accent)">{{ p.code }}</code></td>
+                    <td>{{ p.get_reward_type_display }}</td>
+                    <td>{{ p.reward_value }}</td>
+                    <td>{{ p.used_count }}/{{ p.max_uses }} {% if p.is_active %}<span class="pill pill-green">on</span>{% else %}<span class="pill pill-red">off</span>{% endif %}</td>
+                    <td>
+                        <form method="post" action="{% url 'dashboard_promo_toggle' p.id %}">{% csrf_token %}
+                            <button class="dash-btn dash-btn-sm dash-btn-ghost" type="submit">Toggle</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="muted">Промокодов нет</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

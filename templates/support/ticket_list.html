@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Мои тикеты{% endblock %}
+{% block content %}
+<div class="sp-page support-center" style="max-width:900px;margin:0 auto;padding:24px 16px 60px">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <h1 style="color:#fff;margin:0">Мои обращения</h1>
+    <a href="{% url 'support_ticket_create' %}" style="background:#5c7e10;color:#fff;padding:10px 16px;border-radius:4px;text-decoration:none;font-weight:700">+ Новый тикет</a>
+  </div>
+  <div style="margin:16px 0;display:flex;gap:8px">
+    <a href="?" style="color:{% if not status %}#fff{% else %}#8f98a0{% endif %};padding:6px 12px;background:#1b2838;border-radius:4px;text-decoration:none">Все</a>
+    <a href="?status=open" style="color:{% if status == 'open' %}#fff{% else %}#8f98a0{% endif %};padding:6px 12px;background:#1b2838;border-radius:4px;text-decoration:none">Открытые</a>
+    <a href="?status=closed" style="color:{% if status == 'closed' %}#fff{% else %}#8f98a0{% endif %};padding:6px 12px;background:#1b2838;border-radius:4px;text-decoration:none">Закрытые</a>
+  </div>
+  {% for t in tickets %}
+    <a href="{% url 'support_ticket_detail' t.id %}" style="display:block;background:#16202d;border:1px solid #2a475e;border-radius:8px;padding:16px;margin-bottom:10px;text-decoration:none;color:#c7d5e0">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <strong style="color:#fff">#{{ t.id }} · {{ t.subject }}</strong>
+        <span style="font-size:12px;background:#1b2838;padding:2px 8px;border-radius:10px">{{ t.get_status_display }}</span>
+      </div>
+      <div style="color:#8f98a0;font-size:13px;margin-top:6px">{{ t.get_category_display }} · обновлён {{ t.updated_at|date:"d.m.Y H:i" }}</div>
+    </a>
+  {% empty %}
+    <p style="color:#8f98a0">Тикетов пока нет. <a href="{% url 'support_ticket_create' %}" style="color:#67c1f5">Создать</a></p>
+  {% endfor %}
+  <p style="margin-top:20px"><a href="{% url 'support_home' %}" style="color:#67c1f5">← Центр поддержки</a></p>
+</div>
+{% endblock %}

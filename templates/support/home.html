@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}Поддержка Steam{% endblock %}
+{% block content %}
+<div class="sp-page support-center">
+  <div class="support-hero">
+    <h1><i class="fas fa-life-ring"></i> Центр поддержки Steam</h1>
+    <p class="muted">Найдите ответ или создайте обращение — как в настоящем Steam Support</p>
+    <form class="support-search" method="get" action="{% url 'support_home' %}">
+      <input type="text" name="q" value="{{ q }}" placeholder="Опишите проблему… (пароль, возврат, обмен…)">
+      <button type="submit"><i class="fas fa-search"></i></button>
+    </form>
+  </div>
+
+  {% if q %}
+  <section class="support-section">
+    <h2>Результаты поиска «{{ q }}»</h2>
+    {% for a in search_results %}
+      <a class="support-faq-link" href="{% url 'support_faq' a.slug %}">{{ a.title }}</a>
+    {% empty %}
+      <p class="muted">Ничего не найдено. <a href="{% url 'support_ticket_create' %}">Создать тикет</a></p>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <div class="support-actions">
+    {% if user.is_authenticated %}
+      <a class="support-action-card" href="{% url 'support_ticket_create' %}">
+        <i class="fas fa-plus-circle"></i>
+        <span>Создать обращение</span>
+        <small>Тикет в поддержку</small>
+      </a>
+      <a class="support-action-card" href="{% url 'support_tickets' %}">
+        <i class="fas fa-ticket-alt"></i>
+        <span>Мои тикеты{% if open_tickets %} ({{ open_tickets }}){% endif %}</span>
+        <small>История обращений</small>
+      </a>
+      <a class="support-action-card" href="{% url 'support_refunds' %}">
+        <i class="fas fa-undo"></i>
+        <span>Возвраты</span>
+        <small>Вернуть игру</small>
+      </a>
+      <a class="support-action-card" href="{% url 'support_report' %}">
+        <i class="fas fa-flag"></i>
+        <span>Пожаловаться</span>
+        <small>Нарушение правил</small>
+      </a>
+      <a class="support-action-card" href="{% url 'support_redeem' %}">
+        <i class="fas fa-gift"></i>
+        <span>Промокод</span>
+        <small>Активировать код</small>
+      </a>
+    {% else %}
+      <a class="support-action-card" href="{% url 'login' %}">
+        <i class="fas fa-sign-in-alt"></i>
+        <span>Войдите</span>
+        <small>Чтобы создать тикет</small>
+      </a>
+    {% endif %}
+  </div>
+
+  {% if popular %}
+  <section class="support-section">
+    <h2>Популярные статьи</h2>
+    <div class="support-popular">
+      {% for a in popular %}
+        <a href="{% url 'support_faq' a.slug %}">{{ a.title }} <span class="muted">{{ a.views }} 👁</span></a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="support-section">
+    <h2>Категории помощи</h2>
+    <div class="support-cats">
+      {% for c in categories %}
+        <div class="support-cat">
+          <h3><i class="fas {{ c.icon }}"></i> {{ c.name }}</h3>
+          {% for a in c.articles.all %}
+            {% if a.is_published %}
+              <a href="{% url 'support_faq' a.slug %}">{{ a.title }}</a>
+            {% endif %}
+          {% empty %}
+            <span class="muted">Скоро…</span>
+          {% endfor %}
+        </div>
+      {% empty %}
+        <p class="muted">База знаний пока пуста. Админ: <code>python manage.py seed_support</code></p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<style>
+.support-center { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+.support-hero { text-align: center; margin-bottom: 32px; }
+.support-hero h1 { font-size: 32px; margin-bottom: 8px; color: #fff; }
+.support-search { display: flex; max-width: 560px; margin: 18px auto 0; }
+.support-search input {
+  flex: 1; padding: 14px 16px; border: none; border-radius: 4px 0 0 4px;
+  background: #316282; color: #fff; font-size: 15px;
+}
+.support-search input::placeholder { color: #8f98a0; }
+.support-search button {
+  padding: 0 20px; border: none; background: #1a9fff; color: #fff;
+  border-radius: 0 4px 4px 0; cursor: pointer;
+}
+.support-actions {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px; margin-bottom: 36px;
+}
+.support-action-card {
+  display: flex; flex-direction: column; gap: 6px;
+  background: linear-gradient(135deg, #1b2838, #16202d);
+  border: 1px solid #2a475e; border-radius: 8px; padding: 18px;
+  text-decoration: none; color: #c7d5e0; transition: .15s;
+}
+.support-action-card:hover { border-color: #67c1f5; color: #fff; transform: translateY(-2px); }
+.support-action-card i { font-size: 22px; color: #67c1f5; }
+.support-action-card span { font-weight: 700; font-size: 14px; }
+.support-action-card small { color: #8f98a0; font-size: 12px; }
+.support-section { margin-bottom: 32px; }
+.support-section h2 { color: #fff; font-size: 18px; margin-bottom: 14px; border-bottom: 1px solid #2a475e; padding-bottom: 8px; }
+.support-popular a, .support-faq-link {
+  display: block; padding: 10px 12px; color: #67c1f5; text-decoration: none;
+  border-bottom: 1px solid #1b2838;
+}
+.support-popular a:hover, .support-faq-link:hover { background: #1b2838; }
+.support-cats {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+}
+.support-cat {
+  background: #16202d; border: 1px solid #2a475e; border-radius: 8px; padding: 16px;
+}
+.support-cat h3 { color: #fff; font-size: 15px; margin: 0 0 10px; }
+.support-cat h3 i { color: #67c1f5; margin-right: 6px; }
+.support-cat a {
+  display: block; color: #c7d5e0; text-decoration: none; padding: 5px 0; font-size: 13px;
+}
+.support-cat a:hover { color: #67c1f5; }
+.muted { color: #8f98a0; }
+</style>
+{% endblock %}

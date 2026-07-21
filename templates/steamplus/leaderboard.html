@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Лидерборд — Steam{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+    <div class="sp-hero sp-hero--blue">
+        <h1><i class="fas fa-trophy"></i> Лидерборд</h1>
+        <p>Топ игроков платформы</p>
+    </div>
+
+    <div class="sp-tabs">
+        <a href="?tab=level" class="sp-tab {% if tab == 'level' %}is-active{% endif %}">Уровень</a>
+        <a href="?tab=points" class="sp-tab {% if tab == 'points' %}is-active{% endif %}">Очки</a>
+        <a href="?tab=play" class="sp-tab {% if tab == 'play' %}is-active{% endif %}">Время в играх</a>
+    </div>
+
+    <div class="sp-list">
+        {% if tab == 'points' %}
+            {% for u in by_points %}
+            <div class="sp-list-item">
+                <span class="sp-rank">#{{ forloop.counter }}</span>
+                <a href="{% url 'profile' u.username %}"><b>{{ u.username }}</b></a>
+                <span>{{ u.profile.steam_points }} pts · ур. {{ u.profile.steam_level }}</span>
+            </div>
+            {% empty %}<div class="sp-empty">Пока пусто</div>{% endfor %}
+        {% elif tab == 'play' %}
+            {% for row in by_play %}
+            <div class="sp-list-item">
+                <span class="sp-rank">#{{ forloop.counter }}</span>
+                <a href="{% url 'profile' row.user__username %}"><b>{{ row.user__username }}</b></a>
+                <span class="sp-muted">{{ row.total_min }} мин. игры</span>
+            </div>
+            {% empty %}<div class="sp-empty">Пока никто не играл</div>{% endfor %}
+        {% else %}
+            {% for u in by_level %}
+            <div class="sp-list-item">
+                <span class="sp-rank">#{{ forloop.counter }}</span>
+                <a href="{% url 'profile' u.username %}"><b>{{ u.username }}</b></a>
+                <span>Уровень {{ u.profile.steam_level }} · {{ u.profile.xp }} XP</span>
+            </div>
+            {% empty %}<div class="sp-empty">Пока пусто</div>{% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

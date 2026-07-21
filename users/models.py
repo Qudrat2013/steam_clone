@@ -34,16 +34,25 @@ class Profile(models.Model):
     avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True)
     bio = models.TextField(blank=True, verbose_name='О себе')
     country = models.CharField(max_length=100, blank=True, verbose_name='Страна')
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Баланс')
+    balance = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)
 
     xp = models.IntegerField(default=0, verbose_name='Опыт')
     steam_level = models.IntegerField(default=0, verbose_name='Уровень')
+    steam_points = models.PositiveIntegerField(default=0, verbose_name='Steam Points')
 
     STATUS_CHOICES = [
         ('offline', 'Оффлайн'),
         ('online', 'Онлайн'),
+        ('away', 'Отошёл'),
+        ('busy', 'Не беспокоить'),
+        ('looking_to_play', 'Ищет игру'),
+        ('looking_to_trade', 'Ищет обмен'),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='offline', verbose_name='Статус')
+    custom_status = models.CharField(max_length=80, blank=True, verbose_name='Кастомный статус')
+    last_seen = models.DateTimeField(null=True, blank=True, verbose_name='Был в сети')
+    last_daily_bonus = models.DateField(null=True, blank=True, verbose_name='Последний daily bonus')
+    daily_streak = models.PositiveIntegerField(default=0, verbose_name='Серия daily')
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -65,3 +74,11 @@ class Profile(models.Model):
             self.steam_level += 1
 
         self.save()
+
+    @property
+    def status_label(self):
+        return dict(self.STATUS_CHOICES).get(self.status, self.status)
+
+    @property
+    def is_onlineish(self):
+        return self.status in ('online', 'away', 'busy', 'looking_to_play', 'looking_to_trade')

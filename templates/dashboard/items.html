@@ -1,0 +1,44 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Предметы{% endblock %}
+{% block content %}
+<h1>Предметы инвентаря</h1>
+<div class="two-col">
+    <div class="dash-card">
+        <h2>Создать предмет</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-row"><label>Название</label><input class="dash-input" name="name" required></div>
+            <div class="form-row"><label>Игра</label>
+                <select class="dash-select" name="game_id" required>
+                    {% for g in games %}<option value="{{ g.id }}">{{ g.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-row"><label>Редкость</label>
+                <select class="dash-select" name="rarity">
+                    {% for val, label in rarities %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-row"><label>Описание</label><textarea class="dash-textarea" name="description"></textarea></div>
+            <div class="form-row"><label>Картинка</label><input class="dash-input" type="file" name="image" accept="image/*"></div>
+            <button class="dash-btn dash-btn-green" type="submit">Создать</button>
+        </form>
+    </div>
+    <div class="dash-card">
+        <table class="dash-table">
+            <thead><tr><th>Название</th><th>Игра</th><th>Редкость</th><th>Владельцев</th></tr></thead>
+            <tbody>
+            {% for it in items %}
+                <tr>
+                    <td>{{ it.name }}</td>
+                    <td class="muted">{{ it.game.title }}</td>
+                    <td><span class="pill pill-purple">{{ it.get_rarity_display }}</span></td>
+                    <td>{{ it.owners }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="muted">Предметов нет</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

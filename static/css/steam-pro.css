@@ -1,0 +1,1126 @@
+/* =========================================================
+   STEAM PRO UI — premium glass / glow redesign
+   Подключается после steam.css и перекрывает layout header/footer
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --sp-bg0: #0b1017;
+    --sp-bg1: #111923;
+    --sp-bg2: #16202d;
+    --sp-bg3: #1b2838;
+    --sp-mid: #2a475e;
+    --sp-blue: #66c0f4;
+    --sp-blue-2: #1a9fff;
+    --sp-blue-d: #1b87c9;
+    --sp-green: #a4d007;
+    --sp-green-2: #beee11;
+    --sp-green-d: #5c7e10;
+    --sp-text: #c7d5e0;
+    --sp-dim: #8f98a0;
+    --sp-white: #ffffff;
+    --sp-border: rgba(102, 192, 244, 0.14);
+    --sp-border-strong: rgba(102, 192, 244, 0.32);
+    --sp-glow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    --sp-glow-blue: 0 0 28px rgba(102, 192, 244, 0.22);
+    --sp-radius: 12px;
+    --sp-radius-lg: 18px;
+    --sp-max: 1200px;
+    --sp-font: "Noto Sans", "Segoe UI", system-ui, sans-serif;
+    --sp-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- base polish ---------- */
+html { scroll-behavior: smooth; }
+
+.steam-body,
+body.steam-body {
+    font-family: var(--sp-font) !important;
+    background:
+        radial-gradient(ellipse 80% 45% at 15% -5%, rgba(26, 159, 255, 0.16), transparent 55%),
+        radial-gradient(ellipse 70% 40% at 90% 0%, rgba(164, 208, 7, 0.08), transparent 50%),
+        radial-gradient(circle at 50% 120%, rgba(27, 135, 201, 0.08), transparent 45%),
+        linear-gradient(180deg, #0e1620 0%, #0a0f14 45%, #070b10 100%) !important;
+    color: var(--sp-text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+.steam-body ::selection {
+    background: rgba(102, 192, 244, 0.35);
+    color: #fff;
+}
+
+.steam-page,
+#page_root.steam-page {
+    max-width: var(--sp-max);
+    margin: 0 auto;
+    padding: 18px 18px 64px;
+    min-height: 52vh;
+}
+
+/* soft scrollbar */
+.steam-body ::-webkit-scrollbar { width: 10px; height: 10px; }
+.steam-body ::-webkit-scrollbar-track { background: #0b1017; }
+.steam-body ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #2a475e, #1b2838);
+    border-radius: 999px;
+    border: 2px solid #0b1017;
+}
+.steam-body ::-webkit-scrollbar-thumb:hover { background: #66c0f4; }
+
+/* =========================================================
+   GLOBAL HEADER
+   ========================================================= */
+.steam-gh,
+#global_header.steam-gh {
+    position: sticky;
+    top: 0;
+    z-index: 1200;
+    background: linear-gradient(180deg, rgba(23, 26, 33, 0.96) 0%, rgba(17, 20, 27, 0.94) 100%);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    border-bottom: 1px solid rgba(102, 192, 244, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.steam-gh__inner {
+    max-width: var(--sp-max);
+    margin: 0 auto;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.steam-gh__logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    text-decoration: none;
+    transition: transform 0.2s var(--sp-ease), filter 0.2s;
+}
+.steam-gh__logo:hover {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 12px rgba(102, 192, 244, 0.45));
+}
+.steam-gh__logo-svg {
+    height: 42px;
+    width: auto;
+    display: block;
+}
+
+.steam-gh__nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.steam-gh__link,
+.steam-gh__dd-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    color: #b8b6b4;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.18s, background 0.18s, box-shadow 0.18s;
+    white-space: nowrap;
+}
+.steam-gh__link:hover,
+.steam-gh__dd-btn:hover {
+    color: #fff;
+    background: rgba(102, 192, 244, 0.1);
+}
+
+.steam-gh__dd { position: relative; }
+.steam-gh__dd-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 220px;
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    background: linear-gradient(180deg, #1b2838 0%, #121a24 100%);
+    border: 1px solid var(--sp-border-strong);
+    border-radius: 12px;
+    box-shadow: var(--sp-glow), var(--sp-glow-blue);
+    z-index: 1300;
+    animation: sp-fade-up 0.16s var(--sp-ease);
+}
+.steam-gh__dd-menu--right { left: auto; right: 0; }
+.steam-gh__dd:hover .steam-gh__dd-menu,
+.steam-gh__dd:focus-within .steam-gh__dd-menu { display: flex; }
+
+.steam-gh__dd-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--sp-text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+.steam-gh__dd-menu a i {
+    width: 16px;
+    text-align: center;
+    color: var(--sp-blue);
+    opacity: 0.9;
+}
+.steam-gh__dd-menu a:hover {
+    background: rgba(102, 192, 244, 0.14);
+    color: #fff;
+    transform: translateX(2px);
+}
+.steam-gh__dd-div {
+    height: 1px;
+    margin: 6px 4px;
+    background: linear-gradient(90deg, transparent, rgba(102, 192, 244, 0.25), transparent);
+}
+
+.steam-gh__account {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.steam-gh__wallet {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(102, 192, 244, 0.16), rgba(26, 159, 255, 0.08));
+    border: 1px solid rgba(102, 192, 244, 0.28);
+    color: #d9ecf8;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+}
+.steam-gh__wallet i { color: var(--sp-blue); }
+.steam-gh__wallet:hover {
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(26, 159, 255, 0.25);
+    background: linear-gradient(135deg, rgba(102, 192, 244, 0.28), rgba(26, 159, 255, 0.14));
+}
+
+.steam-gh__user-btn {
+    appearance: none;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--sp-text);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px 5px 5px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+.steam-gh__user-btn:hover {
+    background: rgba(102, 192, 244, 0.12);
+    border-color: rgba(102, 192, 244, 0.25);
+    box-shadow: 0 0 0 3px rgba(102, 192, 244, 0.08);
+}
+
+.steam-gh__avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, #1a9fff, #66c0f4 55%, #a4d007);
+    box-shadow: 0 0 0 2px rgba(102, 192, 244, 0.35), 0 4px 12px rgba(26, 159, 255, 0.35);
+}
+
+.steam-gh__uname {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sp-blue);
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.steam-gh__badge {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ef5350, #c62828);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(198, 40, 40, 0.5);
+}
+
+.steam-gh__cart {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: var(--sp-text);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(102, 192, 244, 0.12);
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.15s, background 0.15s, transform 0.15s;
+}
+.steam-gh__cart:hover {
+    color: #fff;
+    background: rgba(102, 192, 244, 0.16);
+    transform: translateY(-1px);
+}
+.steam-gh__cart-n {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #1a9fff, #1470a8);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.steam-gh__login,
+.steam-gh__register {
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: color 0.15s, background 0.15s;
+}
+.steam-gh__login {
+    color: #fff;
+    background: linear-gradient(180deg, #5aa0d0, #356a90);
+    border: 1px solid #1b4163;
+    box-shadow: 0 4px 14px rgba(27, 135, 201, 0.3);
+}
+.steam-gh__login:hover {
+    filter: brightness(1.08);
+    color: #fff;
+}
+.steam-gh__register { color: var(--sp-blue); }
+.steam-gh__register:hover {
+    color: #fff;
+    background: rgba(102, 192, 244, 0.12);
+}
+.steam-gh__sep { color: #4a5560; font-size: 12px; }
+
+/* =========================================================
+   STORE SUBNAV
+   ========================================================= */
+.steam-store-nav-wrap {
+    background:
+        linear-gradient(180deg, rgba(27, 40, 56, 0.95), rgba(22, 32, 45, 0.92)),
+        radial-gradient(ellipse 60% 120% at 20% 0%, rgba(102, 192, 244, 0.12), transparent 60%);
+    border-bottom: 1px solid rgba(102, 192, 244, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.steam-store-nav {
+    max-width: var(--sp-max);
+    margin: 0 auto;
+    padding: 10px 18px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.steam-store-nav__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.steam-store-nav__tab {
+    color: #b8c9d6;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.18s, background 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+.steam-store-nav__tab:hover {
+    color: #fff;
+    background: rgba(102, 192, 244, 0.1);
+}
+.steam-store-nav__tab.is-active {
+    color: #fff;
+    background: linear-gradient(180deg, rgba(102, 192, 244, 0.18), rgba(102, 192, 244, 0.06));
+    border-bottom-color: var(--sp-blue);
+    box-shadow: 0 0 18px rgba(102, 192, 244, 0.12);
+}
+
+.steam-search {
+    display: flex;
+    align-items: stretch;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(102, 192, 244, 0.22);
+    background: linear-gradient(180deg, #316282, #254d66);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 16px rgba(0, 0, 0, 0.25);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.steam-search:focus-within {
+    border-color: rgba(102, 192, 244, 0.55);
+    box-shadow: 0 0 0 3px rgba(102, 192, 244, 0.15), 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+.steam-search input {
+    width: 190px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    font-size: 12px;
+    font-family: inherit;
+    padding: 8px 14px;
+}
+.steam-search input::placeholder { color: #8ba7bd; }
+.steam-search button {
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(180deg, #1a9fff, #1470a8);
+    padding: 0 14px;
+    transition: filter 0.15s;
+}
+.steam-search button:hover { filter: brightness(1.12); }
+
+/* =========================================================
+   TOASTS / MESSAGES
+   ========================================================= */
+.steam-toast {
+    max-width: var(--sp-max);
+    margin: 10px auto 0;
+    padding: 11px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    animation: sp-fade-up 0.25s var(--sp-ease);
+}
+.steam-toast a {
+    color: #fff;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.steam-toast--blue {
+    background: linear-gradient(90deg, rgba(26, 159, 255, 0.22), rgba(27, 40, 56, 0.9));
+    border: 1px solid rgba(102, 192, 244, 0.35);
+    color: #9ed8f8;
+    box-shadow: 0 8px 24px rgba(26, 159, 255, 0.12);
+}
+.steam-toast--green {
+    background: linear-gradient(90deg, rgba(164, 208, 7, 0.16), rgba(27, 40, 56, 0.9));
+    border: 1px solid rgba(164, 208, 7, 0.35);
+    color: #d4f06a;
+    box-shadow: 0 8px 24px rgba(164, 208, 7, 0.1);
+}
+
+.steam-messages { max-width: var(--sp-max); margin: 10px auto 0; padding: 0 18px; }
+.steam-messages .alert {
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.steam-footer,
+#footer.steam-footer {
+    margin-top: 40px;
+    background:
+        linear-gradient(180deg, rgba(17, 25, 35, 0.4) 0%, #0c1219 30%, #080c11 100%);
+    border-top: 1px solid rgba(102, 192, 244, 0.1);
+}
+
+.steam-footer__inner {
+    max-width: var(--sp-max);
+    margin: 0 auto;
+    padding: 28px 18px 36px;
+}
+
+.steam-footer__rule {
+    height: 1px;
+    margin-bottom: 24px;
+    background: linear-gradient(90deg, transparent, rgba(102, 192, 244, 0.35), rgba(164, 208, 7, 0.25), transparent);
+}
+
+.steam-footer__top {
+    display: grid;
+    grid-template-columns: 1.2fr 2fr;
+    gap: 28px;
+    margin-bottom: 24px;
+}
+
+.steam-footer__logo {
+    display: inline-block;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    background: linear-gradient(180deg, #ffffff 0%, #66c0f4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 10px rgba(102, 192, 244, 0.3));
+    margin-bottom: 10px;
+}
+
+.steam-footer__brand p {
+    color: var(--sp-dim);
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 320px;
+}
+
+.steam-footer__cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.steam-footer__h {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.steam-footer__col a {
+    display: block;
+    color: var(--sp-dim);
+    font-size: 13px;
+    text-decoration: none;
+    padding: 4px 0;
+    transition: color 0.15s, transform 0.15s;
+}
+.steam-footer__col a:hover {
+    color: var(--sp-blue);
+    transform: translateX(3px);
+}
+
+.steam-footer__copy {
+    padding-top: 18px;
+    border-top: 1px solid rgba(102, 192, 244, 0.08);
+    color: #6d7883;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   HOME / STORE polish
+   ========================================================= */
+.steam_home_v2,
+.steam_store_home,
+.home_page {
+    padding-top: 8px !important;
+}
+
+.steam_home_title h1,
+.store_hero_title h1 {
+    font-size: clamp(24px, 3vw, 34px) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, #fff 0%, #c7e8fb 45%, #66c0f4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.35));
+}
+
+.steam_showcase {
+    position: relative;
+    border-radius: 16px !important;
+    overflow: hidden;
+    border: 1px solid rgba(102, 192, 244, 0.16) !important;
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+        0 0 40px rgba(26, 159, 255, 0.08) !important;
+}
+
+.steam_showcase::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.25);
+}
+
+.steam_showcase_info h2 {
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+}
+
+.steam_block_header {
+    margin-bottom: 16px !important;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid transparent !important;
+    border-image: linear-gradient(90deg, rgba(102, 192, 244, 0.45), transparent 70%) 1;
+}
+
+.steam_block_header h2,
+.section_title {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.08em !important;
+    color: #e8f2f8 !important;
+}
+
+.steam_block_header a {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sp-blue);
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(102, 192, 244, 0.2);
+    background: rgba(102, 192, 244, 0.06);
+    transition: all 0.18s;
+}
+.steam_block_header a:hover {
+    color: #fff;
+    background: rgba(102, 192, 244, 0.18);
+    border-color: rgba(102, 192, 244, 0.4);
+}
+
+.steam_game_card,
+.game_card,
+.steam_special_card {
+    border-radius: 14px !important;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(31, 47, 66, 0.95), rgba(16, 24, 34, 0.98)) !important;
+    border: 1px solid rgba(102, 192, 244, 0.1) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+    transition: transform 0.25s var(--sp-ease), box-shadow 0.25s var(--sp-ease), border-color 0.2s !important;
+}
+.steam_game_card:hover,
+.game_card:hover,
+.steam_special_card:hover {
+    transform: translateY(-8px) scale(1.01) !important;
+    border-color: rgba(102, 192, 244, 0.35) !important;
+    box-shadow:
+        0 22px 40px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(102, 192, 244, 0.2),
+        0 0 30px rgba(26, 159, 255, 0.12) !important;
+}
+
+.steam_game_card img,
+.game_card_img,
+.steam_special_card img {
+    transition: transform 0.45s var(--sp-ease), filter 0.3s !important;
+}
+.steam_game_card:hover img,
+.game_card:hover .game_card_img,
+.steam_special_card:hover img {
+    transform: scale(1.06) !important;
+    filter: saturate(1.1) brightness(1.05);
+}
+
+.discount_badge,
+.discount_pill {
+    background: linear-gradient(135deg, #4c6b22 0%, #8bc53f 55%, #beee11 140%) !important;
+    color: #0f1a05 !important;
+    font-weight: 900 !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 4px 14px rgba(139, 197, 63, 0.35) !important;
+}
+
+.steam_home_row,
+.steam_top_item,
+.steam_store_row,
+.store_list_item {
+    border-radius: 12px !important;
+    background: linear-gradient(90deg, rgba(22, 32, 45, 0.95), rgba(27, 40, 56, 0.85)) !important;
+    border: 1px solid rgba(102, 192, 244, 0.08) !important;
+    transition: transform 0.2s var(--sp-ease), border-color 0.2s, box-shadow 0.2s, background 0.2s !important;
+}
+.steam_home_row:hover,
+.steam_top_item:hover,
+.steam_store_row:hover,
+.store_list_item:hover {
+    transform: translateX(4px) !important;
+    border-color: rgba(102, 192, 244, 0.3) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 0 24px rgba(26, 159, 255, 0.08) !important;
+    background: linear-gradient(90deg, #24445e, #1b2838) !important;
+}
+
+.steam_showcase_thumb {
+    border-radius: 10px !important;
+}
+.steam_showcase_thumb:hover {
+    box-shadow: 0 0 0 1px rgba(102, 192, 244, 0.35), 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================================================
+   BUTTONS / FORMS / AUTH upgrade
+   ========================================================= */
+.btn_add_cart,
+.btn_checkout,
+.btn_steam_green,
+.steam_library_play_btn,
+.btn-steam {
+    background: linear-gradient(180deg, #a4d007 0%, #6f9a0e 55%, #5c7e10 100%) !important;
+    border: 1px solid rgba(190, 238, 17, 0.35) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 20px rgba(92, 126, 16, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    letter-spacing: 0.02em;
+    transition: transform 0.15s, filter 0.15s, box-shadow 0.2s !important;
+}
+.btn_add_cart:hover,
+.btn_checkout:hover,
+.btn_steam_green:hover,
+.steam_library_play_btn:hover,
+.btn-steam:hover {
+    filter: brightness(1.08) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 12px 26px rgba(139, 197, 63, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+    color: #fff !important;
+}
+
+.auth_page {
+    min-height: 62vh !important;
+    padding: 48px 16px !important;
+    background:
+        radial-gradient(ellipse 70% 50% at 50% 20%, rgba(26, 159, 255, 0.18), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(164, 208, 7, 0.08), transparent 55%),
+        transparent !important;
+}
+
+.auth_box {
+    width: min(420px, 100%) !important;
+    padding: 34px 30px !important;
+    border-radius: 18px !important;
+    background:
+        linear-gradient(160deg, rgba(44, 62, 79, 0.95) 0%, rgba(22, 32, 45, 0.98) 100%) !important;
+    border: 1px solid rgba(102, 192, 244, 0.2) !important;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+        0 0 40px rgba(26, 159, 255, 0.1) !important;
+    backdrop-filter: blur(16px);
+}
+
+.auth_title {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+}
+
+.form_control,
+.form-control {
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(102, 192, 244, 0.18) !important;
+    transition: border-color 0.18s, box-shadow 0.18s, background 0.18s !important;
+}
+.form_control:focus,
+.form-control:focus {
+    border-color: rgba(102, 192, 244, 0.55) !important;
+    box-shadow: 0 0 0 3px rgba(102, 192, 244, 0.14) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.purchase_box {
+    border-radius: 16px !important;
+    background: linear-gradient(145deg, rgba(58, 88, 120, 0.95), rgba(30, 47, 69, 0.98)) !important;
+    border: 1px solid rgba(102, 192, 244, 0.25) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(26, 159, 255, 0.08) !important;
+}
+
+.steam_filter_sidebar,
+.store_sidebar,
+.steam_library_sidebar,
+.cart_summary,
+.checkout_summary {
+    border-radius: 14px !important;
+    background: linear-gradient(180deg, rgba(27, 40, 56, 0.95), rgba(17, 25, 35, 0.98)) !important;
+    border: 1px solid rgba(102, 192, 244, 0.14) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(12px);
+}
+
+.profile_header {
+    border-radius: 16px !important;
+    background:
+        linear-gradient(120deg, rgba(42, 71, 94, 0.9), rgba(27, 40, 56, 0.95)),
+        radial-gradient(circle at 10% 0%, rgba(102, 192, 244, 0.2), transparent 45%) !important;
+    border: 1px solid rgba(102, 192, 244, 0.18) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35) !important;
+}
+.profile_avatar {
+    box-shadow: 0 0 0 3px rgba(102, 192, 244, 0.45), 0 8px 24px rgba(26, 159, 255, 0.3) !important;
+}
+
+/* cart / wishlist cards */
+.cart_item,
+.wishlist_item,
+.review_card {
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(102, 192, 244, 0.1) !important;
+    transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.cart_item:hover,
+.wishlist_item:hover,
+.review_card:hover {
+    border-color: rgba(102, 192, 244, 0.28);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* library panels */
+.steam_library_game_panel {
+    border-radius: 14px !important;
+    overflow: hidden;
+    border: 1px solid rgba(102, 192, 244, 0.14) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* tags */
+.game_tag,
+.steam_store_row_tags span,
+.store_list_tag,
+.steam_home_row_tags span {
+    border-radius: 999px !important;
+    background: rgba(102, 192, 244, 0.1) !important;
+    border: 1px solid rgba(102, 192, 244, 0.18) !important;
+    color: #9ec9e6 !important;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+@keyframes sp-fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.steam_home_v2 > *,
+.steam-page > .steam_store_list_page,
+.steam-page > .game_detail_page,
+.steam-page > .cart_page,
+.steam-page > .auth_page {
+    animation: sp-fade-up 0.35s var(--sp-ease) both;
+}
+
+/* focus visibility */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid rgba(102, 192, 244, 0.7);
+    outline-offset: 2px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 980px) {
+    .steam-gh__inner { flex-wrap: wrap; gap: 10px; }
+    .steam-gh__nav { order: 3; width: 100%; overflow-x: auto; }
+    .steam-store-nav { flex-direction: column; align-items: stretch; }
+    .steam-search { width: 100%; }
+    .steam-search input { width: 100%; flex: 1; }
+    .steam-footer__top { grid-template-columns: 1fr; }
+    .steam-footer__cols { grid-template-columns: 1fr 1fr; }
+    .steam_showcase { grid-template-columns: 1fr !important; }
+    .steam_showcase_side { display: none !important; }
+}
+
+@media (max-width: 640px) {
+    .steam-gh__uname { display: none; }
+    .steam-gh__wallet span { display: none; }
+    .steam-footer__cols { grid-template-columns: 1fr; }
+    .steam_special_grid { grid-template-columns: 1fr !important; }
+    .steam_home_row,
+    .steam_top_item {
+        grid-template-columns: 110px 1fr !important;
+    }
+    .steam_home_row_price,
+    .steam_top_price { grid-column: 2; justify-content: flex-start !important; }
+}
+
+/* reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* =========================================================
+   STEAMPLUS — cool feature pages
+   ========================================================= */
+.sp-page { max-width: var(--sp-max); margin: 0 auto; padding: 20px 16px 60px; }
+.sp-page--narrow { max-width: 720px; }
+.sp-page--split { display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
+.sp-main { min-width: 0; }
+.sp-side {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius);
+    padding: 16px;
+    height: fit-content;
+    position: sticky;
+    top: 12px;
+}
+.sp-side h3 { margin: 0 0 12px; font-size: 14px; color: var(--sp-blue); text-transform: uppercase; letter-spacing: .04em; }
+
+.sp-hero {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    padding: 22px 24px; margin-bottom: 22px;
+    border-radius: var(--sp-radius-lg);
+    background: linear-gradient(135deg, rgba(26,159,255,.18), rgba(27,40,56,.9));
+    border: 1px solid var(--sp-border);
+    box-shadow: var(--sp-glow);
+}
+.sp-hero h1 { margin: 0 0 6px; font-size: 26px; color: #fff; }
+.sp-hero p { margin: 0; color: var(--sp-dim); }
+.sp-hero--purple { background: linear-gradient(135deg, rgba(124,77,255,.25), rgba(27,40,56,.95)); }
+.sp-hero--pink { background: linear-gradient(135deg, rgba(255,64,129,.2), rgba(27,40,56,.95)); }
+.sp-hero--gold { background: linear-gradient(135deg, rgba(255,193,7,.18), rgba(27,40,56,.95)); }
+.sp-hero--blue { background: linear-gradient(135deg, rgba(26,159,255,.28), rgba(11,16,23,.95)); }
+.sp-hero--sale { background: linear-gradient(135deg, rgba(164,208,7,.22), rgba(201,80,80,.15), rgba(11,16,23,.95)); }
+
+.sp-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border-radius: 8px; border: 1px solid transparent;
+    font-weight: 600; font-size: 13px; text-decoration: none; cursor: pointer;
+    transition: transform .15s var(--sp-ease), box-shadow .15s, background .15s;
+}
+.sp-btn:hover { transform: translateY(-1px); }
+.sp-btn--blue { background: linear-gradient(180deg, #66c0f4, #1a9fff); color: #0b1017; }
+.sp-btn--green { background: linear-gradient(180deg, #beee11, #5c7e10); color: #fff; }
+.sp-btn--ghost { background: rgba(255,255,255,.04); border-color: var(--sp-border); color: var(--sp-text); }
+.sp-btn--block { width: 100%; justify-content: center; margin-top: 10px; }
+.sp-btn--lg { padding: 14px 28px; font-size: 15px; }
+.sp-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+.sp-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sp-muted { color: var(--sp-dim); font-size: 13px; }
+.sp-section-title { margin: 28px 0 12px; font-size: 18px; color: #fff; }
+.sp-points-pill, .sp-points-cost {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    background: rgba(255,193,7,.12); border: 1px solid rgba(255,193,7,.35); color: #ffd54f; font-weight: 700;
+}
+.sp-badge-sale {
+    display: inline-block; padding: 3px 8px; border-radius: 4px;
+    background: #4c6b22; color: #beee11; font-weight: 800; font-size: 13px;
+}
+.sp-price { color: #beee11; font-weight: 700; }
+.sp-price-old { color: var(--sp-dim); text-decoration: line-through; font-size: 12px; }
+.sp-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    background: rgba(102,192,244,.15); color: var(--sp-blue);
+}
+.sp-rank {
+    width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+    background: rgba(102,192,244,.12); color: var(--sp-blue); font-weight: 800;
+}
+.sp-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+.sp-dot--online { background: #57cbde; box-shadow: 0 0 8px #57cbde; }
+.sp-dot--off { background: #4b5563; }
+
+.sp-card {
+    background: rgba(255,255,255,.03); border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-lg); padding: 20px; box-shadow: var(--sp-glow);
+}
+.sp-card--center { text-align: center; }
+.sp-card-img { width: 100%; border-radius: 10px; margin-bottom: 16px; max-height: 220px; object-fit: cover; }
+.sp-big-icon { font-size: 56px; color: var(--sp-blue); margin-bottom: 10px; }
+.sp-big-icon.is-done { color: var(--sp-green); }
+
+.sp-form label { display: block; margin: 12px 0 6px; color: var(--sp-dim); font-size: 12px; text-transform: uppercase; }
+.sp-form select, .sp-form textarea, .sp-form input {
+    width: 100%; background: rgba(0,0,0,.25); border: 1px solid var(--sp-border);
+    color: var(--sp-text); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+}
+
+.sp-list { display: flex; flex-direction: column; gap: 10px; }
+.sp-list-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 14px 16px; border-radius: 12px;
+    background: rgba(255,255,255,.03); border: 1px solid var(--sp-border);
+    text-decoration: none; color: inherit;
+}
+.sp-list-item--game img { width: 120px; height: 56px; object-fit: cover; border-radius: 8px; }
+.sp-list-item a { color: #fff; text-decoration: none; }
+.sp-list-item a:hover { color: var(--sp-blue); }
+
+.sp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.sp-grid--games { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.sp-shop-card, .sp-game-card {
+    background: rgba(255,255,255,.03); border: 1px solid var(--sp-border);
+    border-radius: 14px; padding: 16px; transition: border-color .18s, transform .18s, box-shadow .18s;
+    text-decoration: none; color: inherit; display: block;
+}
+.sp-shop-card:hover, .sp-game-card:hover {
+    border-color: var(--sp-border-strong); transform: translateY(-2px); box-shadow: var(--sp-glow-blue);
+}
+.sp-shop-icon { font-size: 28px; color: #ffd54f; margin-bottom: 8px; }
+.sp-game-card img, .sp-game-card .sp-placeholder {
+    width: 100%; aspect-ratio: 460/215; object-fit: cover; border-radius: 10px; margin-bottom: 10px;
+    background: linear-gradient(135deg, #1b2838, #2a475e);
+}
+.sp-game-card-body { display: flex; flex-direction: column; gap: 6px; }
+.sp-reason { font-size: 12px; color: var(--sp-blue); }
+
+.sp-discovery-card {
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 0;
+    border-radius: var(--sp-radius-lg); overflow: hidden;
+    border: 1px solid var(--sp-border); box-shadow: var(--sp-glow);
+    background: rgba(255,255,255,.03);
+}
+.sp-discovery-media { position: relative; min-height: 280px; background: #111; }
+.sp-discovery-media img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.sp-discovery-media .sp-badge-sale { position: absolute; top: 12px; left: 12px; z-index: 1; }
+.sp-discovery-body { padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.sp-discovery-body h2 { margin: 0; color: #fff; }
+.sp-meta-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.sp-rating.is-good { color: #66c0f4; }
+.sp-rating.is-mixed { color: #c1b067; }
+.sp-placeholder { display: grid; place-items: center; font-size: 48px; color: #4a6b8a; height: 100%; }
+
+.sp-feed { display: flex; flex-direction: column; gap: 12px; }
+.sp-feed-item {
+    display: flex; gap: 12px; padding: 14px; border-radius: 12px;
+    background: rgba(255,255,255,.03); border: 1px solid var(--sp-border);
+}
+.sp-feed-avatar {
+    width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+    display: grid; place-items: center; font-weight: 800;
+    background: linear-gradient(135deg, #1a9fff, #66c0f4); color: #0b1017;
+}
+.sp-feed-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; margin-bottom: 4px; }
+.sp-feed-type {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--sp-blue); background: rgba(102,192,244,.1); padding: 2px 6px; border-radius: 4px;
+}
+.sp-feed-game {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 8px;
+    padding: 6px 10px; border-radius: 8px; background: rgba(0,0,0,.25);
+    color: var(--sp-text); text-decoration: none; font-size: 13px;
+}
+.sp-feed-game img { width: 64px; height: 30px; object-fit: cover; border-radius: 4px; }
+.sp-friend-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+    color: inherit; text-decoration: none;
+}
+.sp-mini-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; }
+.sp-quote { margin-top: 6px; font-style: italic; color: #9ec9e6; }
+
+.sp-news-card {
+    padding: 18px; border-radius: 12px; background: rgba(255,255,255,.03);
+    border: 1px solid var(--sp-border);
+}
+.sp-news-card h2 { margin: 8px 0; color: #fff; font-size: 18px; }
+.sp-news-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; }
+
+.sp-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.sp-tab {
+    padding: 8px 14px; border-radius: 999px; text-decoration: none;
+    color: var(--sp-dim); border: 1px solid var(--sp-border); background: rgba(255,255,255,.03);
+}
+.sp-tab.is-active { color: #0b1017; background: var(--sp-blue); border-color: transparent; font-weight: 700; }
+
+.sp-stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;
+}
+.sp-stat {
+    padding: 16px; border-radius: 14px; text-align: center;
+    background: rgba(255,255,255,.03); border: 1px solid var(--sp-border);
+}
+.sp-stat-n { font-size: 28px; font-weight: 800; color: #fff; }
+.sp-stat-l { font-size: 12px; color: var(--sp-dim); margin-top: 4px; }
+
+.sp-sale-banner {
+    padding: 20px 24px; margin-bottom: 16px; border-radius: 14px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--sale-color, #1a9fff) 35%, transparent), transparent);
+    border: 1px solid color-mix(in srgb, var(--sale-color, #1a9fff) 50%, transparent);
+}
+.sp-sale-banner h2 { margin: 0 0 6px; color: #fff; }
+
+.sp-empty {
+    text-align: center; padding: 48px 20px; color: var(--sp-dim);
+    border: 1px dashed var(--sp-border); border-radius: 14px;
+}
+.sp-empty i { font-size: 40px; margin-bottom: 10px; color: var(--sp-blue); }
+.sp-empty h2 { color: #fff; }
+
+.steam-toast--sale a { color: #fff; font-weight: 700; text-decoration: underline; }
+
+/* live search suggest */
+.steam-search { position: relative; }
+.steam-search-suggest {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 50;
+    background: #1b2838; border: 1px solid rgba(102,192,244,.3); border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(0,0,0,.5); overflow: hidden;
+}
+.steam-search-suggest a {
+    display: flex; gap: 10px; align-items: center; padding: 10px 12px;
+    color: var(--sp-text); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.steam-search-suggest a:hover { background: rgba(102,192,244,.12); }
+.steam-search-suggest img { width: 72px; height: 34px; object-fit: cover; border-radius: 4px; background: #111; }
+.steam-search-suggest .ss-title { font-weight: 600; color: #fff; font-size: 13px; }
+.steam-search-suggest .ss-meta { font-size: 11px; color: var(--sp-dim); }
+
+@media (max-width: 900px) {
+    .sp-page--split { grid-template-columns: 1fr; }
+    .sp-discovery-card { grid-template-columns: 1fr; }
+    .sp-side { position: static; }
+}
