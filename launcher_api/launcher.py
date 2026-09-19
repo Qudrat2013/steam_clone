@@ -428,9 +428,7 @@ class SplashWidget(QWidget):
     def _anim(self):
         self._val = min(100, self._val + 2)
         self.bar.setValue(self._val)
-        if self._val == 28:
-            self.status.setText("подключение к серверу...")
-        elif self._val == 62:
+        if self._val == 62:
             self.status.setText("загрузка библиотеки...")
         elif self._val == 100:
             self.timer.stop()
@@ -515,28 +513,6 @@ class LoginPage(QWidget):
         self.tab_reg.clicked.connect(lambda: self._switch_tab(1))
         self.tab_qr.clicked.connect(lambda: self._switch_tab(2))
         lay.addLayout(tabs)
-
-        srv_row = QHBoxLayout()
-        srv_row.setSpacing(6)
-        self.server_edit = QLineEdit()
-        self.server_edit.setPlaceholderText(
-            "\u0410\u0434\u0440\u0435\u0441 \u0441\u0435\u0440\u0432\u0435\u0440\u0430: http://127.0.0.1:8000 \u0438\u043b\u0438 https://\u0432\u0430\u0448-\u0441\u0430\u0439\u0442.pythonanywhere.com"
-        )
-        self.server_edit.setText(SERVER_URL)
-        self.server_edit.setFixedHeight(38)
-        srv_row.addWidget(self.server_edit, 1)
-        self.server_btn = QPushButton("\U0001f50c \u041f\u041e\u0414\u041a\u041b\u042e\u0427\u0418\u0422\u042c")
-        self.server_btn.setObjectName("tabBtn")
-        self.server_btn.setFixedHeight(38)
-        self.server_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.server_btn.clicked.connect(self.do_set_server)
-        srv_row.addWidget(self.server_btn)
-        lay.addLayout(srv_row)
-        self.server_state = QLabel("")
-        self.server_state.setObjectName("pageSub")
-        self.server_state.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.server_state.setWordWrap(True)
-        lay.addWidget(self.server_state)
 
         self.stack = QStackedWidget()
         lay.addWidget(self.stack)
@@ -645,36 +621,6 @@ class LoginPage(QWidget):
         self.password.returnPressed.connect(self.do_login)
         self.username.returnPressed.connect(self.password.setFocus)
         outer.addWidget(box)
-
-    def do_set_server(self):
-        """Подключение к другому серверу (локальный сервер или хостинг)."""
-        url = self.server_edit.text().strip()
-        if not url:
-            self.server_state.setText("\u0412\u0432\u0435\u0434\u0438 \u0430\u0434\u0440\u0435\u0441 \u0441\u0435\u0440\u0432\u0435\u0440\u0430")
-            return
-        self.server_state.setText("\u23f3 \u041f\u0440\u043e\u0432\u0435\u0440\u044f\u044e \u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0435...")
-        QApplication.processEvents()
-        set_server_url(url)
-        data, status = api_request("/launcher-api/client/ping/", timeout=8)
-        if status == 200 and data.get("ok"):
-            save_config({"server_url": SERVER_URL})
-            self.server_edit.setText(SERVER_URL)
-            self.server_state.setText("\u2705 \u041f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043e: " + SERVER_URL)
-            self.error.setText("")
-            self.r_error.setText("")
-        else:
-            self.server_state.setText(
-                "\u274c \u0421\u0435\u0440\u0432\u0435\u0440 \u043d\u0435 \u043e\u0442\u0432\u0435\u0447\u0430\u0435\u0442: " + SERVER_URL
-                + "\n\u041f\u0440\u043e\u0432\u0435\u0440\u044c \u0430\u0434\u0440\u0435\u0441 (\u0438\u043b\u0438 \u0437\u0430\u043f\u0443\u0441\u0442\u0438\u0442\u0435 \u0441\u0430\u0439\u0442/py manage.py runserver)"
-            )
-
-    def check_server(self):
-        """Тихая проверка сервера при старте (пишет статус под полем адреса)."""
-        data, status = api_request("/launcher-api/client/ping/", timeout=6)
-        if status == 200 and data.get("ok"):
-            self.server_state.setText("\U0001f7e2 \u0421\u0435\u0440\u0432\u0435\u0440 \u043d\u0430 \u0441\u0432\u044f\u0437\u0438: " + SERVER_URL)
-        else:
-            self.server_state.setText("\U0001f534 \u0421\u0435\u0440\u0432\u0435\u0440 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u0435\u043d: " + SERVER_URL)
 
     def _switch_tab(self, idx):
         for i, t in enumerate(self._tabs):
@@ -1850,8 +1796,15 @@ class LauncherWindow(QMainWindow):
         cfg = load_config()
         if cfg.get("server_url"):
             set_server_url(cfg["server_url"])
-            self.login_page.server_edit.setText(SERVER_URL)
-        self.login_page.check_server()
+        else:
+            # Адрес сервера можно положить рядом с exe в файл server.txt
+            # (одна строка, например: https://логин.pythonanywhere.com)
+            srv_file = _base_dir() / "server.txt"
+            try:
+                if srv_file.is_file():
+                    set_server_url(srv_file.read_text("utf-8").strip())
+            except Exception:
+                pass
         if cfg.get("token"):
             data, status = api_request("/launcher-api/client/library/", token=cfg["token"])
             if status == 200:
