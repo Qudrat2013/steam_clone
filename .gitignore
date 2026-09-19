@@ -23,3 +23,5 @@ build/
 installed_games/
 # сборки лаунчера — это артефакт, заливается на сервер отдельно
 static/downloads/
+# токен GitHub для push_to_github_api.py
+.git_token

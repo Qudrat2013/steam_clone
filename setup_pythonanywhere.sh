@@ -46,6 +46,8 @@ fi
 mkdir -p media/avatars media/games/files media/games/headers \
          media/games/backgrounds media/games/screenshots \
          media/items media/stickers media/groups/avatars media/groups/banners
+# папка для скачиваемой сборки лаунчера
+mkdir -p static/downloads
 
 # 5. База + статика
 echo "==> Миграции..."
@@ -66,4 +68,10 @@ echo "   /static/ -> $PROJ/staticfiles"
 echo "   /media/  -> $PROJ/media"
 echo " Затем зелёная кнопка Reload."
 echo " Сайт: https://$DOMAIN"
+echo "======================================================"
+echo ""
+echo " Сборка лаунчера в git не хранится. Залей её так:"
+echo "   Files -> Upload -> $PROJ/static/downloads/SteamCloneLauncher.exe"
+echo " или с домашнего ПК: python upload_to_pythonanywhere.py $USER API_ТОКЕН"
+echo " Скачивание: https://$DOMAIN/launcher-api/download/"
 echo "======================================================"
