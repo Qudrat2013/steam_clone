@@ -167,31 +167,35 @@
 
                 {% if user.is_authenticated %}
                     {% if user_owns %}
-                        <a href="{% url 'library' %}" class="btn_go_library">
+                        {% if playtime %}
+                        <div class="game_playtime_box">
+                            <i class="fas fa-clock"></i>
+                            Наиграно: <b class="js-playtime-{{ game.id }}">{{ playtime.hours_display }}</b>
+                            · {{ playtime.sessions }} сессий
+                        </div>
+                        {% endif %}
+                        <button type="button"
+                                class="btn_add_cart btn_launch_game js-play-btn"
+                                style="margin-top:8px;width:100%;cursor:pointer;border:none;"
+                                data-game-id="{{ game.id }}"
+                                data-title="{{ game.title|escape }}"
+                                data-path="{{ game_file_abs_path }}"
+                                {% if game.game_file %}data-fallback="{% url 'download_game' game.id %}"{% endif %}>
+                            <i class="fas fa-play"></i> Играть
+                        </button>
+                        <a href="{% url 'download_launcher' %}" class="btn_add_cart js-download-launcher steam-download-launcher-btn" style="margin-top:8px;width:100%;">
+                            <i class="fas fa-download"></i> Скачать лаунчер
+                        </a>
+                        <button type="button"
+                                class="btn_stop_game js-stop-btn"
+                                data-game-id="{{ game.id }}"
+                                style="margin-top:6px;width:100%;cursor:pointer;border:none;background:#c75050;color:#fff;padding:8px;border-radius:3px;font-size:13px;"
+                                hidden>
+                            <i class="fas fa-stop"></i> Остановить игру
+                        </button>
+                        <a href="{% url 'library' %}" class="btn_go_library" style="margin-top:8px;">
                             <i class="fas fa-gamepad"></i> В библиотеке
                         </a>
-
-                        {% if game.game_file %}
-                            {# Кнопка запуска через лаунчер #}
-                            <button
-                                class="btn_add_cart btn_launch_game"
-                                style="margin-top:8px;width:100%;cursor:pointer;border:none;"
-                                data-path="{{ game_file_abs_path }}"
-                                data-fallback="{% url 'download_game' game.id %}">
-                                <i class="fas fa-play"></i> Играть
-                            </button>
-
-                            {# Кнопка остановки игры #}
-                            <button
-                                class="btn_stop_game"
-                                style="margin-top:6px;width:100%;cursor:pointer;border:none;background:#c75050;color:#fff;padding:8px;border-radius:3px;font-size:13px;">
-                                <i class="fas fa-stop"></i> Остановить игру
-                            </button>
-                        {% else %}
-                            <div style="margin-top:8px;text-align:center;background:#2a475e;color:#8f98a0;padding:10px;border-radius:3px;font-size:13px;">
-                                Файл игры недоступен
-                            </div>
-                        {% endif %}
                     {% else %}
                         <a href="{% url 'add_to_cart' game.id %}" class="btn_add_cart">
                             В корзину

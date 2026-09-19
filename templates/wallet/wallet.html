@@ -7,7 +7,7 @@
     <div style="background:#16202d;padding:20px;border-radius:12px;margin-bottom:20px;">
         <h2>Баланс</h2>
         <div style="font-size:26px;color:#8bc53f;font-weight:700;">
-            {{ request.user.profile.balance }} UZS
+            {% if balance is not None %}{{ balance }}{% else %}{{ request.user.profile.balance }}{% endif %} UZS
         </div>
     </div>
 

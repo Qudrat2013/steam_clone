@@ -212,6 +212,19 @@ def profile_view(request, username):
                 status='pending'
             ).first()
 
+    purchases = list(purchases)
+    try:
+        from steamplus.models import Playtime
+        pt_map = {
+            pt.game_id: pt
+            for pt in Playtime.objects.filter(user=user)
+        }
+        for p in purchases:
+            p.playtime = pt_map.get(p.game_id)
+    except Exception:
+        for p in purchases:
+            p.playtime = None
+
     return render(request, 'users/profile.html', {
         'profile_user': user,
         'profile': profile,

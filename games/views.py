@@ -1,9 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q, Avg
-from django.conf import settings
-import os
 from .models import Game, Category, Tag, Review
 
 
@@ -18,6 +17,9 @@ def home(request):
         'new_releases': new_releases,
         'top_sellers': top_sellers,
         'categories': categories,
+        'game_count': Game.objects.filter(is_active=True).count(),
+        'user_count': User.objects.count(),
+        'category_count': categories.count(),
     }
     return render(request, 'games/home.html', context)
 
@@ -50,7 +52,13 @@ def game_list(request):
     if price_max:
         games = games.filter(price__lte=price_max)
 
+    allowed_sorts = {
+        '-created_at', 'created_at', 'price', '-price', 'title', '-title',
+        'release_date', '-release_date', 'discount', '-discount',
+    }
     sort = request.GET.get('sort', '-created_at')
+    if sort not in allowed_sorts:
+        sort = '-created_at'
     games = games.order_by(sort)
 
     context = {
@@ -85,10 +93,14 @@ def game_detail(request, slug):
         category=game.category, is_active=True
     ).exclude(id=game.id)[:4]
 
-    # Абсолютный путь к exe файлу на диске — для лаунчера
-    game_file_abs_path = ""
-    if game.game_file:
-        game_file_abs_path = os.path.join(settings.MEDIA_ROOT, str(game.game_file))
+    game_file_abs_path = game.get_local_exe_path()
+    playtime = None
+    if request.user.is_authenticated and user_owns:
+        try:
+            from steamplus.models import Playtime
+            playtime = Playtime.objects.filter(user=request.user, game=game).first()
+        except Exception:
+            playtime = None
 
     context = {
         'game': game,
@@ -99,7 +111,8 @@ def game_detail(request, slug):
         'user_owns': user_owns,
         'user_review': user_review,
         'similar_games': similar_games,
-        'game_file_abs_path': game_file_abs_path,  # <-- путь к exe для лаунчера
+        'game_file_abs_path': game_file_abs_path,
+        'playtime': playtime,
     }
     return render(request, 'games/game_detail.html', context)
 

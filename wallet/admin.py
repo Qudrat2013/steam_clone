@@ -12,8 +12,8 @@ class BalanceRequestAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at')
     search_fields = ('user__username', 'click_paydoc_id')
     
-    # Теперь все поля делаем readonly, так как платежи проходят автоматически через API Click
-    readonly_fields = ('user', 'amount', 'status', 'click_paydoc_id', 'created_at', 'processed_at')
+    # Ручное одобрение через админку: status можно менять; остальное — только чтение
+    readonly_fields = ('user', 'amount', 'click_paydoc_id', 'created_at', 'processed_at')
 
     def has_add_permission(self, request):
         # Запрещаем создавать заявки вручную из админки, только через сайт

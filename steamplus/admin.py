@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    Playtime, Activity, Gift, GameNews, DiscoverySkip,
+    Playtime, PlaySession, Activity, Gift, GameNews, DiscoverySkip,
     PointsShopItem, PointsPurchase, SaleEvent,
     DailyBonusClaim, GameRecommendation,
 )
@@ -8,7 +8,14 @@ from .models import (
 
 @admin.register(Playtime)
 class PlaytimeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'game', 'minutes', 'sessions', 'last_played')
+    list_display = ('user', 'game', 'hours_display', 'minutes', 'seconds', 'sessions', 'last_played')
+    search_fields = ('user__username', 'game__title')
+
+
+@admin.register(PlaySession)
+class PlaySessionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'game', 'is_active', 'source', 'seconds', 'started_at', 'ended_at')
+    list_filter = ('is_active', 'source')
     search_fields = ('user__username', 'game__title')
 
 

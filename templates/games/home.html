@@ -1,142 +1,348 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Магазин Steam{% endblock %}
+{% block title %}Steam Clone — мир игр в 3D{% endblock %}
+{% block body_class %} landing{% endblock %}
+{% block store_nav %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="steam_home_v2">
+<div class="landing-root">
+<div class="landing-wrap">
 
-    <div class="steam_home_title">
-        <h1>Рекомендуемое и интересное</h1>
-    </div>
+    <section class="ld-hero">
+        <div class="reveal">
+            <div class="ld-kicker">
+                <span class="ld-kicker__dot" aria-hidden="true"></span>
+                Steam Clone · clay + glass
+            </div>
+            <h1>есть чат и все что хотите <em>3д стил</em></h1>
+            <p class="ld-lead">
+                steam-clone — это созданый бета сайт 
+            </p>
+            <div class="ld-cta">
+                <a class="ld-btn ld-btn--primary" href="{% url 'game_list' %}">
+                    <i class="fas fa-store"></i> Открыть магазин
+                </a>
+                {% if user.is_authenticated %}
+                    <a class="ld-btn ld-btn--ghost" href="{% url 'library' %}">
+                        <i class="fas fa-gamepad"></i> Моя библиотека
+                    </a>
+                {% else %}
+                    <a class="ld-btn ld-btn--ghost" href="{% url 'register' %}">
+                        <i class="fas fa-user-plus"></i> Создать аккаунт
+                    </a>
+                {% endif %}
+            </div>
+            <div class="ld-stats">
+                <div class="ld-stat">
+                    <b>{{ game_count }}</b>
+                    <span>игр в каталоге</span>
+                </div>
+                <div class="ld-stat">
+                    <b>{{ user_count }}</b>
+                    <span>игроков</span>
+                </div>
+                <div class="ld-stat">
+                    <b>{{ category_count }}</b>
+                    <span>категорий</span>
+                </div>
+            </div>
+        </div>
 
-    {% if featured_games %}
-    <section class="steam_showcase">
-        <div class="steam_showcase_main">
-            {% for game in featured_games %}
-            <a href="{{ game.get_absolute_url }}" class="steam_showcase_slide {% if forloop.first %}active{% endif %}">
+        <div class="iso-stage" id="iso-stage" aria-hidden="true">
+            <div class="iso-room" id="iso-room">
+                <div class="iso-floor"></div>
+
+                <div class="c3d c3d-plat">
+                    <span class="c3d-plat__top"></span>
+                    <span class="c3d-plat__front"></span>
+                    <span class="c3d-plat__side"></span>
+                </div>
+
+                <div class="iso-orb iso-orb--purple"></div>
+                <div class="iso-orb iso-orb--cyan"></div>
+                <div class="iso-orb iso-orb--orange"></div>
+
+                <div class="c3d c3d-console">
+                    <div class="c3d-console__screen">
+                        <div class="iso-screen__bar">
+                            <span class="iso-dot iso-dot--r"></span>
+                            <span class="iso-dot iso-dot--y"></span>
+                            <span class="iso-dot iso-dot--g"></span>
+                            <span class="iso-screen__search"></span>
+                        </div>
+                        <div class="iso-hero-card"></div>
+                        <div class="iso-grid">
+                            <div class="iso-tile"></div>
+                            <div class="iso-tile"></div>
+                            <div class="iso-tile"></div>
+                        </div>
+                    </div>
+                    <span class="c3d-console__top"></span>
+                    <span class="c3d-console__side"></span>
+                    <span class="c3d-console__base"></span>
+                </div>
+
+                <div class="c3d c3d-cart c3d-cart--1">
+                    <span class="c3d-cart__f"></span>
+                    <span class="c3d-cart__s"></span>
+                    <span class="c3d-cart__t"></span>
+                </div>
+                <div class="c3d c3d-cart c3d-cart--2">
+                    <span class="c3d-cart__f"></span>
+                    <span class="c3d-cart__s"></span>
+                    <span class="c3d-cart__t"></span>
+                </div>
+                <div class="c3d c3d-cart c3d-cart--3">
+                    <span class="c3d-cart__f"></span>
+                    <span class="c3d-cart__s"></span>
+                    <span class="c3d-cart__t"></span>
+                </div>
+
+                <div class="c3d c3d-pad">
+                    <span class="c3d-pad__body"><i class="fas fa-gamepad"></i></span>
+                    <span class="c3d-pad__side"></span>
+                    <span class="c3d-pad__top"></span>
+                </div>
+
+                <div class="clay-float clay-float--coin"><i class="fas fa-coins"></i></div>
+                <div class="clay-float clay-float--gift"><i class="fas fa-gift"></i></div>
+                <div class="clay-float clay-float--head"><i class="fas fa-headset"></i></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ld-section">
+        <div class="ld-head">
+            <div>
+                <h2>Всё, что нужно платформе</h2>
+                <p>Шесть глиняных модулей — один стеклянный мир.</p>
+            </div>
+        </div>
+        <div class="ld-features">
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'game_list' %}">
+                <div class="clay-ico clay-ico--purple"><i class="fas fa-store"></i></div>
+                <h3>Магазин</h3>
+                <p>Витрина новинок, скидок и рекомендаций в мягком 3D.</p>
+            </a>
+            {% if user.is_authenticated %}
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'library' %}">
+            {% else %}
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'login' %}">
+            {% endif %}
+                <div class="clay-ico clay-ico--cyan"><i class="fas fa-layer-group"></i></div>
+                <h3>Библиотека</h3>
+                <p>Коллекция игр всегда под рукой — запускай в один тап.</p>
+            </a>
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'groups:list' %}">
+                <div class="clay-ico clay-ico--orange"><i class="fas fa-user-friends"></i></div>
+                <h3>Сообщество</h3>
+                <p>Друзья, чаты, группы и лента — живой хаб игроков.</p>
+            </a>
+            {% if user.is_authenticated %}
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'market_list' %}">
+            {% else %}
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'login' %}">
+            {% endif %}
+                <div class="clay-ico clay-ico--pink"><i class="fas fa-shopping-bag"></i></div>
+                <h3>Маркет</h3>
+                <p>Предметы и лоты между игроками без лишнего шума.</p>
+            </a>
+            {% if user.is_authenticated %}
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'wallet:deposit' %}">
+            {% else %}
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'login' %}">
+            {% endif %}
+                <div class="clay-ico clay-ico--lime"><i class="fas fa-wallet"></i></div>
+                <h3>Кошелёк</h3>
+                <p>Баланс, подарки и покупки в тёплом пастельном стекле.</p>
+            </a>
+            <a class="ld-feat ld-glass" data-tilt href="{% url 'support_home' %}">
+                <div class="clay-ico clay-ico--blue"><i class="fas fa-life-ring"></i></div>
+                <h3>Поддержка</h3>
+                <p>Тикеты, FAQ и промокоды — помощь без тёмного подвала.</p>
+            </a>
+        </div>
+    </section>
+
+    <section class="ld-section">
+        <div class="ld-head">
+            <div>
+                <h2>Рекомендуемое</h2>
+                <p>Главные карточки магазина в стеклянной рамке.</p>
+            </div>
+            <a class="ld-more" href="{% url 'game_list' %}">Весь каталог →</a>
+        </div>
+
+        {% if featured_games %}
+        <div class="ld-feature-grid">
+            {% with game=featured_games.0 %}
+            <a class="ld-spotlight ld-glass" href="{{ game.get_absolute_url }}">
                 {% if game.background_image %}
                     <img src="{{ game.background_image.url }}" alt="{{ game.title }}">
                 {% elif game.header_image %}
                     <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
                 {% else %}
-                    <div class="steam_showcase_placeholder"><i class="fas fa-gamepad"></i></div>
+                    <div class="ld-ph"><i class="fas fa-gamepad"></i></div>
                 {% endif %}
-
-                <div class="steam_showcase_info">
-                    <h2>{{ game.title }}</h2>
+                <div class="ld-spotlight__shade"></div>
+                <div class="ld-spotlight__info">
+                    <h3>{{ game.title }}</h3>
                     <p>{{ game.short_description }}</p>
-
-                    <div class="steam_showcase_price">
+                    <div class="ld-price">
                         {% if game.discount > 0 %}
-                            <span class="discount_badge">{{ game.discount }}%</span>
-                            <span class="price_original">${{ game.price }}</span>
-                            <span class="price_final">${{ game.get_discounted_price|floatformat:2 }}</span>
+                            <span class="ld-off">−{{ game.discount }}%</span>
+                            <s>${{ game.price }}</s>
+                            <span>${{ game.get_discounted_price|floatformat:2 }}</span>
                         {% elif game.price == 0 %}
-                            <span class="price_free">Бесплатно</span>
+                            <span>Бесплатно</span>
                         {% else %}
-                            <span class="price_final">${{ game.price }}</span>
+                            <span>${{ game.price }}</span>
                         {% endif %}
                     </div>
                 </div>
             </a>
-            {% endfor %}
-        </div>
+            {% endwith %}
 
-        <div class="steam_showcase_side">
-            {% for game in featured_games|slice:":4" %}
-            <a href="{{ game.get_absolute_url }}" class="steam_showcase_thumb">
-                {% if game.header_image %}
-                    <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
-                {% endif %}
-                <span>{{ game.title }}</span>
-            </a>
-            {% endfor %}
-        </div>
-    </section>
-    {% endif %}
-
-    <section class="steam_specials">
-        <div class="steam_block_header">
-            <h2>Специальные предложения</h2>
-            <a href="{% url 'game_list' %}">Смотреть все</a>
-        </div>
-
-        <div class="steam_special_grid">
-            {% for game in new_releases|slice:":6" %}
-            <a href="{{ game.get_absolute_url }}" class="steam_special_card">
-                {% if game.header_image %}
-                    <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
-                {% else %}
-                    <div class="steam_special_placeholder"><i class="fas fa-gamepad"></i></div>
-                {% endif %}
-
-                <div class="steam_special_body">
-                    <div class="steam_special_title">{{ game.title }}</div>
-
-                    <div class="steam_special_price">
+            <div class="ld-side-games">
+                {% for game in featured_games|slice:"1:5" %}
+                <a class="ld-side-card ld-glass" href="{{ game.get_absolute_url }}">
+                    {% if game.header_image %}
+                        <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
+                    {% else %}
+                        <div class="ld-ph-sm"><i class="fas fa-gamepad"></i></div>
+                    {% endif %}
+                    <div>
+                        <strong>{{ game.title }}</strong>
+                        <span>{% if game.category %}{{ game.category.name }}{% else %}Игра{% endif %}</span>
+                    </div>
+                    <div class="ld-price">
                         {% if game.discount > 0 %}
-                            <span class="discount_badge">{{ game.discount }}%</span>
-                            <span class="price_original">${{ game.price }}</span>
-                            <span class="price_final">${{ game.get_discounted_price|floatformat:2 }}</span>
+                            <span class="ld-off">−{{ game.discount }}%</span>
+                            <span>${{ game.get_discounted_price|floatformat:2 }}</span>
                         {% elif game.price == 0 %}
-                            <span class="price_free">Бесплатно</span>
+                            <span>Free</span>
                         {% else %}
-                            <span class="price_final">${{ game.price }}</span>
+                            <span>${{ game.price }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+                {% empty %}
+                <div class="ld-empty ld-glass">Добавьте ещё игры в «На главной».</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="ld-empty ld-glass">
+            <i class="fas fa-gamepad"></i>
+            Игры ещё не добавлены — загляните позже.
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="ld-section">
+        <div class="ld-head">
+            <div>
+                <h2>Новинки и предложения</h2>
+                <p>Свежие релизы в пастельных карточках.</p>
+            </div>
+            <a class="ld-more" href="{% url 'game_list' %}">Смотреть все →</a>
+        </div>
+        <div class="ld-cards">
+            {% for game in new_releases|slice:":6" %}
+            <a class="ld-card ld-glass" data-tilt href="{{ game.get_absolute_url }}">
+                <div class="ld-card__media">
+                    {% if game.header_image %}
+                        <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
+                    {% endif %}
+                </div>
+                <div class="ld-card__body">
+                    <h3>{{ game.title }}</h3>
+                    <div class="ld-price">
+                        {% if game.discount > 0 %}
+                            <span class="ld-off">−{{ game.discount }}%</span>
+                            <s>${{ game.price }}</s>
+                            <span>${{ game.get_discounted_price|floatformat:2 }}</span>
+                        {% elif game.price == 0 %}
+                            <span>Бесплатно</span>
+                        {% else %}
+                            <span>${{ game.price }}</span>
                         {% endif %}
                     </div>
                 </div>
             </a>
             {% empty %}
-            <div class="empty_state">
-                <i class="fas fa-gamepad"></i>
-                <h2>Игры ещё не добавлены</h2>
+            <div class="ld-empty ld-glass" style="grid-column: 1 / -1;">
+                <i class="fas fa-box-open"></i>
+                Каталог пока пуст.
             </div>
             {% endfor %}
         </div>
     </section>
 
-    {% if top_sellers %}
-    <section class="steam_tabs_block">
-        <div class="steam_block_header">
-            <h2>Популярное</h2>
-            <a href="{% url 'game_list' %}">Больше</a>
+    {% if categories %}
+    <section class="ld-section ld-section--tight">
+        <div class="ld-head">
+            <div>
+                <h2>Категории</h2>
+                <p>Выбери настроение — остальное сделает витрина.</p>
+            </div>
         </div>
-
-        <div class="steam_home_rows">
-            {% for game in top_sellers %}
-            <a href="{{ game.get_absolute_url }}" class="steam_home_row">
-                {% if game.header_image %}
-                    <img src="{{ game.header_image.url }}" alt="{{ game.title }}">
-                {% else %}
-                    <div class="steam_home_row_placeholder"><i class="fas fa-gamepad"></i></div>
-                {% endif %}
-
-                <div class="steam_home_row_info">
-                    <div class="steam_home_row_title">{{ game.title }}</div>
-                    <div class="steam_home_row_tags">
-                        {% if game.category %}<span>{{ game.category.name }}</span>{% endif %}
-                        {% for tag in game.tags.all|slice:":2" %}
-                            <span>{{ tag.name }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="steam_home_row_price">
-                    {% if game.discount > 0 %}
-                        <span class="discount_badge">{{ game.discount }}%</span>
-                        <span class="price_final">${{ game.get_discounted_price|floatformat:2 }}</span>
-                    {% elif game.price == 0 %}
-                        <span class="price_free">Бесплатно</span>
-                    {% else %}
-                        <span class="price_final">${{ game.price }}</span>
-                    {% endif %}
-                </div>
-            </a>
+        <div class="ld-pills">
+            {% for cat in categories %}
+            <a class="ld-pill ld-glass" href="{% url 'game_list' %}?category={{ cat.slug }}">{{ cat.name }}</a>
             {% endfor %}
         </div>
     </section>
     {% endif %}
 
+    <section class="ld-section">
+        <div class="ld-head">
+            <div>
+                <h2>Как это работает</h2>
+                <p>Три мягких шага до первой игры.</p>
+            </div>
+        </div>
+        <div class="ld-steps">
+            <div class="ld-step ld-glass">
+                <div class="ld-step__n">1</div>
+                <h3>Создай профиль</h3>
+                <p>Регистрация за минуту — и сразу доступ к магазину, друзьям и кошельку.</p>
+            </div>
+            <div class="ld-step ld-glass">
+                <div class="ld-step__n">2</div>
+                <h3>Собери библиотеку</h3>
+                <p>Покупай, получай в подарок или забирай бесплатные релизы.</p>
+            </div>
+            <div class="ld-step ld-glass">
+                <div class="ld-step__n">3</div>
+                <h3>Играй и общайся</h3>
+                <p>Чаты, обмены, маркет и поддержка — всё в одной комнате.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="ld-banner">
+        <div>
+            <h2>Готов зайти в комнату?</h2>
+            <p>Открой магазин или создай аккаунт — глиняные иконки уже ждут на полке.</p>
+        </div>
+        <div class="ld-cta" style="margin:0">
+            <a class="ld-btn ld-btn--primary" href="{% url 'game_list' %}">В магазин</a>
+            {% if not user.is_authenticated %}
+                <a class="ld-btn ld-btn--ghost" href="{% url 'register' %}">Регистрация</a>
+            {% endif %}
+        </div>
+    </section>
+
 </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/landing.js' %}"></script>
 {% endblock %}

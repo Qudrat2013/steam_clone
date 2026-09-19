@@ -4,11 +4,26 @@ from django.utils import timezone
 from games.models import Game
 
 
+def format_play_duration(seconds):
+    """Человекочитаемое время: часы, минуты или секунды."""
+    seconds = max(0, int(seconds or 0))
+    hours, rem = divmod(seconds, 3600)
+    minutes, secs = divmod(rem, 60)
+    if hours:
+        return f'{hours} ч. {minutes} мин.'
+    if minutes:
+        return f'{minutes} мин.' if secs == 0 else f'{minutes} мин. {secs} сек.'
+    if secs:
+        return f'{secs} сек.'
+    return '0 мин.'
+
+
 class Playtime(models.Model):
     """Наигранное время — как в Steam."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playtimes')
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='playtimes')
     minutes = models.PositiveIntegerField(default=0, verbose_name='Минут сыграно')
+    seconds = models.PositiveIntegerField(default=0, verbose_name='Секунд сыграно')
     last_played = models.DateTimeField(null=True, blank=True, verbose_name='Последний запуск')
     sessions = models.PositiveIntegerField(default=0, verbose_name='Сессий')
 
@@ -22,22 +37,66 @@ class Playtime(models.Model):
         return f'{self.user.username} — {self.game.title}: {self.hours_display}'
 
     @property
+    def total_seconds(self):
+        if self.seconds:
+            return self.seconds
+        return int(self.minutes or 0) * 60
+
+    @property
     def hours(self):
-        return round(self.minutes / 60, 1)
+        return round(self.total_seconds / 3600, 1)
 
     @property
     def hours_display(self):
-        h = self.minutes // 60
-        m = self.minutes % 60
-        if h > 0:
-            return f'{h} ч. {m} мин.'
-        return f'{m} мин.'
+        return format_play_duration(self.total_seconds)
+
+    def add_seconds(self, seconds, new_session=True):
+        extra = max(0, int(seconds or 0))
+        self.seconds = int(self.seconds or 0) + extra
+        self.minutes = self.seconds // 60
+        if new_session:
+            self.sessions += 1
+        self.last_played = timezone.now()
+        self.save(update_fields=['seconds', 'minutes', 'sessions', 'last_played'])
 
     def add_session(self, minutes=15):
-        self.minutes += max(1, int(minutes))
-        self.sessions += 1
-        self.last_played = timezone.now()
-        self.save()
+        self.add_seconds(max(1, int(minutes)) * 60, new_session=True)
+
+
+class PlaySession(models.Model):
+    """Одна сессия игры: от запуска до выхода. Время считается по факту."""
+    SOURCE_CHOICES = [
+        ('launcher', 'Лаунчер'),
+        ('web', 'Сайт'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='play_sessions')
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='play_sessions')
+    started_at = models.DateTimeField(default=timezone.now)
+    last_heartbeat = models.DateTimeField(default=timezone.now)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    seconds = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='web')
+
+    class Meta:
+        verbose_name = 'Игровая сессия'
+        verbose_name_plural = 'Игровые сессии'
+        ordering = ['-started_at']
+        indexes = [
+            models.Index(fields=['user', 'is_active'], name='play_sess_user_active'),
+        ]
+
+    def __str__(self):
+        state = 'идёт' if self.is_active else format_play_duration(self.seconds)
+        return f'{self.user.username} — {self.game.title} ({state})'
+
+    @property
+    def elapsed_seconds(self):
+        if not self.is_active:
+            return int(self.seconds or 0)
+        end = timezone.now()
+        return max(0, int((end - self.started_at).total_seconds()))
 
 
 class Activity(models.Model):

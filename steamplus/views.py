@@ -21,8 +21,16 @@ from achievements.utils import give_achievement
 from .models import (
     Activity, DailyBonusClaim, DiscoverySkip, GameNews, Gift,
     Playtime, PointsPurchase, PointsShopItem, SaleEvent,
+    format_play_duration,
 )
-from .utils import log_activity, record_play_session
+from .utils import (
+    log_activity,
+    start_play_session,
+    heartbeat_play_session,
+    end_play_session,
+    get_active_session,
+    get_or_create_playtime,
+)
 
 
 def _friend_ids(user):
@@ -116,37 +124,122 @@ def activity_feed(request):
     })
 
 
-@login_required
-def play_game(request, game_id):
-    """«Играть» — запись сессии + очки + статус В игре."""
-    purchase = get_object_or_404(Purchase, user=request.user, game_id=game_id)
-    game = purchase.game
-    minutes = int(request.POST.get('minutes', 15) or 15)
-    minutes = max(5, min(minutes, 180))
+def _wants_json(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return True
+    accept = request.headers.get('Accept', '')
+    return 'application/json' in accept
 
-    pt = record_play_session(request.user, game, minutes=minutes)
+
+def _post_value(request, key, default=''):
+    value = request.POST.get(key)
+    if value not in (None, ''):
+        return value
     try:
-        request.user.profile.add_xp(2)
+        if request.body and 'json' in (request.content_type or ''):
+            import json
+            payload = json.loads(request.body.decode() or '{}')
+            if isinstance(payload, dict) and key in payload:
+                return payload.get(key, default)
     except Exception:
         pass
+    return default
 
-    if pt.sessions == 1:
-        give_achievement(request.user, 'Первый запуск', 'Запустите игру впервые')
-        log_activity(request.user, 'achievement', 'получил достижение «Первый запуск»', game=game)
 
-    if pt.minutes >= 60:
-        give_achievement(request.user, 'Час в деле', 'Сыграйте 1 час в любой игре')
+def _session_payload(user, session, extra=None):
+    pt = get_or_create_playtime(user, session.game) if session else None
+    data = {
+        'ok': True,
+        'playing': bool(session and session.is_active),
+        'session_id': session.id if session else None,
+        'game_id': session.game_id if session else None,
+        'game_title': session.game.title if session else '',
+        'game_slug': session.game.slug if session else '',
+        'source': session.source if session else '',
+        'elapsed_seconds': session.elapsed_seconds if session else 0,
+        'elapsed_display': format_play_duration(session.elapsed_seconds) if session else '0 мин.',
+        'total_seconds': pt.total_seconds if pt else 0,
+        'total_display': pt.hours_display if pt else '0 мин.',
+        'sessions': pt.sessions if pt else 0,
+        'exe_path': session.game.get_local_exe_path() if session else '',
+    }
+    if extra:
+        data.update(extra)
+    return data
 
-    messages.success(
-        request,
-        f'Сессия «{game.title}»: +{minutes} мин. Всего {pt.hours_display}. +{max(1, minutes // 5)} очков Steam.',
+
+@login_required
+def play_game(request, game_id):
+    """Старт сессии без фейковых минут. Время пишется по факту (heartbeat / выход)."""
+    if request.method != 'POST':
+        return redirect('library')
+    purchase = get_object_or_404(Purchase, user=request.user, game_id=game_id)
+    source = _post_value(request, 'source') or (
+        'launcher' if _post_value(request, 'launcher') else 'web'
     )
+    session = start_play_session(request.user, purchase.game, source=source)
+    if _wants_json(request):
+        return JsonResponse(_session_payload(request.user, session))
+    messages.info(
+        request,
+        f'Запущена «{purchase.game.title}». Время сессии записывается, пока игра открыта.',
+    )
+    return redirect(request.META.get('HTTP_REFERER') or 'library')
 
-    # Если есть файл — предложить скачать
-    if game.game_file and request.GET.get('download') == '1':
-        return redirect('download_game', game_id=game.id)
 
-    return redirect(request.META.get('HTTP_REFERER', 'library'))
+@login_required
+@require_POST
+def play_session_start(request, game_id):
+    purchase = get_object_or_404(Purchase, user=request.user, game_id=game_id)
+    source = _post_value(request, 'source') or 'web'
+    session = start_play_session(request.user, purchase.game, source=source)
+    return JsonResponse(_session_payload(request.user, session))
+
+
+@login_required
+@require_POST
+def play_session_heartbeat(request, game_id):
+    purchase = get_object_or_404(Purchase, user=request.user, game_id=game_id)
+    session_id = _post_value(request, 'session_id')
+    session = heartbeat_play_session(request.user, session_id=session_id, game=purchase.game)
+    if not session:
+        return JsonResponse({'ok': False, 'playing': False, 'error': 'no_session'}, status=404)
+    return JsonResponse(_session_payload(request.user, session))
+
+
+@login_required
+@require_POST
+def play_session_end(request, game_id):
+    purchase = get_object_or_404(Purchase, user=request.user, game_id=game_id)
+    session_id = _post_value(request, 'session_id')
+    session = end_play_session(request.user, session_id=session_id, game=purchase.game)
+    if not session:
+        pt = get_or_create_playtime(request.user, purchase.game)
+        return JsonResponse({
+            'ok': True,
+            'playing': False,
+            'game_id': purchase.game_id,
+            'game_title': purchase.game.title,
+            'elapsed_seconds': 0,
+            'elapsed_display': '0 мин.',
+            'total_seconds': pt.total_seconds,
+            'total_display': pt.hours_display,
+            'sessions': pt.sessions,
+        })
+    extra = {
+        'playing': False,
+        'session_seconds': session.seconds,
+        'session_display': format_play_duration(session.seconds),
+    }
+    return JsonResponse(_session_payload(request.user, session, extra=extra))
+
+
+@login_required
+def play_status(request):
+    session = get_active_session(request.user)
+    if not session:
+        return JsonResponse({'ok': True, 'playing': False})
+    return JsonResponse(_session_payload(request.user, session))
 
 
 @login_required
@@ -564,9 +657,12 @@ def sales_hub(request):
 def stats_dashboard(request):
     """Личная статистика как Steam year in review (упрощённо)."""
     playtimes = Playtime.objects.filter(user=request.user).select_related('game')
-    total_min = playtimes.aggregate(t=Sum('minutes'))['t'] or 0
+    total_sec = playtimes.aggregate(t=Sum('seconds'))['t'] or 0
+    if not total_sec:
+        total_sec = (playtimes.aggregate(t=Sum('minutes'))['t'] or 0) * 60
+    total_min = total_sec // 60
     total_sessions = playtimes.aggregate(t=Sum('sessions'))['t'] or 0
-    top_games = playtimes.order_by('-minutes')[:5]
+    top_games = playtimes.order_by('-seconds', '-minutes')[:5]
     library_count = Purchase.objects.filter(user=request.user).count()
     wishlist_count = Wishlist.objects.filter(user=request.user).count()
     review_count = Review.objects.filter(user=request.user).count()

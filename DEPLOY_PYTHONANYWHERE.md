@@ -1,15 +1,35 @@
 # Деплой Steam Clone на PythonAnywhere
 
-Сайт будет доступен по адресу: `https://ВАШ_ЛОГИН.pythonanywhere.com`
+Сайт: `https://ВАШ_ЛОГИН.pythonanywhere.com`
+
+## 🚀 Быстрый способ (рекомендуется) — 1 команда
+
+1. Зарегистрируйся на https://www.pythonanywhere.com
+2. Открой **Bash console** и выполни:
+
+```bash
+git clone https://github.com/Qudrat2013/steam_clone.git ~/steam_clone && cd ~/steam_clone && bash setup_pythonanywhere.sh
+```
+
+Скрипт сам: создаст venv, установит зависимости, сгенерирует `.env`
+со секретным ключом и твоим доменом, сделает миграции и collectstatic.
+
+3. Следуй финальной подсказке скрипта (Web tab: пути, WSGI, static mapping) → **Reload**.
+
+Суперюзер (если нужен доступ в админку):
+
+```bash
+cd ~/steam_clone && source venv/bin/activate && python manage.py createsuperuser
+```
 
 ## 1. Аккаунт
 
-1. Зарегистрируйтесь: https://www.pythonanywhere.com  
-2. Free plan достаточно для старта (HTTP, SQLite, ~512 MB).
+1. Регистрация: https://www.pythonanywhere.com  
+2. Free plan достаточно (HTTP/HTTPS, SQLite, ~512 MB).
 
 ## 2. Загрузить код
 
-### Вариант A — через Git (рекомендуется)
+### Вариант A — Git (рекомендуется)
 
 В **Bash console** на PythonAnywhere:
 
@@ -19,21 +39,22 @@ git clone https://github.com/Qudrat2013/steam_clone.git
 cd steam_clone
 ```
 
-### Вариант B — вручную
+### Вариант B — ZIP
 
-Web → Files → загрузить ZIP проекта и распаковать в `/home/ВАШ_ЛОГИН/steam_clone`.
+Web → Files → загрузить ZIP → распаковать в `/home/ВАШ_ЛОГИН/steam_clone`.
 
 ## 3. Виртуальное окружение
 
 ```bash
 cd ~/steam_clone
 python3.12 -m venv venv
+# если 3.12 нет: python3.10 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-> На free tier выберите Python **3.10+** (лучше 3.12). Django 5/6 требует современный Python.
+> Django 5/6 нужен Python **3.10+**. В Web app выберите ту же версию, что и venv.
 
 ## 4. Переменные окружения
 
@@ -42,46 +63,64 @@ cd ~/steam_clone
 nano .env
 ```
 
-Вставьте (подставьте свой логин PythonAnywhere):
-
 ```env
 DJANGO_SECRET_KEY=сгенерируйте-длинный-случайный-ключ-минимум-50-символов
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=ВАШ_ЛОГИН.pythonanywhere.com
 CSRF_TRUSTED_ORIGINS=https://ВАШ_ЛОГИН.pythonanywhere.com
+DJANGO_SECURE_SSL_REDIRECT=False
 EMAIL_HOST_USER=you@gmail.com
 EMAIL_HOST_PASSWORD=your-gmail-app-password
 ```
 
 Сохранить: `Ctrl+O`, Enter, `Ctrl+X`.
 
+Сгенерировать SECRET_KEY:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(50))"
+```
+
 ## 5. База и статика
 
 ```bash
 cd ~/steam_clone
 source venv/bin/activate
+mkdir -p media/avatars media/games media/items media/groups/avatars media/groups/banners media/stickers
 python manage.py migrate
 python manage.py collectstatic --noinput
 python manage.py createsuperuser
-# опционально — демо FAQ/поддержка:
+# опционально — демо FAQ:
 python manage.py seed_support
 ```
 
 ## 6. Web App (WSGI)
 
-1. **Web** → **Add a new web app** → Manual configuration → Python 3.12  
+1. **Web** → **Add a new web app** → **Manual configuration** → Python 3.12 (или 3.10)  
 2. **Source code**: `/home/ВАШ_ЛОГИН/steam_clone`  
 3. **Working directory**: `/home/ВАШ_ЛОГИН/steam_clone`  
 4. **Virtualenv**: `/home/ВАШ_ЛОГИН/steam_clone/venv`  
-5. Откройте **WSGI configuration file** и замените содержимое на:
+5. Откройте **WSGI configuration file**, удалите всё и вставьте:
 
 ```python
 import os
 import sys
+from pathlib import Path
 
-path = '/home/ВАШ_ЛОГИН/steam_clone'
-if path not in sys.path:
-    sys.path.insert(0, path)
+# >>> замените ВАШ_ЛОГИН
+USERNAME = 'ВАШ_ЛОГИН'
+project_home = f'/home/{USERNAME}/steam_clone'
+
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+
+env_path = Path(project_home) / '.env'
+if env_path.exists():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(env_path)
+    except ImportError:
+        pass
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'steam_clone.settings'
 
@@ -91,23 +130,14 @@ application = get_wsgi_application()
 
 6. **Static files** (раздел Static files):
 
-| URL        | Directory                              |
-|------------|----------------------------------------|
-| `/static/` | `/home/ВАШ_ЛОГИН/steam_clone/staticfiles` |
-| `/media/`  | `/home/ВАШ_ЛОГИН/steam_clone/media`       |
+| URL        | Directory                                   |
+|------------|---------------------------------------------|
+| `/static/` | `/home/ВАШ_ЛОГИН/steam_clone/staticfiles`   |
+| `/media/`  | `/home/ВАШ_ЛОГИН/steam_clone/media`         |
 
-7. Нажмите **Reload** зелёной кнопкой.
+7. Нажмите **Reload** (зелёная кнопка).
 
-## 7. Медиа и картинки
-
-Создайте папки и при необходимости загрузите аватар по умолчанию:
-
-```bash
-mkdir -p ~/steam_clone/media/avatars
-# загрузите default.png в media/avatars/ через Files
-```
-
-## 8. Обновление после правок
+## 7. Обновление после правок
 
 ```bash
 cd ~/steam_clone
@@ -123,14 +153,39 @@ python manage.py collectstatic --noinput
 
 | Ошибка | Решение |
 |--------|---------|
-| DisallowedHost | `DJANGO_ALLOWED_HOSTS` = ваш домен |
+| DisallowedHost | `DJANGO_ALLOWED_HOSTS` = ваш домен без пробелов |
 | 400 CSRF | `CSRF_TRUSTED_ORIGINS=https://логин.pythonanywhere.com` |
-| нет CSS | `collectstatic` + Static files mapping |
-| ModuleNotFoundError | Virtualenv path в Web tab |
+| нет CSS | `collectstatic` + Static files mapping в Web tab |
+| ModuleNotFoundError | Virtualenv path в Web tab, Reload |
 | 500 | **Web → Log files → Error log** |
+| нет картинок | mapping `/media/` + папки `media/...` |
+| sqlite locked | не запускайте два `migrate` параллельно |
 
 ## Безопасность
 
 - Не коммитьте `.env` и `db.sqlite3`
-- На production всегда `DJANGO_DEBUG=False`
-- Смените Gmail App Password, если он когда-либо попал в git
+- На production: `DJANGO_DEBUG=False`
+- Не публикуйте Gmail App Password
+- Пополнение баланса: заявки модерируются в `/dashboard/` (staff)
+
+
+## 🎮 Лаунчер и хостинг
+
+После деплоя лаунчер может работать с облачным сайтом:
+
+- **Скачивание лаунчера**: `https://домен/launcher-api/download/` — качается exe из `static/downloads/`.
+- **Регистрация / QR-вход**: работает из коробки. QR-код теперь содержит публичный
+  адрес (`https://домен/launcher-api/qr/<код>/`) — телефон открывает его откуда угодно,
+  Wi-Fi и локальная сеть не нужны.
+- **Чат, магазин, покупки, бонус, профиль** — работают через тот же API.
+- **Ограничение QR**: 15 сек кулдаун; каждые 5 обновлений -> бан 20 мин -> 1 ч -> 2 ч -> 4 ч.
+
+⚠ **Запуск .exe игр**: файлы игр лежат на диске сервера. Если лаунчер запущен
+на другом ПК, путь `exe_path` на нём не существует — у карточки будет кнопка
+«УСТАНОВИТЬ» (открывает страницу игры на сайте). Варианты:
+1. Играть с того же ПК, где лежит проект (сервер локально).
+2. Позже можно добавить в лаунчер скачивание файлов игр (по запросу).
+
+## 📦 Что добавилось в requirements
+
+- `qrcode>=7.4` — генерация QR-кодов для входа в лаунчер (обязательно на хостинге).

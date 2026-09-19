@@ -150,9 +150,10 @@ def approve_balance_request_view(request, request_id):
         messages.error(request, 'Эта заявка уже обработана.')
         return redirect('dashboard_balance_requests')
 
-    profile = balance_request.user.profile
+    from users.models import Profile
+    profile, _ = Profile.objects.get_or_create(user=balance_request.user)
     profile.balance += balance_request.amount
-    profile.save()
+    profile.save(update_fields=['balance'])
 
     balance_request.status = 'approved'
     balance_request.processed_at = timezone.now()
@@ -470,7 +471,7 @@ def dashboard_purchases_view(request):
 def dashboard_games_view(request):
     q = request.GET.get('q', '').strip()
     games = Game.objects.select_related('category').annotate(
-        sales=Count('purchase_set'),
+        sales=Count('purchase'),
     ).order_by('-created_at')
     if q:
         games = games.filter(Q(title__icontains=q) | Q(developer__icontains=q))
@@ -1231,7 +1232,7 @@ def dashboard_devices_view(request):
 def dashboard_stats_view(request):
     now = timezone.now()
     top_games = (
-        Game.objects.annotate(sales=Count('purchase_set'))
+        Game.objects.annotate(sales=Count('purchase'))
         .order_by('-sales')[:10]
     )
     top_users = (
@@ -1239,7 +1240,7 @@ def dashboard_stats_view(request):
         .order_by('-buys')[:10]
     )
     by_category = (
-        Category.objects.annotate(games=Count('game_set'), sales=Count('game_set__purchase_set'))
+        Category.objects.annotate(games=Count('game'), sales=Count('game__purchase'))
         .order_by('-sales')
     )
     ticket_by_cat = (

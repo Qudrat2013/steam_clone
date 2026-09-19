@@ -1,0 +1,834 @@
+/* =========================================================
+   STEAM CLONE — ULTRA 3D THEME (neo3d.css)
+   Подключается ПОСЛЕДНИМ: добавляет объём поверх clay-темы.
+   • 3D-кнопки с «выдавленным» нажатием
+   • 3D-наклон карточек при наведении
+   • Живой анимированный фон (плавающие орбы)
+   • 3D-карусель, светящиеся бейджи, объёмный текст
+   ========================================================= */
+
+:root {
+    --d3-purple: #7c5cde;
+    --d3-purple-hi: #a98ef7;
+    --d3-purple-key: #5638b8;
+    --d3-cyan: #22d3ee;
+    --d3-cyan-key: #0e97b3;
+    --d3-lime: #84cc16;
+    --d3-lime-key: #4d7c0f;
+    --d3-rose: #fb7185;
+    --d3-rose-key: #c22945;
+    --d3-ink: #2a2438;
+    --d3-ease: cubic-bezier(.22, 1, .36, 1);
+    --d3-card:
+        inset 0 2px 0 rgba(255, 255, 255, .85),
+        inset 0 -14px 26px rgba(124, 92, 222, .07),
+        0 2px 4px rgba(90, 60, 140, .06),
+        0 14px 30px rgba(90, 60, 140, .12),
+        0 30px 60px rgba(90, 60, 140, .10);
+    --d3-card-hover:
+        inset 0 2px 0 rgba(255, 255, 255, .95),
+        inset 0 -16px 30px rgba(124, 92, 222, .10),
+        0 6px 12px rgba(90, 60, 140, .08),
+        0 24px 48px rgba(90, 60, 140, .20),
+        0 44px 90px rgba(90, 60, 140, .16);
+}
+
+/* ---------- 1. ЖИВОЙ 3D-ФОН ---------- */
+body.steam-body,
+body {
+    background:
+        radial-gradient(ellipse 75% 55% at 10% 0%, rgba(167, 139, 250, .45), transparent 60%),
+        radial-gradient(ellipse 65% 50% at 100% 0%, rgba(103, 232, 249, .40), transparent 58%),
+        radial-gradient(ellipse 55% 45% at 85% 95%, rgba(253, 186, 116, .42), transparent 60%),
+        radial-gradient(ellipse 45% 35% at 5% 100%, rgba(251, 113, 133, .20), transparent 55%),
+        linear-gradient(180deg, #faf6ff 0%, #f0e9fc 45%, #e6f7fb 100%) !important;
+    background-attachment: fixed !important;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    opacity: .8;
+}
+body::before {
+    width: 540px;
+    height: 540px;
+    left: -160px;
+    top: -140px;
+    background: radial-gradient(circle at 35% 35%, rgba(167, 139, 250, .65), rgba(124, 92, 222, .18) 55%, transparent 72%);
+    animation: d3-orb-a 26s var(--d3-ease) infinite alternate;
+}
+body::after {
+    width: 660px;
+    height: 660px;
+    right: -200px;
+    bottom: -180px;
+    background: radial-gradient(circle at 60% 35%, rgba(103, 232, 249, .55), rgba(253, 186, 116, .28) 55%, transparent 74%);
+    animation: d3-orb-b 34s var(--d3-ease) infinite alternate;
+}
+
+[hidden] { display: none !important; }
+
+/* ---------- 2. ОБЪЁМНЫЕ ЗАГОЛОВКИ ---------- */
+h1, h2, h3, h4 {
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, .9),
+        0 2px 0 rgba(255, 255, 255, .55),
+        0 10px 22px rgba(90, 60, 140, .18);
+}
+.steam_home_title h1, .store_hero_title h1 {
+    filter: drop-shadow(0 14px 26px rgba(124, 92, 222, .4)) !important;
+}
+
+/* ---------- 3. ХЕДЕР — ПАРИТ НАД СТРАНИЦЕЙ ---------- */
+.steam-gh,
+#global_header.steam-gh {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .8), rgba(255, 253, 249, .62)) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .95),
+        inset 0 -12px 22px rgba(124, 92, 222, .05),
+        0 14px 34px rgba(90, 60, 140, .13) !important;
+    border-bottom: 1px solid rgba(124, 92, 222, .18) !important;
+}
+
+.steam-gh__logo-svg {
+    transition: transform .9s var(--d3-ease);
+    transform-style: preserve-3d;
+}
+.steam-gh__logo:hover .steam-gh__logo-svg {
+    transform: perspective(600px) rotateY(360deg);
+}
+
+.steam-gh__link,
+.steam-gh__dd-btn {
+    border-radius: 12px;
+    transition: transform .25s var(--d3-ease), box-shadow .25s var(--d3-ease), background .25s;
+}
+.steam-gh__link:hover,
+.steam-gh__dd-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .8),
+        0 10px 20px rgba(124, 92, 222, .22);
+}
+
+.steam-gh__dd-menu {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .9),
+        0 30px 60px rgba(90, 60, 140, .25),
+        0 8px 20px rgba(90, 60, 140, .12) !important;
+    animation: d3-drop .28s var(--d3-ease);
+    transform-origin: top center;
+}
+
+.steam-gh__avatar {
+    box-shadow:
+        0 4px 0 rgba(109, 74, 214, .85),
+        0 10px 18px rgba(124, 92, 222, .4),
+        inset 0 2px 0 rgba(255, 255, 255, .55) !important;
+    transition: transform .25s var(--d3-ease), box-shadow .25s;
+}
+.steam-gh__user-btn:hover .steam-gh__avatar {
+    transform: translateY(-2px) scale(1.05);
+}
+
+.steam-gh__cart {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .8),
+        0 3px 0 rgba(124, 92, 222, .25),
+        0 8px 16px rgba(124, 92, 222, .18) !important;
+    transition: transform .2s var(--d3-ease), box-shadow .2s;
+}
+.steam-gh__cart:hover { transform: translateY(-2px); }
+.steam-gh__cart:active { transform: translateY(1px); }
+.steam-gh__cart-n {
+    box-shadow:
+        0 2px 0 #3d2496,
+        0 6px 12px rgba(124, 92, 222, .5),
+        inset 0 1px 0 rgba(255, 255, 255, .4) !important;
+}
+
+/* ---------- 4. 3D-КНОПКИ («КЛАВИШИ» С ВЫДАВЛИВАНИЕМ) ---------- */
+.clay-btn,
+.btn_add_cart,
+.btn_checkout,
+.btn-steam,
+.btn_go_library,
+.btn_submit_review,
+.btn_wishlist_cart,
+.steam-btn,
+.steam-gh__login,
+.chat-send-btn {
+    --d3-key: var(--d3-purple-key);
+    --d3-glow: rgba(124, 92, 222, .38);
+    background: linear-gradient(180deg, var(--d3-purple-hi) 0%, var(--d3-purple) 55%, #6d4ad6 100%) !important;
+}
+
+.steam-search button {
+    --d3-key: var(--d3-cyan-key);
+    --d3-glow: rgba(34, 211, 238, .38);
+    background: linear-gradient(180deg, #7ceef9 0%, var(--d3-cyan) 55%, #0fb5cf 100%) !important;
+}
+
+.steam_library_play_btn,
+.btn_steam_green,
+.clay-btn--ok,
+.steam-btn-green,
+.btn-steam.btn-green {
+    --d3-key: var(--d3-lime-key);
+    --d3-glow: rgba(132, 204, 22, .42);
+    background: linear-gradient(180deg, #b9ec58 0%, var(--d3-lime) 55%, #65a30d 100%) !important;
+}
+
+.clay-btn--danger,
+.steam-btn-red,
+.btn-steam.btn-danger,
+.btn_wishlist_remove,
+.btn_stop_game,
+.np-stop {
+    --d3-key: var(--d3-rose-key);
+    --d3-glow: rgba(244, 63, 94, .4);
+    background: linear-gradient(180deg, #fda4af 0%, var(--d3-rose) 55%, #e11d48 100%) !important;
+}
+
+.clay-btn--ghost,
+.btn_add_wishlist,
+.steam_library_page_btn,
+.btn-steam.btn-ghost,
+.steam-btn-blue,
+.sp-btn--ghost {
+    --d3-key: #b9a8e8;
+    --d3-glow: rgba(124, 92, 222, .18);
+    background: linear-gradient(180deg, #ffffff 0%, #f3edff 100%) !important;
+    color: #7c5cde !important;
+    border-color: rgba(124, 92, 222, .28) !important;
+}
+
+/* общая «клавишная» механика для всех кнопок */
+.clay-btn,
+.btn_add_cart,
+.btn_checkout,
+.btn-steam,
+.btn_go_library,
+.btn_submit_review,
+.btn_wishlist_cart,
+.steam-btn,
+.steam-gh__login,
+.chat-send-btn,
+.steam-search button,
+.steam_library_play_btn,
+.btn_steam_green,
+.clay-btn--ok,
+.steam-btn-green,
+.btn-steam.btn-green,
+.clay-btn--danger,
+.steam-btn-red,
+.btn-steam.btn-danger,
+.btn_wishlist_remove,
+.btn_stop_game,
+.np-stop,
+.clay-btn--ghost,
+.btn_add_wishlist,
+.steam_library_page_btn,
+.btn-steam.btn-ghost,
+.steam-btn-blue,
+.sp-btn--ghost {
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 5px 0 var(--d3-key),
+        0 14px 28px var(--d3-glow),
+        inset 0 2px 0 rgba(255, 255, 255, .5),
+        inset 0 -8px 14px rgba(40, 20, 90, .18) !important;
+    text-shadow: 0 1px 2px rgba(30, 15, 70, .28);
+    transition:
+        transform .16s var(--d3-ease),
+        box-shadow .16s var(--d3-ease),
+        filter .2s;
+}
+.clay-btn--ghost,
+.btn_add_wishlist,
+.steam_library_page_btn,
+.btn-steam.btn-ghost,
+.steam-btn-blue,
+.sp-btn--ghost {
+    text-shadow: 0 1px 0 #fff !important;
+    box-shadow:
+        0 4px 0 var(--d3-key),
+        0 10px 22px var(--d3-glow),
+        inset 0 2px 0 rgba(255, 255, 255, .95) !important;
+}
+
+.clay-btn:hover,
+.btn_add_cart:hover,
+.btn_checkout:hover,
+.btn-steam:hover,
+.btn_go_library:hover,
+.btn_submit_review:hover,
+.btn_wishlist_cart:hover,
+.steam-btn:hover,
+.steam-gh__login:hover,
+.chat-send-btn:hover,
+.steam-search button:hover,
+.steam_library_play_btn:hover,
+.btn_steam_green:hover,
+.clay-btn--ok:hover,
+.steam-btn-green:hover,
+.btn-steam.btn-green:hover,
+.clay-btn--danger:hover,
+.steam-btn-red:hover,
+.btn-steam.btn-danger:hover,
+.btn_wishlist_remove:hover,
+.btn_stop_game:hover,
+.np-stop:hover,
+.clay-btn--ghost:hover,
+.btn_add_wishlist:hover,
+.steam_library_page_btn:hover,
+.btn-steam.btn-ghost:hover,
+.steam-btn-blue:hover,
+.sp-btn--ghost:hover {
+    transform: translateY(-2px);
+    filter: saturate(1.1) brightness(1.05) !important;
+    box-shadow:
+        0 8px 0 var(--d3-key),
+        0 22px 44px var(--d3-glow),
+        inset 0 2px 0 rgba(255, 255, 255, .55),
+        inset 0 -8px 14px rgba(40, 20, 90, .18) !important;
+}
+
+.clay-btn:active,
+.btn_add_cart:active,
+.btn_checkout:active,
+.btn-steam:active,
+.btn_go_library:active,
+.btn_submit_review:active,
+.btn_wishlist_cart:active,
+.steam-btn:active,
+.steam-gh__login:active,
+.chat-send-btn:active,
+.steam-search button:active,
+.steam_library_play_btn:active,
+.btn_steam_green:active,
+.clay-btn--ok:active,
+.steam-btn-green:active,
+.btn-steam.btn-green:active,
+.clay-btn--danger:active,
+.steam-btn-red:active,
+.btn-steam.btn-danger:active,
+.btn_wishlist_remove:active,
+.btn_stop_game:active,
+.np-stop:active,
+.clay-btn--ghost:active,
+.btn_add_wishlist:active,
+.steam_library_page_btn:active,
+.btn-steam.btn-ghost:active,
+.steam-btn-blue:active,
+.sp-btn--ghost:active {
+    transform: translateY(3px);
+    box-shadow:
+        0 2px 0 var(--d3-key),
+        0 8px 16px var(--d3-glow),
+        inset 0 2px 0 rgba(255, 255, 255, .3),
+        inset 0 6px 14px rgba(40, 20, 90, .22) !important;
+}
+
+/* блик, пробегающий по кнопке при наведении */
+.clay-btn::after,
+.btn-steam::after,
+.steam-btn::after,
+.steam_library_play_btn::after,
+.btn_steam_green::after,
+.steam_library_page_btn::after,
+.btn_stop_game::after,
+.clay-btn--danger::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 32%, rgba(255, 255, 255, .38) 50%, transparent 68%);
+    background-size: 220% 100%;
+    background-position: -220% 0;
+    pointer-events: none;
+}
+.clay-btn:hover::after,
+.btn-steam:hover::after,
+.steam-btn:hover::after,
+.steam_library_play_btn:hover::after,
+.btn_steam_green:hover::after,
+.steam_library_page_btn:hover::after,
+.btn_stop_game:hover::after,
+.clay-btn--danger:hover::after {
+    animation: d3-shine .9s var(--d3-ease);
+}
+
+/* ---------- 5. ПОЛЯ ВВОДА — «ВДАВЛЕННЫЕ» ---------- */
+.form_control,
+.form-control,
+.clay-input,
+.steam_sort_select,
+.steam_price_inputs input,
+.search-input,
+.review_textarea,
+.sp-form select, .sp-form textarea, .sp-form input,
+.steam-form input, .steam-form textarea, .steam-form select,
+.form-page input, .form-page textarea, .form-page select,
+.auth_box input, .auth_box textarea, .auth_box select {
+    background: linear-gradient(180deg, #f1eafd 0%, #ffffff 35%) !important;
+    box-shadow:
+        inset 0 3px 8px rgba(90, 60, 140, .14),
+        inset 0 -1px 0 rgba(255, 255, 255, .95),
+        0 1px 0 rgba(255, 255, 255, .85) !important;
+    border: 1px solid rgba(124, 92, 222, .22) !important;
+    transition: box-shadow .25s var(--d3-ease), border-color .25s;
+}
+.form_control:focus,
+.form-control:focus,
+.clay-input:focus,
+.search-input:focus,
+.review_textarea:focus {
+    border-color: rgba(124, 92, 222, .55) !important;
+    box-shadow:
+        inset 0 3px 8px rgba(90, 60, 140, .1),
+        0 0 0 4px rgba(124, 92, 222, .15),
+        0 12px 26px rgba(124, 92, 222, .16) !important;
+}
+
+/* ---------- 6. КАРТОЧКИ — 3D-НАКЛОН ---------- */
+.steam_game_card, .game_card, .steam_special_card,
+.group-card, .support-action-card,
+.clay-card, .sp-card, .sp-game-card, .sp-news-card, .sp-shop-card, .sp-discovery-card,
+.wishlist_item, .cart_item, .review_card,
+.steam_library_game_panel, .cart_summary, .checkout_summary {
+    border-radius: 22px !important;
+    box-shadow: var(--d3-card) !important;
+    transition:
+        transform .45s var(--d3-ease),
+        box-shadow .45s var(--d3-ease),
+        border-color .3s;
+    will-change: transform;
+}
+.steam_game_card:hover, .game_card:hover, .steam_special_card:hover,
+.group-card:hover, .support-action-card:hover,
+.clay-card:hover, .sp-card:hover, .sp-game-card:hover, .sp-news-card:hover,
+.sp-shop-card:hover, .sp-discovery-card:hover,
+.wishlist_item:hover, .cart_item:hover, .review_card:hover,
+.steam_library_game_panel:hover, .cart_summary:hover, .checkout_summary:hover {
+    transform: perspective(900px) rotateX(3.5deg) rotateY(-3.5deg) translateY(-8px) scale(1.02);
+    box-shadow: var(--d3-card-hover) !important;
+    border-color: rgba(124, 92, 222, .4) !important;
+}
+
+/* строки/списки — мягкий подъём */
+.steam_home_row, .steam_top_item, .steam_store_row, .store_list_item,
+.sp-list-item, .sp-feed-item, .steam-filter_sidebar, .store_sidebar,
+.steam_library_sidebar, .purchase_box, .support-cat, .steam-card {
+    transition:
+        transform .35s var(--d3-ease),
+        box-shadow .35s var(--d3-ease),
+        background .3s,
+        border-color .3s;
+}
+.steam_home_row:hover, .steam_top_item:hover, .steam_store_row:hover,
+.store_list_item:hover, .sp-list-item:hover, .sp-feed-item:hover {
+    transform: translateY(-4px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .9),
+        0 18px 36px rgba(90, 60, 140, .16) !important;
+}
+
+/* ссылки библиотеки */
+.steam_library_game_link {
+    transition: transform .25s var(--d3-ease), background .25s, box-shadow .25s;
+}
+.steam_library_game_link:hover {
+    transform: translateX(6px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 8px 18px rgba(124, 92, 222, .18);
+}
+.steam_library_game_link.is-playing {
+    background: linear-gradient(90deg, rgba(132, 204, 22, .18), transparent) !important;
+    box-shadow: inset 3px 0 0 #65a30d, 0 0 22px rgba(132, 204, 22, .25);
+}
+
+/* ---------- 7. БЕЙДЖИ / ТЕГИ / СКИДКИ ---------- */
+.discount_badge, .discount_pill, .ld-off {
+    transform: rotate(-4deg);
+    box-shadow:
+        0 3px 0 #b91c3c,
+        0 10px 18px rgba(244, 63, 94, .4),
+        inset 0 1px 0 rgba(255, 255, 255, .45) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+}
+.game_tag, .steam_store_row_tags span, .store_list_tag, .steam_home_row_tags span,
+.clay-badge {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .75),
+        0 2px 5px rgba(90, 60, 140, .14) !important;
+}
+.clay-badge--new {
+    box-shadow:
+        0 3px 0 var(--d3-lime-key),
+        0 8px 14px rgba(101, 163, 13, .35),
+        inset 0 1px 0 rgba(255, 255, 255, .4) !important;
+}
+
+/* ---------- 8. НАВИГАЦИЯ МАГАЗИНА ---------- */
+.steam-store-nav__tab {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .65),
+        0 2px 0 rgba(124, 92, 222, .14) !important;
+    transition: transform .22s var(--d3-ease), box-shadow .22s var(--d3-ease), background .22s, color .22s;
+}
+.steam-store-nav__tab:hover { transform: translateY(-2px); }
+.steam-store-nav__tab.is-active {
+    background: linear-gradient(180deg, #9f7ff2 0%, #7c5cde 60%, #6d4ad6 100%) !important;
+    color: #fff !important;
+    box-shadow:
+        0 4px 0 var(--d3-purple-key),
+        0 12px 22px rgba(124, 92, 222, .38),
+        inset 0 1px 0 rgba(255, 255, 255, .4) !important;
+    text-shadow: 0 1px 2px rgba(30, 15, 70, .35);
+}
+
+/* ---------- 9. ПОИСК ---------- */
+.steam-search {
+    background: rgba(255, 255, 255, .82) !important;
+    box-shadow:
+        inset 0 3px 7px rgba(90, 60, 140, .13),
+        inset 0 -1px 0 rgba(255, 255, 255, .9),
+        0 1px 0 rgba(255, 255, 255, .85) !important;
+}
+.steam-search button {
+    box-shadow:
+        0 3px 0 var(--d3-key),
+        0 8px 16px var(--d3-glow),
+        inset 0 1px 0 rgba(255, 255, 255, .5) !important;
+}
+.steam-search button:hover {
+    box-shadow:
+        0 5px 0 var(--d3-key),
+        0 12px 22px var(--d3-glow),
+        inset 0 1px 0 rgba(255, 255, 255, .55) !important;
+}
+.steam-search button:active {
+    box-shadow:
+        0 1px 0 var(--d3-key),
+        0 4px 8px var(--d3-glow) !important;
+}
+
+/* ---------- 10. ТОСТЫ / СООБЩЕНИЯ ---------- */
+.steam-toast {
+    animation: d3-rise .5s var(--d3-ease);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .7),
+        0 16px 34px rgba(90, 60, 140, .18) !important;
+    backdrop-filter: blur(14px);
+}
+.steam-messages .alert, .alert {
+    animation: d3-rise .5s var(--d3-ease);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .8),
+        0 16px 34px rgba(90, 60, 140, .16) !important;
+}
+
+/* ---------- 11. КАРУСЕЛЬ 3D ---------- */
+.carousel_slide.active {
+    animation: d3-slide-3d .8s var(--d3-ease);
+}
+.carousel_prev, .carousel_next {
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ffffff, #ece5ff);
+    box-shadow:
+        0 4px 0 #c9c2e8,
+        0 12px 24px rgba(90, 60, 140, .25),
+        inset 0 1px 0 #fff;
+    transition: transform .2s var(--d3-ease), box-shadow .2s var(--d3-ease);
+}
+.carousel_prev:hover, .carousel_next:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 6px 0 #c9c2e8,
+        0 16px 30px rgba(90, 60, 140, .3),
+        inset 0 1px 0 #fff;
+}
+.carousel_prev:active, .carousel_next:active {
+    transform: translateY(3px);
+    box-shadow:
+        0 1px 0 #c9c2e8,
+        0 4px 10px rgba(90, 60, 140, .2),
+        inset 0 1px 0 #fff;
+}
+.carousel_dot {
+    background: #d7cdf3;
+    box-shadow: inset 0 2px 4px rgba(90, 60, 140, .35);
+    transition: transform .25s var(--d3-ease), background .25s, box-shadow .25s;
+}
+.carousel_dot.active {
+    background: linear-gradient(180deg, #a98ef7, #7c5cde);
+    box-shadow:
+        0 0 0 3px rgba(124, 92, 222, .25),
+        0 4px 10px rgba(124, 92, 222, .5);
+    transform: scale(1.35);
+}
+
+/* ---------- 12. ФУТЕР ---------- */
+.steam-footer__logo {
+    text-shadow:
+        0 1px 0 #fff,
+        0 3px 0 rgba(124, 92, 222, .25),
+        0 12px 24px rgba(90, 60, 140, .3) !important;
+    letter-spacing: 4px;
+}
+
+/* ---------- 13. «СЕЙЧАС ИГРАЮ» — ПАРЯЩИЙ 3D-ДОК ---------- */
+#steam-now-playing {
+    position: fixed !important;
+    left: 50% !important;
+    bottom: 22px !important;
+    transform: translateX(-50%) !important;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(44, 36, 68, .96), rgba(24, 19, 40, .97)) !important;
+    color: #fff;
+    box-shadow:
+        0 26px 60px rgba(15, 8, 40, .5),
+        0 0 0 1px rgba(167, 139, 250, .4),
+        0 0 44px rgba(124, 92, 222, .35),
+        inset 0 1px 0 rgba(255, 255, 255, .18) !important;
+    z-index: 1200;
+    animation: d3-rise .5s var(--d3-ease);
+}
+#steam-now-playing .np-label {
+    color: #b9a8e8;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+#steam-now-playing .np-game { color: #fff; font-weight: 800; }
+#steam-now-playing .np-time {
+    color: #a3e635;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 12px rgba(163, 230, 53, .5);
+}
+#steam-now-playing .np-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #a3e635;
+    box-shadow: 0 0 14px rgba(163, 230, 53, .9);
+    animation: d3-pulse 1.6s ease-in-out infinite;
+    flex-shrink: 0;
+}
+.np-stop { border-radius: 12px !important; }
+.np-hint {
+    color: #b9a8e8;
+    font-size: 12px;
+}
+
+/* ---------- 14. АВТОРИЗАЦИЯ / ПАНЕЛИ ---------- */
+.auth_box {
+    animation: d3-rise .55s var(--d3-ease);
+    box-shadow: var(--d3-card) !important;
+}
+.steam-showcase, .clay-hero {
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, .8),
+        0 24px 50px rgba(90, 60, 140, .16) !important;
+}
+.clay-avatar, .clay-avatar-lg {
+    box-shadow:
+        0 5px 0 rgba(109, 74, 214, .8),
+        0 14px 26px rgba(124, 92, 222, .4),
+        inset 0 2px 0 rgba(255, 255, 255, .5) !important;
+}
+.chat-message {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .8),
+        0 6px 14px rgba(90, 60, 140, .1) !important;
+}
+.chat-message-mine {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .5),
+        0 8px 18px rgba(124, 92, 222, .3) !important;
+}
+
+/* ---------- 15. СКРОЛЛБАР ---------- */
+.steam-body ::-webkit-scrollbar { width: 11px; height: 11px; }
+.steam-body ::-webkit-scrollbar-track {
+    background: #efe8f8;
+    border-radius: 999px;
+}
+.steam-body ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #a98ef7, #22d3ee);
+    border-radius: 999px;
+    border: 2px solid #efe8f8;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+.steam-body ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #7c5cde, #0ea5c4);
+}
+
+/* ---------- 16. РЕЖИМ ЛАУНЧЕРА ---------- */
+body.is-launcher .steam-footer { display: none !important; }
+body.is-launcher .steam-page { padding-bottom: 48px !important; }
+body.is-launcher { overscroll-behavior: none; }
+
+/* ---------- 17. КЛЮЧЕВЫЕ КАДРЫ ---------- */
+@keyframes d3-orb-a {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(150px, 100px, 0) scale(1.16); }
+}
+@keyframes d3-orb-b {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(-170px, -120px, 0) scale(1.12); }
+}
+@keyframes d3-rise {
+    from { opacity: 0; transform: translateY(24px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes d3-drop {
+    from { opacity: 0; transform: perspective(700px) rotateX(-10deg) translateY(-10px); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes d3-slide-3d {
+    from { opacity: 0; transform: perspective(1200px) rotateY(-14deg) translateX(70px) scale(.95); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes d3-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(163, 230, 53, .55), 0 0 14px rgba(163, 230, 53, .9); }
+    50%      { box-shadow: 0 0 0 8px rgba(163, 230, 53, 0), 0 0 14px rgba(163, 230, 53, .9); }
+}
+@keyframes d3-shine {
+    from { background-position: -220% 0; }
+    to   { background-position: 220% 0; }
+}
+
+/* ---------- 18. ДОСТУПНОСТЬ ---------- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/* =========================================================
+   19. КНОПКИ «ИГРАТЬ» / «СКАЧАТЬ ЛАУНЧЕР»
+   На сайте: играть скрыта, скачать лаунчер видна.
+   В лаунчере: наоборот.
+   ========================================================= */
+body:not(.is-launcher) .js-play-btn,
+body:not(.is-launcher) .btn_launch_game,
+body:not(.is-launcher) .js-stop-btn,
+body:not(.is-launcher) .btn_stop_game {
+    display: none !important;
+}
+body.is-launcher .js-download-launcher {
+    display: none !important;
+}
+
+/* кнопка скачивания лаунчера — акцентная, с пульсацией */
+.steam-download-launcher-btn {
+    --d3-key: var(--d3-cyan-key) !important;
+    --d3-glow: rgba(34, 211, 238, .45) !important;
+    background: linear-gradient(180deg, #7ceef9 0%, var(--d3-cyan) 55%, #0fb5cf 100%) !important;
+    animation: d3-cta-pulse 2.6s ease-in-out infinite;
+}
+.steam-download-launcher-btn:hover {
+    animation-play-state: paused;
+}
+
+@keyframes d3-cta-pulse {
+    0%, 100% { box-shadow: 0 5px 0 var(--d3-key), 0 14px 28px var(--d3-glow), inset 0 2px 0 rgba(255,255,255,.5), 0 0 0 0 rgba(34, 211, 238, .45); }
+    50%      { box-shadow: 0 5px 0 var(--d3-key), 0 14px 28px var(--d3-glow), inset 0 2px 0 rgba(255,255,255,.5), 0 0 0 10px rgba(34, 211, 238, 0); }
+}
+
+/* =========================================================
+   20. СТИЛЬ v2 — ЕЩЁ КРАСИВЕЕ
+   ========================================================= */
+
+/* градиентные заголовки секций */
+.steam_block_header h2, .section_title, .game_description_section h2,
+.reviews_section h2, .support-section h2, .sp-section-title {
+    background: linear-gradient(120deg, #7c5cde 0%, #22d3ee 55%, #84cc16 110%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    filter: drop-shadow(0 6px 14px rgba(124, 92, 222, .25)) !important;
+}
+
+/* зум изображений в карточках игр */
+.steam_game_card img, .game_card img, .sp-game-card img {
+    transition: transform .6s var(--d3-ease), filter .4s;
+}
+.steam_game_card:hover img, .game_card:hover img, .sp-game-card:hover img {
+    transform: scale(1.06);
+    filter: saturate(1.15) brightness(1.05);
+}
+
+/* парящий hero-блок */
+.steam_showcase, .clay-hero, .sp-hero {
+    animation: d3-hero-float 7s ease-in-out infinite;
+}
+@keyframes d3-hero-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}
+
+/* мягкое свечение вокруг главного CTA в библиотеке */
+.steam_library_play_btn:not(.steam-download-launcher-btn) {
+    animation: d3-play-glow 3s ease-in-out infinite;
+}
+@keyframes d3-play-glow {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.12) saturate(1.15); }
+}
+
+/* объёмный градиентный текст цен */
+.price_final, .final_price, .sp-price {
+    background: linear-gradient(120deg, #7c5cde, #22d3ee) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* плавное появление страниц */
+.steam-page {
+    animation: d3-page-in .55s var(--d3-ease);
+}
+@keyframes d3-page-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* хедер: лёгкое парение при скролле не нужно, но добавим глубину ссылкам аккаунта */
+.steam-gh__wallet, .steam-gh__user-btn {
+    transition: transform .25s var(--d3-ease), box-shadow .25s var(--d3-ease);
+}
+.steam-gh__wallet:hover, .steam-gh__user-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .8),
+        0 10px 20px rgba(124, 92, 222, .25) !important;
+}
+
+/* скриншоты на странице игры — 3D-подъём */
+.screenshot_thumb {
+    transition: transform .3s var(--d3-ease), box-shadow .3s var(--d3-ease), opacity .3s;
+}
+.screenshot_thumb:hover {
+    transform: perspective(600px) rotateX(6deg) translateY(-4px) scale(1.05);
+    box-shadow: 0 14px 28px rgba(90, 60, 140, .3);
+    z-index: 2;
+}
+.screenshot_thumb.active {
+    box-shadow: 0 0 0 2px rgba(124, 92, 222, .6), 0 8px 20px rgba(124, 92, 222, .3);
+}

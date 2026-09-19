@@ -70,7 +70,8 @@ def checkout(request):
     total_price = sum(item.game.get_discounted_price() for item in cart_items)
 
     if request.method == 'POST':
-        profile = request.user.profile
+        from users.models import Profile
+        profile, _ = Profile.objects.get_or_create(user=request.user)
 
         # ПРОВЕРКА: Если денег на балансе кошелька меньше, чем стоит корзина
         if profile.balance < total_price:
@@ -146,15 +147,21 @@ def library(request):
     )
     try:
         from steamplus.models import Playtime
+        from steamplus.utils import get_active_session
         pt_map = {
             pt.game_id: pt
             for pt in Playtime.objects.filter(user=request.user)
         }
+        active = get_active_session(request.user)
         for p in purchases:
             p.playtime = pt_map.get(p.game_id)
+            p.exe_path = p.game.get_local_exe_path()
+            p.is_playing = bool(active and active.game_id == p.game_id)
     except Exception:
         for p in purchases:
             p.playtime = None
+            p.exe_path = p.game.get_local_exe_path() if hasattr(p.game, 'get_local_exe_path') else ''
+            p.is_playing = False
     return render(request, 'cart/library.html', {
         'purchases': purchases,
     })

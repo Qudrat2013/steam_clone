@@ -11,3 +11,4 @@ python-dotenv>=1.0
 requests>=2.31
 ua-parser>=0.18
 user-agents>=2.2
+qrcode>=7.4

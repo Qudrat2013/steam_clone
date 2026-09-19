@@ -1,0 +1,61 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Вход в лаунчер</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; display: flex; align-items: center; justify-content: center;
+         background: radial-gradient(circle at 30% 20%, #16253f, #0a1322 60%, #060b14);
+         font-family: 'Segoe UI', sans-serif; color: #dbe7f7; padding: 20px; }
+  .box { background: linear-gradient(180deg, #131f34, #0d1626); border: 1px solid #24406b;
+         border-radius: 20px; padding: 36px 30px; max-width: 400px; width: 100%; text-align: center;
+         box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+  h1 { font-size: 22px; margin-bottom: 6px; }
+  .sub { color: #3ec6ff; font-size: 12px; letter-spacing: 3px; margin-bottom: 22px; }
+  p { color: #a9bcd6; font-size: 14px; line-height: 1.5; margin-bottom: 16px; }
+  .ok { color: #7cffce; font-size: 40px; margin-bottom: 10px; }
+  .btn { display: inline-block; background: linear-gradient(180deg, #35d0ff, #1f8fe0);
+         border: none; border-bottom: 4px solid #0f5a94; color: white; font-weight: 800;
+         font-size: 16px; padding: 13px 34px; border-radius: 12px; cursor: pointer;
+         text-decoration: none; margin-top: 8px; }
+  .btn:active { border-bottom-width: 1px; transform: translateY(2px); }
+  .warn { color: #ff8d80; }
+  .code { color: #3ec6ff; font-family: Consolas; }
+</style>
+</head>
+<body>
+<div class="box">
+  {% if expired %}
+    <h1>QR-код устарел ⌛</h1>
+    <div class="sub">STEAM CLONE LAUNCHER</div>
+    <p>Код действовал 3 минуты и больше не работает.<br>Сгенерируй новый в лаунчере.</p>
+  {% elif done %}
+    <div class="ok">&#10003;</div>
+    <h1>Готово!</h1>
+    <div class="sub">STEAM CLONE LAUNCHER</div>
+    <p>Лаунчер сейчас войдёт в аккаунт<br><b>{{ user.username }}</b>.<br>Можешь закрыть эту страницу.</p>
+  {% elif need_login %}
+    <h1>Сначала войди</h1>
+    <div class="sub">STEAM CLONE LAUNCHER</div>
+    <p>Чтобы подтвердить вход в лаунчер,<br>сначала войди на сайт.</p>
+    <a class="btn" href="/login/?next=/launcher-api/qr/{{ code }}/">ВОЙТИ НА САЙТ</a>
+  {% else %}
+    <h1>Вход в лаунчер</h1>
+    <div class="sub">STEAM CLONE LAUNCHER</div>
+    <p>Ты подтверждаешь вход в лаунчер<br>под аккаунтом <b>{{ user.username }}</b>?<br>
+       <span class="code">код: {{ code|truncatechars:12 }}</span></p>
+    {% if not user.is_authenticated %}
+      <p class="warn">Войди на сайт, чтобы подтвердить.</p>
+      <a class="btn" href="/login/?next=/launcher-api/qr/{{ code }}/">ВОЙТИ НА САЙТ</a>
+    {% else %}
+      <form method="post">{% csrf_token %}
+        <button class="btn" type="submit">ПОДТВЕРДИТЬ ВХОД</button>
+      </form>
+    {% endif %}
+  {% endif %}
+</div>
+</body>
+</html>

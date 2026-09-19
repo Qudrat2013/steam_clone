@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'games',
-    'users',
+    'users.apps.UsersConfig',
     'cart',
     'inventory',
     'trades',
@@ -182,10 +182,21 @@ REDOC_SETTINGS = {
     'LAZY_RENDERING': True,
 }
 
-# Production hardening when DEBUG is off
+# Production hardening when DEBUG is off (PythonAnywhere etc.)
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+    # Free PythonAnywhere serves HTTPS; keep redirect off unless custom domain
+    SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'False').lower() in (
+        '1', 'true', 'yes',
+    )
+
+# Ensure media/static dirs exist (important on first deploy)
+for _path in (STATIC_ROOT, MEDIA_ROOT, BASE_DIR / 'media' / 'avatars', BASE_DIR / 'media' / 'games'):
+    try:
+        Path(_path).mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass

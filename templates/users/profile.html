@@ -106,6 +106,9 @@
                                     </div>
                                 {% endif %}
                                 <div style="padding:10px;font-weight:700;">{{ purchase.game.title }}</div>
+                                <div style="padding:0 10px 10px;font-size:12px;color:#8f98a0;">
+                                    {% if purchase.playtime %}{{ purchase.playtime.hours_display }}{% else %}ещё не играли{% endif %}
+                                </div>
                             </a>
                         {% endfor %}
                     </div>

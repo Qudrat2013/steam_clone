@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
 {% block title %}Библиотека — Steam{% endblock %}
+{% block body_class %} steam-library-body{% endblock %}
+{% block store_nav %}{% endblock %}
 
 {% block content %}
 <div class="steam_library_page">
 
     <aside class="steam_library_sidebar">
-        <div class="steam_library_sidebar_title">Библиотека</div>
+        <div class="steam_library_sidebar_title">БИБЛИОТЕКА</div>
+        <input type="search" class="steam_library_search" id="library-search" placeholder="Поиск по библиотеке" autocomplete="off">
 
         {% for purchase in purchases %}
-            <a href="#game-{{ purchase.game.id }}" class="steam_library_game_link">
-                <i class="fas fa-gamepad"></i>
-                {{ purchase.game.title }}
+            <a href="#game-{{ purchase.game.id }}"
+               class="steam_library_game_link{% if forloop.first %} is-active{% endif %}{% if purchase.is_playing %} is-playing{% endif %}"
+               data-game-id="{{ purchase.game.id }}"
+               data-title="{{ purchase.game.title|escape }}">
+                <span class="steam_library_game_name">{{ purchase.game.title }}</span>
+                <span class="steam_library_game_hours js-playtime-{{ purchase.game.id }}">
+                    {% if purchase.playtime %}{{ purchase.playtime.hours_display }}{% else %}—{% endif %}
+                </span>
             </a>
         {% empty %}
             <div class="steam-muted">Игр пока нет</div>
@@ -20,7 +28,9 @@
     <main class="steam_library_content">
         {% if purchases %}
             {% for purchase in purchases %}
-            <section id="game-{{ purchase.game.id }}" class="steam_library_game_panel">
+            <section id="game-{{ purchase.game.id }}"
+                     class="steam_library_game_panel{% if forloop.first %} is-visible{% endif %}"
+                     data-game-id="{{ purchase.game.id }}">
                 <div class="steam_library_hero">
                     {% if purchase.game.header_image %}
                         <img src="{{ purchase.game.header_image.url }}" alt="{{ purchase.game.title }}">
@@ -34,19 +44,32 @@
                         <h1>{{ purchase.game.title }}</h1>
 
                         <div class="steam_library_actions">
-                            <form method="post" action="{% url 'play_game' purchase.game.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="minutes" value="30">
-                                <button type="submit" class="steam_library_play_btn" style="border:none;cursor:pointer;">
-                                    <i class="fas fa-play"></i>
-                                    Играть (+30 мин)
-                                </button>
-                            </form>
+                            <button type="button"
+                                    class="steam_library_play_btn btn_launch_game js-play-btn"
+                                    data-game-id="{{ purchase.game.id }}"
+                                    data-title="{{ purchase.game.title|escape }}"
+                                    data-path="{{ purchase.exe_path }}"
+                                    {% if purchase.game.game_file %}data-fallback="{% url 'download_game' purchase.game.id %}"{% endif %}>
+                                <i class="fas fa-play"></i>
+                                <span>ИГРАТЬ</span>
+                            </button>
+                            <button type="button"
+                                    class="steam_library_stop_btn js-stop-btn"
+                                    data-game-id="{{ purchase.game.id }}"
+                                    hidden>
+                                <i class="fas fa-stop"></i>
+                                <span>СТОП</span>
+                            </button>
+
+                            <a href="{% url 'download_launcher' %}" class="steam_library_play_btn js-download-launcher steam-download-launcher-btn">
+                                <i class="fas fa-download"></i>
+                                <span>СКАЧАТЬ ЛАУНЧЕР</span>
+                            </a>
 
                             {% if purchase.game.game_file %}
                                 <a href="{% url 'download_game' purchase.game.id %}" class="steam_library_page_btn">
                                     <i class="fas fa-download"></i>
-                                    Скачать
+                                    Скачать игру
                                 </a>
                             {% endif %}
 
@@ -54,13 +77,16 @@
                                 Страница игры
                             </a>
                         </div>
-                        {% if purchase.playtime %}
-                        <div style="margin-top:8px;color:#8f98a0;font-size:13px;">
+                        <div class="steam_library_playtime js-playtime-block-{{ purchase.game.id }}">
                             <i class="fas fa-clock"></i>
-                            Наиграно: {{ purchase.playtime.hours_display }}
-                            · {{ purchase.playtime.sessions }} сессий
+                            Наиграно:
+                            <b class="js-playtime-{{ purchase.game.id }}">
+                                {% if purchase.playtime %}{{ purchase.playtime.hours_display }}{% else %}ещё не играли{% endif %}
+                            </b>
+                            {% if purchase.playtime %}
+                                · {{ purchase.playtime.sessions }} сессий
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                 </div>
 
@@ -87,6 +113,12 @@
                         <div class="steam_library_info_row">
                             <span>Куплено</span>
                             <b>{{ purchase.purchased_at|date:"d.m.Y" }}</b>
+                        </div>
+                        <div class="steam_library_info_row">
+                            <span>Время в игре</span>
+                            <b class="js-playtime-{{ purchase.game.id }}">
+                                {% if purchase.playtime %}{{ purchase.playtime.hours_display }}{% else %}0 мин.{% endif %}
+                            </b>
                         </div>
                     </div>
                 </div>

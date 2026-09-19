@@ -5,28 +5,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Steam{% endblock %}</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/steam.css' %}">
     <link rel="stylesheet" href="{% static 'css/steam-pro.css' %}">
+    <link rel="stylesheet" href="{% static 'css/clay-theme.css' %}">
+    <link rel="stylesheet" href="{% static 'css/neo3d.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body class="steam-body">
+<body class="steam-body{% block body_class %}{% endblock %}">
 
 {# ===== GLOBAL HEADER (как у Steam) ===== #}
 <header id="global_header" class="steam-gh">
     <div class="steam-gh__inner">
         <a href="{% url 'home' %}" class="steam-gh__logo" aria-label="STEAM">
             <svg class="steam-gh__logo-svg" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="30" cy="30" r="22" fill="#1b2838" stroke="#c7d5e0" stroke-width="2.5"/>
-                <circle cx="30" cy="30" r="8" fill="#c7d5e0"/>
-                <circle cx="48" cy="18" r="7" fill="#c7d5e0"/>
-                <path d="M36 24 L48 18" stroke="#c7d5e0" stroke-width="4" stroke-linecap="round"/>
-                <text x="64" y="38" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900" fill="#c7d5e0" letter-spacing="2">STEAM</text>
+                <defs>
+                    <radialGradient id="clayLogoBall" cx="32%" cy="28%" r="72%">
+                        <stop offset="0%" stop-color="#fff"/>
+                        <stop offset="42%" stop-color="#c4b5fd"/>
+                        <stop offset="100%" stop-color="#7c5cde"/>
+                    </radialGradient>
+                </defs>
+                <circle cx="30" cy="30" r="22" fill="url(#clayLogoBall)"/>
+                <circle cx="30" cy="30" r="8" fill="#fffdf9"/>
+                <circle cx="48" cy="18" r="7" fill="#67e8f9"/>
+                <path d="M36 24 L48 18" stroke="#2a2438" stroke-width="4" stroke-linecap="round"/>
+                <text x="64" y="38" font-family="Outfit, Arial Black, sans-serif" font-size="28" font-weight="800" fill="#2a2438" letter-spacing="2">STEAM</text>
             </svg>
         </a>
+        <button type="button" class="steam-gh__burger" id="steam-nav-toggle" aria-label="Меню" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
 
         <nav class="steam-gh__nav">
             <a href="{% url 'home' %}" class="steam-gh__link">МАГАЗИН</a>
@@ -57,7 +70,7 @@
             {% if user.is_authenticated %}
                 <a href="{% url 'wallet:deposit' %}" class="steam-gh__wallet" title="Кошелёк">
                     <i class="fas fa-wallet"></i>
-                    <span>{{ request.user.profile.balance }} UZS</span>
+                    <span>{% if request.user.profile %}{{ request.user.profile.balance }}{% else %}0{% endif %} UZS</span>
                 </a>
                 <div class="steam-gh__dd steam-gh__user">
                     <button type="button" class="steam-gh__user-btn">
@@ -100,6 +113,7 @@
     </div>
 </header>
 
+{% block store_nav %}
 {# ===== STORE NAV ===== #}
 <div class="steam-store-nav-wrap">
     <div class="steam-store-nav">
@@ -122,6 +136,7 @@
         </form>
     </div>
 </div>
+{% endblock %}
 
 {% if active_sale %}
 <div class="steam-toast steam-toast--sale" style="background: {{ active_sale.banner_color }};">
@@ -206,7 +221,7 @@
                         <a href="{% url 'friends_list' %}">Друзья</a>
                         <a href="{% url 'chat_list' %}">Сообщения</a>
                     {% endif %}
-                    <a href="/swagger/">API / Swagger</a>
+            
                 </div>
             </div>
         </div>
@@ -216,6 +231,22 @@
     </div>
 </footer>
 
+<div id="steam-now-playing" hidden>
+    <div class="np-dot"></div>
+    <div class="np-info">
+        <div class="np-label">Сейчас в игре</div>
+        <div class="np-game" id="np-game-title"></div>
+    </div>
+    <div class="np-time" id="np-time">0 сек.</div>
+    <button type="button" id="steam-stop-play" class="np-stop">
+        <i class="fas fa-stop"></i> Стоп
+    </button>
+</div>
+{% if user.is_authenticated %}
+<script>
+window.STEAM_PLAY_STATUS = "{% url 'play_status' %}";
+</script>
+{% endif %}
 <script src="{% static 'js/steam.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </body>

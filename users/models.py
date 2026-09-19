@@ -31,7 +31,7 @@ class UserDevice(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     bio = models.TextField(blank=True, verbose_name='О себе')
     country = models.CharField(max_length=100, blank=True, verbose_name='Страна')
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)

@@ -11,7 +11,9 @@ class OnlineStatusMiddleware:
         user = getattr(request, 'user', None)
         if user is not None and user.is_authenticated:
             try:
-                profile = user.profile
+                from users.models import Profile
+
+                profile, _ = Profile.objects.get_or_create(user=user)
                 now = timezone.now()
                 last = getattr(profile, 'last_seen', None)
                 # Обновляем не чаще раза в 60 сек

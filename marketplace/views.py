@@ -56,7 +56,7 @@ def sell_item_view(request, inventory_item_id):
 
         try:
             price = Decimal(price)
-        except:
+        except Exception:
             messages.error(request, 'Введите правильную цену.')
             return redirect('sell_item', inventory_item_id=inventory_item.id)
 

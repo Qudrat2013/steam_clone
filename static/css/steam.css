@@ -1042,17 +1042,31 @@ a:hover { color: #fff; }
 .steam_library_sidebar_title { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 12px; }
 
 .steam_library_game_link {
-    display: block; color: #c7d5e0;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    color: #c7d5e0;
     padding: 9px 10px; border-radius: 3px; font-size: 13px;
 }
 .steam_library_game_link:hover { background: #1b2838; color: #67c1f5; }
-
+.steam_library_game_link.is-active { background: #1b2838; color: #fff; box-shadow: inset 3px 0 0 #a4d007; }
+.steam_library_game_link.is-playing .steam_library_game_name::before {
+    content: "● ";
+    color: #a4d007;
+}
+.steam_library_game_name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.steam_library_game_hours { color: #8f98a0; font-size: 11px; white-space: nowrap; }
+.steam_library_search {
+    width: 100%; margin: 0 0 12px; padding: 8px 10px;
+    background: #0b1622; border: 1px solid #2a475e; border-radius: 3px;
+    color: #c7d5e0; font-size: 13px;
+}
 .steam_library_content { display: flex; flex-direction: column; gap: 22px; }
 
 .steam_library_game_panel {
+    display: none;
     background: #16202d; border: 1px solid #2a475e;
     border-radius: 5px; overflow: hidden;
 }
+.steam_library_game_panel.is-visible { display: block; }
 
 .steam_library_hero { position: relative; height: 260px; background: #0b1622; }
 .steam_library_hero img,
@@ -1075,8 +1089,21 @@ a:hover { color: #fff; }
 .steam_library_play_btn {
     background: linear-gradient(to bottom, #75b022 5%, #588a00 95%);
     color: #fff; padding: 12px 22px; border-radius: 3px; font-size: 15px; font-weight: 700;
+    border: none; cursor: pointer;
 }
 .steam_library_play_btn:hover { color: #fff; background: linear-gradient(to bottom, #88c42c 5%, #6aab00 95%); }
+.steam_library_stop_btn {
+    background: linear-gradient(to bottom, #c75050 5%, #8a3030 95%);
+    color: #fff; padding: 12px 22px; border-radius: 3px; font-size: 15px; font-weight: 700;
+    border: none; cursor: pointer;
+}
+.steam_library_playtime { margin-top: 10px; color: #c7d5e0; font-size: 13px; }
+.steam_library_playtime b { color: #a4d007; }
+.game_playtime_box {
+    margin-bottom: 8px; padding: 8px 10px; background: rgba(0,0,0,.25);
+    border-radius: 3px; color: #c7d5e0; font-size: 13px;
+}
+.game_playtime_box b { color: #a4d007; }
 
 .steam_library_page_btn {
     background: rgba(255,255,255,.12); border: 1px solid #4a6b8a;
@@ -2524,4 +2551,48 @@ body {
     padding: 24px;
     color: #8fa3b6;
     font-size: 13px;
+}
+
+/* ===== NOW PLAYING BAR (Steam overlay) ===== */
+#steam-now-playing {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(90deg, #1b2838, #16202d 40%, #1b2838);
+    border-top: 2px solid #a4d007;
+    padding: 10px 22px;
+    color: #fff;
+    box-shadow: 0 -8px 24px rgba(0,0,0,.45);
+}
+#steam-now-playing[hidden] { display: none !important; }
+body.has-now-playing { padding-bottom: 64px; }
+.np-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #a4d007;
+    box-shadow: 0 0 10px #a4d007;
+    animation: np-pulse 1.4s ease-in-out infinite;
+}
+@keyframes np-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+}
+.np-info { flex: 1; min-width: 0; }
+.np-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #8f98a0; }
+.np-game { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-time { font-size: 18px; font-weight: 800; color: #a4d007; min-width: 110px; text-align: right; }
+.np-stop {
+    background: #c75050; color: #fff; border: none; border-radius: 3px;
+    padding: 8px 14px; font-weight: 700; cursor: pointer;
+}
+.np-hint { font-size: 12px; color: #8f98a0; max-width: 280px; }
+body.is-launcher .steam-footer { display: none; }
+
+@media (max-width: 640px) {
+    #steam-now-playing { flex-wrap: wrap; gap: 8px; }
+    .np-time { min-width: auto; text-align: left; }
 }

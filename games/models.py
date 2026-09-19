@@ -42,8 +42,12 @@ class Game(models.Model):
     release_date = models.DateField(verbose_name='Дата выхода')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, verbose_name='Категория')
     tags = models.ManyToManyField(Tag, blank=True, verbose_name='Теги')
-    header_image = models.ImageField(upload_to='games/headers/', verbose_name='Заглавное изображение')
-    background_image = models.ImageField(upload_to='games/backgrounds/', blank=True, verbose_name='Фон')
+    header_image = models.ImageField(
+        upload_to='games/headers/', blank=True, null=True, verbose_name='Заглавное изображение'
+    )
+    background_image = models.ImageField(
+        upload_to='games/backgrounds/', blank=True, null=True, verbose_name='Фон'
+    )
     is_featured = models.BooleanField(default=False, verbose_name='На главной')
     is_active = models.BooleanField(default=True, verbose_name='Активна')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -66,6 +70,34 @@ class Game(models.Model):
             )
             return discounted.quantize(Decimal('0.01'))
         return self.price
+
+    def get_local_exe_path(self):
+        """Путь к .exe на диске: загруженный .exe или installed_games/<slug>/.
+
+        Игнорируем всё, что не .exe (картинки, архивы и т.п.) — иначе
+        лаунчер пытается запустить JPG и падает с WinError 193.
+        """
+        from pathlib import Path
+        from django.conf import settings
+
+        candidates = []
+        if self.game_file and str(self.game_file).lower().endswith('.exe'):
+            try:
+                candidates.append(Path(self.game_file.path))
+            except Exception:
+                candidates.append(Path(settings.MEDIA_ROOT) / str(self.game_file))
+
+        install_dir = Path(settings.BASE_DIR) / 'installed_games' / self.slug
+        if install_dir.is_dir():
+            candidates.extend(sorted(install_dir.glob('*.exe')))
+
+        for path in candidates:
+            try:
+                if path and path.is_file():
+                    return str(path)
+            except Exception:
+                continue
+        return ''
 
 
 class Screenshot(models.Model):
