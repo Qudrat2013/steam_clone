@@ -230,6 +230,18 @@ def client_library(request):
             'title': g.title,
 
 
+            'slug': g.slug,
+
+
+            'price': str(g.price),
+
+
+            'discount': g.discount or 0,
+
+
+            'final_price': str(g.get_discounted_price()),
+
+
             'developer': g.developer or '',
 
 

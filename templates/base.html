@@ -12,8 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/steam.css' %}">
     <link rel="stylesheet" href="{% static 'css/steam-pro.css' %}">
-    <link rel="stylesheet" href="{% static 'css/clay-theme.css' %}">
-    <link rel="stylesheet" href="{% static 'css/neo3d.css' %}">
+    <link rel="stylesheet" href="{% static 'css/store.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body class="steam-body{% block body_class %}{% endblock %}">
@@ -67,6 +66,9 @@
         </nav>
 
         <div class="steam-gh__account">
+            <a href="{% url 'download_launcher' %}" class="gh-install" title="Скачать лаунчер">
+                <i class="fas fa-download"></i> Установить Steam
+            </a>
             {% if user.is_authenticated %}
                 <a href="{% url 'wallet:deposit' %}" class="steam-gh__wallet" title="Кошелёк">
                     <i class="fas fa-wallet"></i>

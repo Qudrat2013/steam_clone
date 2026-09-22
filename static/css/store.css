@@ -1,0 +1,367 @@
+/* =========================================================================
+   STORE SKIN — аутентичный тёмный стиль магазина (оригинальный CSS проекта).
+   Загружается ПОСЛЕДНИМ и перекрывает clay / neo3d / glass темы.
+   ========================================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --st-top: #171a21;            /* самый тёмный (глобальный хедер) */
+    --st-bg: #1b2838;             /* фон магазина */
+    --st-bg-deep: #16202d;
+    --st-panel: #16202d;
+    --st-panel-2: #1e2a38;
+    --st-mid: #2a475e;
+    --st-line: #3c4140;
+    --st-blue: #66c0f4;
+    --st-blue-2: #1a9fff;
+    --st-link: #67c1f5;
+    --st-text: #c7d5e0;
+    --st-dim: #8f98a0;
+    --st-white: #ffffff;
+    --st-green-a: #75b022;
+    --st-green-b: #588a1b;
+    --st-green-soft: #a1cd44;
+    --st-sale-bg: #4c6b22;
+    --st-sale-text: #beee11;
+    --st-red: #a34c25;
+    --st-red-2: #d2462b;
+    --st-radius: 3px;
+}
+
+/* ---------- база ---------- */
+body.steam-body, body {
+    background: linear-gradient(180deg, #1b2838 0%, #1b2838 340px, #16202d 100%) fixed !important;
+    color: var(--st-text) !important;
+    font-family: "Noto Sans", "Segoe UI", Arial, sans-serif !important;
+    font-size: 13px !important;
+}
+::selection { background: var(--st-blue-2); color: #fff; }
+h1, h2, h3, h4 { color: #fff; font-weight: 600; }
+a { color: var(--st-link); }
+a:hover { color: #fff; }
+hr { border: none; border-top: 1px solid rgba(103, 193, 245, 0.15); }
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+::-webkit-scrollbar-thumb { background: #4c6b8a; border: 2px solid rgba(0,0,0,0.2); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #66c0f4; }
+
+/* ---------- глобальный хедер ---------- */
+.steam-gh, #global_header {
+    background: var(--st-top) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    position: relative;
+}
+.steam-gh__inner { max-width: 1000px; padding: 10px 0 12px !important; }
+.steam-gh__logo { display: flex; align-items: center; }
+.steam-gh__logo-text, .steam-gh__logo-svg text { font-weight: 800; }
+.steam-gh__link {
+    color: #b8b6b4 !important; font-size: 13px !important; font-weight: 700;
+    letter-spacing: 0.4px; text-transform: uppercase; padding: 6px 10px !important;
+    border-radius: 2px; background: transparent !important;
+}
+.steam-gh__link:hover { color: #fff !important; background: rgba(103,193,245,0.1) !important; }
+.steam-gh__dd-menu {
+    background: var(--st-top) !important;
+    border: 1px solid #2e3340 !important;
+    border-top: none !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.6) !important;
+    border-radius: 0 0 3px 3px;
+}
+.steam-gh__dd-menu a { color: #c6d4df !important; font-size: 12px; padding: 9px 14px; }
+.steam-gh__dd-menu a:hover { background: rgba(103,193,245,0.12) !important; color: #fff !important; }
+.steam-gh__account, .steam-gh__uname { color: #b8b6b4 !important; }
+.steam-gh__wallet {
+    background: rgba(103,193,245,0.08) !important; border: 1px solid rgba(103,193,245,0.18) !important;
+    border-radius: 2px; color: var(--st-link) !important;
+}
+.gh-install {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(90deg, #75b022 5%, #588a1b 95%);
+    color: #d2efa9 !important; font-size: 11.5px; font-weight: 700;
+    padding: 6px 12px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.gh-install:hover { color: #fff !important; background: linear-gradient(90deg, #8ed629 5%, #6aa621 95%); }
+.steam-gh__user-btn { background: transparent !important; border: none !important; color: inherit; }
+
+/* ---------- поднавигация магазина ---------- */
+.steam-store-nav-wrap {
+    background: linear-gradient(90deg, #1b2838 0%, #2a475e 100%) !important;
+    border-bottom: 1px solid rgba(0,0,0,0.4) !important;
+}
+.steam-store-nav { max-width: 1000px; }
+.steam-store-nav__tab {
+    color: #dbe4ee !important; font-size: 12.5px !important; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 14px !important;
+    border-radius: 2px 2px 0 0; background: transparent !important;
+}
+.steam-store-nav__tab:hover { color: #fff !important; background: rgba(103,193,245,0.12) !important; }
+.steam-store-nav__tab.is-active { background: rgba(0,0,0,0.28) !important; color: #fff !important; }
+
+/* поиск магазина */
+.steam-search input {
+    background: rgba(0,0,0,0.35) !important; border: 1px solid rgba(103,193,245,0.2) !important;
+    color: #fff !important; border-radius: 2px !important; padding: 6px 10px !important; font-size: 13px;
+}
+.steam-search input::placeholder { color: #7c8b98; }
+.steam-search input:focus { border-color: var(--st-link) !important; outline: none; }
+.steam-search button {
+    background: rgba(103,193,245,0.15) !important; color: var(--st-link) !important;
+    border: 1px solid rgba(103,193,245,0.2) !important; border-radius: 2px !important;
+}
+.steam-search-suggest {
+    background: #101822 !important; border: 1px solid var(--st-link) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7) !important;
+}
+
+/* ---------- кнопки (маппинг на классы проекта) ---------- */
+.btn-steam, .btn_add_cart, .btn_launch_game, .btn_submit_review,
+.dash-btn-green, .steam_filter_btn, .btn_go_library, .btn_add_wishlist, .btn_purchase {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: linear-gradient(90deg, #75b022 5%, #588a1b 95%);
+    color: #d2efa9 !important; border: none; border-radius: 2px;
+    font-size: 14px; font-weight: 600; padding: 9px 20px; cursor: pointer;
+    text-decoration: none; transition: filter .12s ease, color .12s ease;
+}
+.btn-steam:hover, .btn_add_cart:hover, .btn_launch_game:hover, .btn_submit_review:hover,
+.dash-btn-green:hover, .steam_filter_btn:hover, .btn_go_library:hover, .btn_add_wishlist:hover {
+    color: #fff !important; filter: brightness(1.18);
+}
+
+.btn-steam--blue, .dash-btn-blue, .sp-btn, .sp-btn--blue, .btn_checkout {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: linear-gradient(90deg, #06bfff 0%, #2d73ff 100%);
+    color: #fff !important; border: none; border-radius: 2px;
+    font-size: 14px; font-weight: 600; padding: 9px 20px; cursor: pointer; text-decoration: none;
+}
+.btn-steam--blue:hover, .dash-btn-blue:hover, .sp-btn:hover, .btn_checkout:hover {
+    color: #fff !important; filter: brightness(1.15);
+}
+
+.btn-steam--ghost, .dash-btn, .dash-btn-ghost, .sp-btn--ghost, .btn_stop_game, .dash-btn-red {
+    background: rgba(103,193,245,0.12) !important;
+    border: 1px solid rgba(103,193,245,0.25) !important;
+    color: var(--st-link) !important; border-radius: 2px !important;
+    font-weight: 600; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-steam--ghost:hover, .dash-btn:hover, .dash-btn-ghost:hover, .sp-btn--ghost:hover,
+.btn_stop_game:hover, .dash-btn-red:hover {
+    background: rgba(103,193,245,0.22) !important; color: #fff !important;
+}
+.btn_stop_game { background: rgba(210,70,43,0.18) !important; border-color: rgba(210,70,43,0.5) !important; color: #e8a18f !important; }
+.btn_stop_game:hover { background: rgba(210,70,43,0.32) !important; color: #fff !important; }
+
+/* ---------- формы ---------- */
+input[type="text"], input[type="email"], input[type="password"], input[type="number"],
+input[type="date"], input[type="url"], textarea, select,
+.form_control, .dash-input, .dash-select, .dash-textarea,
+.steam_sort_select, .steam_price_inputs input, .review_textarea {
+    background: #101822 !important;
+    border: 1px solid #000 !important;
+    border-radius: 2px !important;
+    color: #c6d4df !important;
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+    font-family: inherit;
+    box-shadow: 1px 1px 0 rgba(103,193,245,0.08) inset !important;
+    outline: none;
+}
+input:focus, textarea:focus, select:focus,
+.form_control:focus, .dash-input:focus, .dash-select:focus, .dash-textarea:focus {
+    border-color: var(--st-link) !important;
+    background: #0d141d !important;
+    color: #fff !important;
+}
+label { color: var(--st-dim); font-size: 12px; }
+.form-group, .form_group, .form-row, .form_grid, .form-grid { margin-bottom: 14px; }
+.form_errors {
+    background: rgba(210,70,43,0.12); border: 1px solid rgba(210,70,43,0.45);
+    border-left: 3px solid var(--st-red-2); color: #e8a18f;
+    padding: 10px 12px; border-radius: 2px; margin-bottom: 12px; font-size: 12.5px;
+}
+
+/* ---------- карточки / панели ---------- */
+.dash-card, .dash-stat-card, .sp-list-item, .sp-stat, .sp-empty,
+.review_card, .auth_box, .empty_state, .ld-glass, .game_card,
+.steam_filter_sidebar, .purchase_box, .write_review {
+    background: rgba(0,0,0,0.2) !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--st-radius) !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+.dash-card:hover { border-color: rgba(103,193,245,0.25) !important; }
+.sp-hero, .dash-stat-card { background: linear-gradient(180deg, rgba(103,193,245,0.06), rgba(0,0,0,0.25)) !important; }
+
+/* страницы авторизации */
+.auth_page { background: transparent !important; }
+.auth_box {
+    background: rgba(0,0,0,0.32) !important;
+    border: none !important; border-radius: 4px !important;
+    padding: 32px 36px !important;
+}
+.auth_title { color: #fff; font-size: 22px; font-weight: 600; }
+.auth_subtitle { color: var(--st-dim); }
+
+/* ---------- таблицы ---------- */
+.dash-table, .game_info_table { border-collapse: collapse; }
+.dash-table th {
+    background: rgba(0,0,0,0.3); color: var(--st-dim); text-transform: uppercase;
+    font-size: 11px; letter-spacing: 0.5px; padding: 9px 12px; text-align: left;
+}
+.dash-table td { padding: 9px 12px; border-top: 1px solid rgba(103,193,245,0.08); color: var(--st-text); }
+.dash-table tr:hover td { background: rgba(103,193,245,0.05); }
+.game_info_table td { padding: 3px 0; font-size: 12px; }
+.game_info_table td:first-child { color: var(--st-dim); padding-right: 14px; }
+
+/* ---------- тосты / алерты ---------- */
+.steam-toast {
+    background: rgba(103,193,245,0.1) !important;
+    border: none !important; border-left: 3px solid var(--st-link) !important;
+    color: var(--st-text) !important; border-radius: 2px !important;
+    max-width: 1000px; margin: 8px auto;
+}
+.steam-toast--green { border-left-color: #a1cd44 !important; background: rgba(117,176,34,0.12) !important; }
+.steam-toast--sale { border-left-color: var(--st-sale-text) !important; background: rgba(76,107,34,0.35) !important; }
+.steam-toast a { color: #fff; text-decoration: underline; }
+.alert { padding: 10px 14px; border-radius: 2px; margin-bottom: 8px; }
+.alert-success { background: rgba(117,176,34,0.15); border-left: 3px solid #a1cd44; color: #d2efa9; }
+.alert-error, .alert-danger { background: rgba(210,70,43,0.15); border-left: 3px solid var(--st-red-2); color: #e8a18f; }
+.alert-info, .alert-warning { background: rgba(103,193,245,0.12); border-left: 3px solid var(--st-link); color: var(--st-text); }
+
+/* ---------- футер ---------- */
+.steam-footer { background: var(--st-top) !important; margin-top: 48px; }
+.steam-footer__inner { max-width: 1000px; }
+.steam-footer__rule { border-top: 1px solid #2e3340; }
+.steam-footer__logo { color: #fff !important; font-weight: 800; letter-spacing: 1px; }
+.steam-footer__h { color: var(--st-dim); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+.steam-footer__col a { color: #c6d4df !important; font-size: 12px; display: block; padding: 2px 0; }
+.steam-footer__col a:hover { color: #fff !important; }
+.steam-footer__copy { color: #8f98a0 !important; font-size: 11px; }
+
+/* =========================================================================
+   КОМПОНЕНТЫ ВИТРИНЫ (новая главная / каталог / страница игры)
+   ========================================================================= */
+.st-wrap { max-width: 1000px; margin: 0 auto; padding: 0 0 40px; }
+
+.st-section { margin-top: 40px; }
+.st-section__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 10px;
+}
+.st-section__title {
+    font-size: 15px; font-weight: 600; color: #fff; text-transform: uppercase;
+    letter-spacing: 0.2px;
+}
+.st-section__link { font-size: 12px; color: var(--st-link); }
+.st-section__link:hover { color: #fff; }
+
+/* герой: рекомендуемое */
+.st-hero { display: grid; grid-template-columns: 616px 1fr; gap: 12px; }
+.st-hero__main {
+    display: block; position: relative; border-radius: 4px; overflow: hidden;
+    background: #16202d; box-shadow: 0 0 14px rgba(0,0,0,0.5);
+}
+.st-hero__main img { width: 100%; display: block; aspect-ratio: 460/215; object-fit: cover; }
+.st-hero__name {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 18px 12px;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.85));
+    color: #fff; font-size: 22px; font-weight: 600; text-shadow: 0 1px 3px #000;
+}
+.st-hero__side { display: flex; flex-direction: column; gap: 6px; }
+.st-hero__row {
+    display: grid; grid-template-columns: 184px 1fr auto; gap: 10px; align-items: center;
+    background: rgba(0,0,0,0.2); padding: 6px 10px 6px 6px; border-radius: 3px;
+}
+.st-hero__row:hover { background: rgba(103,193,245,0.14); }
+.st-hero__row img { width: 184px; aspect-ratio: 184/69; object-fit: cover; border-radius: 2px; display: block; }
+.st-hero__row-name { color: #fff; font-size: 13.5px; font-weight: 600; }
+
+/* цены / скидки (общие) */
+.st-price { display: inline-flex; align-items: center; gap: 8px; }
+.st-discount {
+    background: var(--st-sale-bg); color: var(--st-sale-text);
+    font-size: 15px; font-weight: 700; padding: 3px 5px; border-radius: 2px;
+    line-height: 1;
+}
+.st-price-old { color: #7c8b98; font-size: 12px; text-decoration: line-through; }
+.st-price-new { color: #beee11; font-size: 13px; font-weight: 600; }
+.st-price-free { color: #beee11; font-size: 13px; font-weight: 600; }
+
+/* сетка капсул */
+.st-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.st-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.st-capsule {
+    display: block; background: rgba(0,0,0,0.2); border-radius: 4px; overflow: hidden;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.st-capsule:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.45); }
+.st-capsule__img { width: 100%; aspect-ratio: 460/215; object-fit: cover; display: block; background: linear-gradient(135deg,#1b2838,#2a475e); }
+.st-capsule__img--ph { display: flex; align-items: center; justify-content: center; font-size: 42px; color: #3d5a75; }
+.st-capsule__body { padding: 8px 10px 10px; }
+.st-capsule__name { color: #fff; font-size: 13.5px; font-weight: 600; margin-bottom: 6px;
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-capsule__foot { display: flex; align-items: center; justify-content: space-between; }
+.st-capsule__tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.st-capsule__tags span {
+    font-size: 10.5px; color: #a5b5c4; background: rgba(103,193,245,0.09);
+    padding: 2px 6px; border-radius: 2px;
+}
+
+/* категории */
+.st-cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.st-cat {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 22px 10px; border-radius: 3px; color: #fff; font-size: 15px; font-weight: 700;
+    background: linear-gradient(135deg, #2a475e, #1b2838);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.35);
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+.st-cat:nth-child(2n) { background: linear-gradient(135deg, #33506b, #1e2f40); }
+.st-cat:hover { color: #fff; filter: brightness(1.2); }
+
+/* ряд-прокрутка (новинки) */
+.st-row { display: grid; grid-auto-flow: column; grid-auto-columns: 240px; gap: 12px;
+          overflow-x: auto; padding-bottom: 8px; }
+
+/* страница игры: зона покупки */
+.purchase_box { padding: 14px !important; }
+.purchase_box_title { color: var(--st-dim); font-size: 13px; margin-bottom: 10px; }
+.btn_add_cart { width: 100%; }
+.discount_pill {
+    background: var(--st-sale-bg); color: var(--st-sale-text);
+    font-size: 19px; font-weight: 700; padding: 4px 6px; border-radius: 2px;
+}
+.final_price { color: #beee11; font-size: 15px; font-weight: 600; }
+.original_price { color: #647784; font-size: 11px; text-decoration: line-through; }
+
+/* результаты поиска */
+.steam_store_row { background: rgba(0,0,0,0.2); border-radius: 3px; }
+.steam_store_row:hover { background: rgba(103,193,245,0.14); }
+.steam_store_row_title { color: #fff; font-size: 14px; font-weight: 600; }
+.steam_store_row_tags span { background: rgba(103,193,245,0.09); color: #a5b5c4; padding: 2px 6px; border-radius: 2px; font-size: 10.5px; }
+.discount_badge { background: var(--st-sale-bg); color: var(--st-sale-text); padding: 2px 5px; border-radius: 2px; font-weight: 700; }
+.price_final { color: #beee11; font-weight: 600; }
+.price_original { color: #647784; text-decoration: line-through; font-size: 11px; }
+
+/* фильтры */
+.steam_filter_block { margin-bottom: 18px; }
+.steam_filter_title { color: #fff; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.steam_filter_option { display: flex; gap: 8px; align-items: center; padding: 3px 2px; color: var(--st-text); cursor: pointer; }
+.steam_filter_option:hover { color: #fff; }
+.steam_filter_reset { color: var(--st-dim); font-size: 12px; }
+.steam_filter_reset:hover { color: #fff; }
+
+/* адаптив */
+@media (max-width: 980px) {
+    .st-hero { grid-template-columns: 1fr; }
+    .st-grid, .st-grid--3, .st-cats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+    .st-grid, .st-grid--3, .st-cats { grid-template-columns: 1fr; }
+    .st-hero__row { grid-template-columns: 120px 1fr auto; }
+    .st-hero__row img { width: 120px; }
+}

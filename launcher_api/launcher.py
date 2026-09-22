@@ -39,6 +39,11 @@ HEARTBEAT_MS = 20000
 CONFIG_DIR = Path(os.getenv("LOCALAPPDATA", str(Path.home()))) / "SteamCloneLauncher"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
+if os.environ.get("STEAM_DEBUG_FAULT"):
+    import faulthandler
+    _dbg_dir = Path(sys.executable if getattr(sys, "frozen", False) else __file__).resolve().parent
+    faulthandler.enable(open(_dbg_dir / "_fault.log", "w", encoding="utf-8", buffering=1), all_threads=True)
+
 
 def _base_dir() -> Path:
     if getattr(sys, "frozen", False):
@@ -173,178 +178,145 @@ def fetch_pixmap(url):
         return QPixmap()
 
 QSS = """
-QWidget { background: transparent; color: #dbe7f7;
+/* ===== Steam Clone Launcher — скин в стиле клиента Steam ===== */
+QWidget { background: transparent; color: #c6d4df;
           font-family: 'Segoe UI'; font-size: 13px; }
-QMainWindow, QDialog { background: #0a0f1a; }
+QMainWindow, QDialog { background: #1b2838; }
 QStackedWidget { background: transparent; }
 QLabel { background: transparent; }
 
 /* ---------------- splash ---------------- */
 #splash { background: qradialgradient(cx:0.5, cy:0.38, radius:1.3,
-           stop:0 #16253f, stop:0.55 #0c1526, stop:1 #060a12); }
-#splashLogo { color: #eaf4ff; font-size: 52px; font-weight: 900;
-              letter-spacing: 3px; }
-#splashSub  { color: #3ec6ff; font-size: 15px; font-weight: 700;
-              letter-spacing: 9px; }
-#splashStatus { color: #8fa6c4; font-size: 13px; }
-#splashBar { background: #0e1829; border: none; border-radius: 4px;
-             max-height: 7px; min-height: 7px; }
-#splashBar::chunk { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 #35d0ff, stop:1 #2f7cff); border-radius: 4px; }
+           stop:0 #1b2838, stop:0.6 #12181f, stop:1 #0e141b); }
+#splashLogo { color: #ffffff; font-size: 52px; font-weight: 900; letter-spacing: 4px; }
+#splashSub  { color: #66c0f4; font-size: 14px; font-weight: 700; letter-spacing: 8px; }
+#splashStatus { color: #8f98a0; font-size: 13px; }
+#splashBar { background: #2a475e; border: none; border-radius: 3px;
+             max-height: 6px; min-height: 6px; }
+#splashBar::chunk { background: #66c0f4; border-radius: 3px; }
 
 /* ---------------- login ---------------- */
-#loginBox { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-             stop:0 #131f34, stop:1 #0d1626);
-            border: 1px solid #24406b; border-radius: 18px; }
-#logo { color: #eaf4ff; font-size: 34px; font-weight: 900; letter-spacing: 2px; }
-#sub  { color: #3ec6ff; font-size: 13px; letter-spacing: 4px; font-weight: 700; }
-#error { color: #ff6b81; font-size: 12px; }
+#loginBox { background: rgba(0,0,0,0.35); border: none; border-radius: 4px; }
+#logo { color: #ffffff; font-size: 34px; font-weight: 900; letter-spacing: 2px; }
+#sub  { color: #66c0f4; font-size: 12px; letter-spacing: 5px; font-weight: 700; }
+#error { color: #e26a5a; font-size: 12px; }
 
 /* ---------------- inputs ---------------- */
-QLineEdit { background: #0c1422; border: 1px solid #22344f;
-            border-radius: 10px; padding: 8px 14px; color: #dbe7f7;
-            selection-background-color: #2f7cff; }
-QLineEdit:focus { border: 1px solid #3ec6ff;
-                  background: #0f1a2c; }
+QLineEdit { background: #101822; border: 1px solid #000;
+            border-radius: 2px; padding: 9px 12px; color: #c6d4df;
+            selection-background-color: #66c0f4; }
+QLineEdit:focus { border: 1px solid #66c0f4; background: #0d141d; color: #ffffff; }
 
 /* ---------------- sidebar ---------------- */
-#sidebar { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-             stop:0 #0d1526, stop:1 #0a1220);
-           border-right: 1px solid #1c2c48; }
-#sideLogo { color: #eaf4ff; font-size: 19px; font-weight: 900; letter-spacing: 1px; }
-#sideLogoSub { color: #3ec6ff; font-size: 10px; letter-spacing: 5px; font-weight: 700; }
-.navBtn { text-align: left; padding: 12px 18px; border: none;
-          border-left: 3px solid transparent; border-radius: 0 10px 10px 0;
-          color: #93a8c6; font-size: 14px; font-weight: 700; background: transparent; }
-.navBtn:hover { color: #d7e6fa; background: #101c31; }
-.navBtn:checked { color: #ffffff; background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                   stop:0 #17406b, stop:1 #102038);
-                   border-left: 3px solid #3ec6ff; }
-#userBox { background: #0e1a2d; border: 1px solid #22344f; border-radius: 14px; }
-#avatar { background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
-            stop:0 #35d0ff, stop:1 #2f7cff); border-radius: 21px;
-          color: white; font-size: 20px; font-weight: 900; }
-#userName { color: #eaf4ff; font-weight: 800; font-size: 14px; }
-#userBalance { color: #7cffce; font-weight: 800; font-size: 13px; }
-#balanceCap { color: #6f85a3; font-size: 10px; }
+#sidebar { background: #171a21; border-right: none; }
+#sideLogo { color: #ffffff; font-size: 19px; font-weight: 900; letter-spacing: 1px; }
+#sideLogoSub { color: #66c0f4; font-size: 10px; letter-spacing: 5px; font-weight: 700; }
+.navBtn { text-align: left; padding: 11px 16px; border: none; border-radius: 2px;
+          color: #b8b6b4; font-size: 13px; font-weight: 600; background: transparent; }
+.navBtn:hover { color: #ffffff; background: rgba(103,193,245,0.12); }
+.navBtn:checked { color: #ffffff; background: rgba(103,193,245,0.18); }
+#userBox { background: rgba(0,0,0,0.3); border: none; border-radius: 3px; }
+#avatar { background: #2a475e; border-radius: 18px;
+          color: #ffffff; font-size: 18px; font-weight: 900; }
+#userName { color: #66c0f4; font-weight: 700; font-size: 13px; }
+#userBalance { color: #a1cd44; font-weight: 700; font-size: 13px; }
+#balanceCap { color: #8f98a0; font-size: 10px; }
+#sideCap { color: #8f98a0; font-size: 10px; letter-spacing: 3px; font-weight: 700; }
+#tabBtn { background: rgba(103,193,245,0.1); border: 1px solid rgba(103,193,245,0.22);
+          border-radius: 2px; color: #66c0f4; font-weight: 700; font-size: 12px; }
+#tabBtn:hover { color: #ffffff; background: rgba(103,193,245,0.2); }
+#tabBtn:checked { background: #66c0f4; border-color: #66c0f4; color: #ffffff; }
+#qrTimer { color: #66c0f4; font-weight: 700; font-size: 14px; font-family: Consolas; }
+#qrUrl { color: #8f98a0; font-size: 11px; font-family: Consolas; }
 
-/* ---------------- 3D buttons ---------------- */
-QPushButton { background: #16263e; border: 1px solid #2a3f60; border-radius: 10px;
-              color: #c9d9ef; padding: 7px 16px; font-weight: 700; }
-QPushButton:hover { border-color: #3ec6ff; color: #ffffff; }
-QPushButton:pressed { padding-top: 9px; padding-bottom: 5px; }
-#playBtn { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-             stop:0 #46c44b, stop:1 #2f9a35); border: none;
-           border-bottom: 4px solid #1d6e22; border-radius: 10px;
-           color: white; font-weight: 800; letter-spacing: 1px; }
-#playBtn:hover { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                   stop:0 #55d45a, stop:1 #3aab40); }
-#playBtn:pressed { border-bottom-width: 1px; }
-#buyBtn { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-             stop:0 #35d0ff, stop:1 #1f8fe0); border: none;
-           border-bottom: 4px solid #0f5a94; border-radius: 12px;
-           color: white; font-weight: 900; font-size: 15px; letter-spacing: 1px; }
-#buyBtn:hover { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                  stop:0 #55dcff, stop:1 #2fa2ec); }
-#buyBtn:pressed { border-bottom-width: 1px; }
-#buyBtn:disabled { background: #1d2f4a; border-bottom: 4px solid #14263e; color: #6f85a3; }
+/* ---------------- buttons ---------------- */
+QPushButton { background: rgba(103,193,245,0.12); border: 1px solid rgba(103,193,245,0.22);
+              border-radius: 2px; color: #66c0f4; padding: 7px 16px; font-weight: 600; }
+QPushButton:hover { background: rgba(103,193,245,0.22); color: #ffffff; }
+QPushButton:pressed { background: rgba(103,193,245,0.3); }
+#playBtn, #buyBtn { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+             stop:0 #8ed629, stop:1 #588a1b); border: none; border-radius: 2px;
+           color: #d2efa9; font-weight: 700; letter-spacing: 0.5px; }
+#playBtn:hover, #buyBtn:hover { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+             stop:0 #a4e43a, stop:1 #6aa621); color: #ffffff; }
+#playBtn:pressed, #buyBtn:pressed { background: #588a1b; }
+#buyBtn:disabled { background: #2a3a4a; color: #647784; }
 """
 
 QSS += """
 /* ---------------- cards / content ---------------- */
 #page { background: transparent; }
 #loginWrap { background: qradialgradient(cx:0.3, cy:0.2, radius:1.5,
-               stop:0 #14233c, stop:0.55 #0b1424, stop:1 #060b14); }
-#pageTitle { color: #eaf4ff; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
-#pageSub { color: #6f85a3; font-size: 12px; }
-#card { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-          stop:0 #142238, stop:1 #0e1a2d);
-         border: 1px solid #22344f; border-radius: 14px; }
-#card:hover { border: 1px solid #3ec6ff; }
-#cardTitle { color: #eaf4ff; font-weight: 800; font-size: 14px; }
-#cardMeta { color: #7d93b2; font-size: 11px; }
-#cardTime { color: #3ec6ff; font-weight: 700; font-size: 12px; }
-#priceTag { color: #7cffce; font-weight: 900; font-size: 15px; }
-#priceOld { color: #5b7395; font-size: 12px; text-decoration: line-through; }
-#discountTag { background: #2f9a35; color: white; font-weight: 900;
-               border-radius: 6px; padding: 2px 8px; font-size: 12px; }
-#empty { color: #6c8099; font-size: 15px; padding: 40px; background: transparent; }
-#detailTitle { color: #eaf4ff; font-size: 28px; font-weight: 900; }
-#detailDev { color: #3ec6ff; font-weight: 700; }
-#detailDesc { color: #a9bcd6; font-size: 13px; }
+               stop:0 #1b2838, stop:0.6 #12181f, stop:1 #0e141b); }
+#pageTitle { color: #ffffff; font-size: 20px; font-weight: 600; }
+#pageSub { color: #8f98a0; font-size: 12px; }
+#card { background: rgba(0,0,0,0.25); border: none; border-radius: 3px; }
+#card:hover { background: rgba(103,193,245,0.12); }
+#cardTitle { color: #ffffff; font-weight: 600; font-size: 13px; }
+#cardMeta { color: #8f98a0; font-size: 11px; }
+#cardTime { color: #66c0f4; font-weight: 700; font-size: 11px; }
+#priceTag { color: #beee11; font-weight: 700; font-size: 13px; }
+#priceOld { color: #647784; font-size: 11px; text-decoration: line-through; }
+#discountTag { background: #4c6b22; color: #beee11; border-radius: 2px;
+               font-weight: 800; padding: 2px 6px; font-size: 12px; }
+#empty { color: #8f98a0; font-size: 14px; padding: 40px; background: transparent; }
+#detailTitle { color: #ffffff; font-size: 24px; font-weight: 600; }
+#detailDev { color: #66c0f4; font-weight: 700; }
+#detailDesc { color: #c6d4df; font-size: 13px; }
 
 /* ---------------- chat ---------------- */
-#chatList { background: #0c1422; border: 1px solid #1c2c48; border-radius: 12px;
-            border: none; }
-QListWidget::item { color: #c9d9ef; border-radius: 8px; padding: 6px; }
-QListWidget::item:selected { background: #17406b; color: white; }
-#bubbleMine { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                stop:0 #1f5fa8, stop:1 #17456f); border-radius: 12px;
-              color: #eaf4ff; padding: 8px 12px; font-size: 13px; }
-#bubbleTheirs { background: #182a44; border: 1px solid #22344f; border-radius: 12px;
-                color: #dbe7f7; padding: 8px 12px; font-size: 13px; }
-#bubbleTime { color: #6f85a3; font-size: 10px; background: transparent; }
-#chatPartner { color: #eaf4ff; font-weight: 800; font-size: 15px; }
+#chatList { background: rgba(0,0,0,0.25); border: none; border-radius: 3px; }
+QListWidget::item { color: #c6d4df; border-radius: 2px; padding: 6px; }
+QListWidget::item:selected { background: rgba(103,193,245,0.2); color: #ffffff; }
+#bubbleMine { background: #2a475e; border-radius: 6px;
+              color: #e5eff7; padding: 8px 12px; font-size: 13px; }
+#bubbleTheirs { background: rgba(0,0,0,0.35); border: none; border-radius: 6px;
+                color: #c6d4df; padding: 8px 12px; font-size: 13px; }
+#bubbleTime { color: #8f98a0; font-size: 10px; background: transparent; }
+#chatPartner { color: #ffffff; font-weight: 700; font-size: 15px; }
 
 /* ---------------- play bar ---------------- */
-#playBar { background: #14233a; border-top: 2px solid #3ec6ff; }
-#barLabel { color: #3ec6ff; font-weight: 700; font-size: 15px; }
-#barTimer { color: #eaf4ff; font-size: 20px; font-weight: 800; font-family: Consolas; }
+#playBar { background: #171a21; border-top: 1px solid #2a475e; }
+#barLabel { color: #66c0f4; font-weight: 700; font-size: 13px; }
+#barTimer { color: #ffffff; font-size: 18px; font-weight: 800; font-family: Consolas; }
 
 /* ---------------- scrollbars ---------------- */
 QScrollArea, #scroll { border: none; background: transparent; }
-QScrollBar:vertical { background: #0b1220; width: 10px; }
-QScrollBar::handle:vertical { background: #2b3d5c; border-radius: 5px; min-height: 30px; }
+QScrollBar:vertical { background: #171a21; width: 10px; }
+QScrollBar::handle:vertical { background: #2a475e; border-radius: 5px; min-height: 30px; }
+QScrollBar::handle:vertical:hover { background: #66c0f4; }
 QScrollBar::add-line, QScrollBar::sub-line { height: 0; }
-QScrollBar:horizontal { background: #0b1220; height: 10px; }
-QScrollBar::handle:horizontal { background: #2b3d5c; border-radius: 5px; }
+QScrollBar:horizontal { background: #171a21; height: 10px; }
+QScrollBar::handle:horizontal { background: #2a475e; border-radius: 5px; }
+QScrollBar::handle:horizontal:hover { background: #66c0f4; }
 #stopBtn { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-            stop:0 #e05548, stop:1 #b93a30); border: none;
-          border-bottom: 4px solid #7d2620; border-radius: 10px;
-          color: white; font-weight: 800; padding: 0 18px; }
+            stop:0 #d2462b, stop:1 #a34c25); border: none; border-radius: 2px;
+          color: #ffffff; font-weight: 700; padding: 0 18px; }
 #stopBtn:hover { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                  stop:0 #ef6a5c, stop:1 #cc4a3f); }
-#stopBtn:pressed { border-bottom-width: 1px; }
+                  stop:0 #e26a5a, stop:1 #b9563a); }
 #installBtn { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                stop:0 #3d6ea8, stop:1 #2c5484); border: none;
-              border-bottom: 4px solid #1a3557; border-radius: 10px;
-              color: #d6e8ff; font-weight: 800; }
+                stop:0 #67c1f5, stop:1 #417a9b); border: none; border-radius: 2px;
+              color: #ffffff; font-weight: 700; }
 #installBtn:hover { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                      stop:0 #4a80bf, stop:1 #356298); }
-#installBtn:pressed { border-bottom-width: 1px; }
-QMessageBox { background: #0e1626; }
-QMessageBox QLabel { color: #dbe7f7; font-size: 13px; background: transparent; }
+                      stop:0 #8ad2f8, stop:1 #4f92bb); }
+QMessageBox { background: #1b2838; }
+QMessageBox QLabel { color: #c6d4df; font-size: 13px; background: transparent; }
 QMessageBox QPushButton { min-width: 90px; min-height: 30px; }
 QProgressBar { border: none; background: transparent; }
 #bonusBtn { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-              stop:0 #f5b93e, stop:1 #c8871a); border: none;
-            border-bottom: 4px solid #8a5a0d; border-radius: 10px;
-            color: #2b1c00; font-weight: 900; letter-spacing: 1px; }
+              stop:0 #f0b13e, stop:1 #b8791a); border: none; border-radius: 2px;
+            color: #2b1c00; font-weight: 800; letter-spacing: 1px; }
 #bonusBtn:hover { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                     stop:0 #ffc954, stop:1 #d99a26); }
-#bonusBtn:pressed { border-bottom-width: 1px; }
-#toastOk { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-             stop:0 #1d8a55, stop:1 #13603d); border: 1px solid #3fd492;
-           border-radius: 22px; color: #eafff5; font-weight: 800;
-           padding: 0 22px; }
-#toastWarn { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-               stop:0 #b94a3e, stop:1 #8a352c); border: 1px solid #ff8d80;
-             border-radius: 22px; color: #fff1ee; font-weight: 800;
-             padding: 0 22px; }
-#sideCap { color: #5f7595; font-size: 10px; letter-spacing: 3px; font-weight: 700; }
-#tabBtn { background: #0e1a2d; border: 1px solid #22344f; border-radius: 10px;
-          color: #8fa6c4; font-weight: 800; font-size: 12px; }
-#tabBtn:hover { color: #d7e6fa; border-color: #3ec6ff; }
-#tabBtn:checked { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                    stop:0 #1a4a7a, stop:1 #14324f); border-color: #3ec6ff;
-                  color: white; }
-#qrTimer { color: #3ec6ff; font-weight: 800; font-size: 14px; font-family: Consolas; }
-#qrUrl { color: #8fa6c4; font-size: 11px; font-family: Consolas; }
-#achCard { background: #101c31; border: 1px solid #22344f; border-radius: 12px; }
-#achName { color: #ffd76b; font-weight: 800; }
-#achDesc { color: #8fa6c4; font-size: 11px; }
-#profRow { color: #c9d9ef; font-size: 14px; }
-#profRow b, #profVal { color: #7cffce; font-weight: 900; font-size: 16px; }
+#toastOk { background: #1d2f23; border: 1px solid #588a1b; border-radius: 3px;
+           color: #a1cd44; font-weight: 700; padding: 0 22px; }
+#toastWarn { background: #33201d; border: 1px solid #a34c25; border-radius: 3px;
+             color: #e8a18f; font-weight: 700; padding: 0 22px; }
+#achCard { background: rgba(0,0,0,0.25); border: none; border-radius: 3px; }
+#achName { color: #f0b13e; font-weight: 700; }
+#achDesc { color: #8f98a0; font-size: 11px; }
+#profRow { color: #c6d4df; font-size: 13px; }
+#profRow b, #profVal { color: #66c0f4; font-weight: 800; font-size: 15px; }
 """
 
 
@@ -788,13 +760,13 @@ class GameCard(QFrame):
         if store_mode:
             row = QHBoxLayout()
             if int(game.get("discount") or 0) > 0:
-                d = QLabel(f"-{game['discount']}%")
+                d = QLabel(f"-{game.get('discount', 0)}%")
                 d.setObjectName("discountTag")
                 row.addWidget(d)
-                old = QLabel(game["price"] + " UZS")
+                old = QLabel(str(game.get("price", "0")) + " UZS")
                 old.setObjectName("priceOld")
                 row.addWidget(old)
-            price = QLabel(game["final_price"] + " UZS")
+            price = QLabel(str(game.get("final_price") or game.get("price") or "0") + " UZS")
             price.setObjectName("priceTag")
             row.addWidget(price)
             row.addStretch(1)
@@ -1140,7 +1112,7 @@ class MainPage(QWidget):
         self.prof_avatar.setObjectName("avatar")
         self.prof_avatar.setFixedSize(92, 92)
         self.prof_avatar.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.prof_avatar.setStyleSheet("font-size:40px; border-radius:46px; background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #35d0ff, stop:1 #2f7cff);")
+        self.prof_avatar.setStyleSheet("font-size:40px; border-radius:46px; background: #2a475e;")
         top.addWidget(self.prof_avatar)
 
         info = QVBoxLayout()
@@ -1487,13 +1459,13 @@ class MainPage(QWidget):
             row.addWidget(lbl)
         else:
             if int(game.get("discount") or 0) > 0:
-                d = QLabel(f"-{game['discount']}%")
+                d = QLabel(f"-{game.get('discount', 0)}%")
                 d.setObjectName("discountTag")
                 row.addWidget(d)
-                old = QLabel(game["price"] + " UZS")
+                old = QLabel(str(game.get("price", "0")) + " UZS")
                 old.setObjectName("priceOld")
                 row.addWidget(old)
-            price = QLabel(game["final_price"] + " UZS")
+            price = QLabel(str(game.get("final_price") or game.get("price") or "0") + " UZS")
             price.setObjectName("priceTag")
             row.addWidget(price)
             buy = QPushButton("\U0001f6d2  \u041a\u0423\u041f\u0418\u0422\u042c")
@@ -1862,6 +1834,18 @@ class LauncherWindow(QMainWindow):
 
 
 def main():
+    # Защита от падения всего приложения на исключении в слоте/таймере:
+    # показываем сообщение и продолжаем работу.
+    def _excepthook(et, ev, tb):
+        try:
+            import traceback
+            traceback.print_exception(et, ev, tb)
+            QMessageBox.critical(None, "Ошибка", f"Произошла ошибка:\n{ev}")
+        except Exception:
+            pass
+
+    sys.excepthook = _excepthook
+
     app = QApplication(sys.argv)
     app.setApplicationName("Steam Clone Launcher")
     app.setFont(QFont("Segoe UI", 10))
