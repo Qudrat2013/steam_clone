@@ -20,25 +20,10 @@
 {# ===== GLOBAL HEADER (как у Steam) ===== #}
 <header id="global_header" class="steam-gh">
     <div class="steam-gh__inner">
-        <a href="{% url 'home' %}" class="steam-gh__logo" aria-label="STEAM">
-            <svg class="steam-gh__logo-svg" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="clayLogoBall" cx="32%" cy="28%" r="72%">
-                        <stop offset="0%" stop-color="#fff"/>
-                        <stop offset="42%" stop-color="#c4b5fd"/>
-                        <stop offset="100%" stop-color="#7c5cde"/>
-                    </radialGradient>
-                </defs>
-                <circle cx="30" cy="30" r="22" fill="url(#clayLogoBall)"/>
-                <circle cx="30" cy="30" r="8" fill="#fffdf9"/>
-                <circle cx="48" cy="18" r="7" fill="#67e8f9"/>
-                <path d="M36 24 L48 18" stroke="#2a2438" stroke-width="4" stroke-linecap="round"/>
-                <text x="64" y="38" font-family="Outfit, Arial Black, sans-serif" font-size="28" font-weight="800" fill="#2a2438" letter-spacing="2">STEAM</text>
-            </svg>
+        <a href="{% url 'home' %}" class="steam-gh__logo" aria-label="На главную">
+            <span class="steam-gh__mark" aria-hidden="true"></span>
+            <span class="steam-gh__word">STEAM</span>
         </a>
-        <button type="button" class="steam-gh__burger" id="steam-nav-toggle" aria-label="Меню" aria-expanded="false">
-            <span></span><span></span><span></span>
-        </button>
 
         <nav class="steam-gh__nav">
             <a href="{% url 'home' %}" class="steam-gh__link">МАГАЗИН</a>

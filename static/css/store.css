@@ -54,13 +54,41 @@ hr { border: none; border-top: 1px solid rgba(103, 193, 245, 0.15); }
     backdrop-filter: none !important;
     position: relative;
 }
-.steam-gh__inner { max-width: 1000px; padding: 10px 0 12px !important; }
-.steam-gh__logo { display: flex; align-items: center; }
-.steam-gh__logo-text, .steam-gh__logo-svg text { font-weight: 800; }
+.steam-gh__inner {
+    max-width: 1000px !important;
+    margin: 0 auto;
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px 11px !important;
+}
+/* логотип: значок + слово */
+.steam-gh__logo { display: flex !important; align-items: center; gap: 9px; text-decoration: none; flex-shrink: 0; }
+.steam-gh__logo-svg, .steam-gh__logo img { display: none !important; }
+.steam-gh__mark {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #d7ecfb 0%, #6aa9d9 34%, #2a475e 78%, #16202d 100%);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.12), 0 2px 6px rgba(0,0,0,0.5);
+    position: relative; flex-shrink: 0;
+}
+.steam-gh__mark::after {
+    content: ""; position: absolute; left: 5px; top: 12px;
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 3px solid #fff; border-left-color: transparent;
+    transform: rotate(-45deg);
+}
+.steam-gh__word { color: #fff; font-size: 20px; font-weight: 800; letter-spacing: 2.5px; line-height: 1; }
+.steam-gh__burger { display: none !important; }
+/* навигация */
+.steam-gh__nav {
+    display: flex !important; align-items: center; gap: 2px;
+    flex: 1 1 auto; min-width: 0; flex-wrap: nowrap;
+}
 .steam-gh__link {
-    color: #b8b6b4 !important; font-size: 13px !important; font-weight: 700;
-    letter-spacing: 0.4px; text-transform: uppercase; padding: 6px 10px !important;
+    color: #b8b6b4 !important; font-size: 12.5px !important; font-weight: 700;
+    letter-spacing: 0.3px; text-transform: uppercase; padding: 6px 9px !important;
     border-radius: 2px; background: transparent !important;
+    white-space: nowrap; flex-shrink: 0;
 }
 .steam-gh__link:hover { color: #fff !important; background: rgba(103,193,245,0.1) !important; }
 .steam-gh__dd-menu {
@@ -70,40 +98,63 @@ hr { border: none; border-top: 1px solid rgba(103, 193, 245, 0.15); }
     box-shadow: 0 6px 16px rgba(0,0,0,0.6) !important;
     border-radius: 0 0 3px 3px;
 }
-.steam-gh__dd-menu a { color: #c6d4df !important; font-size: 12px; padding: 9px 14px; }
+.steam-gh__dd-menu a { color: #c6d4df !important; font-size: 12px; padding: 9px 14px; white-space: nowrap; }
 .steam-gh__dd-menu a:hover { background: rgba(103,193,245,0.12) !important; color: #fff !important; }
+/* правая часть хедера */
+.steam-gh__account {
+    display: flex !important; align-items: center; gap: 8px;
+    flex-shrink: 0; margin-left: auto;
+}
 .steam-gh__account, .steam-gh__uname { color: #b8b6b4 !important; }
+.gh-install {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(90deg, #75b022 5%, #588a1b 95%);
+    color: #d2efa9 !important; font-size: 11px; font-weight: 700;
+    padding: 5px 10px; border-radius: 2px; text-transform: uppercase;
+    letter-spacing: 0.3px; white-space: nowrap; flex-shrink: 0;
+}
+.gh-install:hover { color: #fff !important; background: linear-gradient(90deg, #8ed629 5%, #6aa621 95%); }
 .steam-gh__wallet {
     background: rgba(103,193,245,0.08) !important; border: 1px solid rgba(103,193,245,0.18) !important;
     border-radius: 2px; color: var(--st-link) !important;
+    font-size: 11.5px !important; padding: 5px 9px !important; gap: 6px; white-space: nowrap;
 }
-.gh-install {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: linear-gradient(90deg, #75b022 5%, #588a1b 95%);
-    color: #d2efa9 !important; font-size: 11.5px; font-weight: 700;
-    padding: 6px 12px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.3px;
-}
-.gh-install:hover { color: #fff !important; background: linear-gradient(90deg, #8ed629 5%, #6aa621 95%); }
-.steam-gh__user-btn { background: transparent !important; border: none !important; color: inherit; }
+.steam-gh__user-btn { background: transparent !important; border: none !important; color: inherit; gap: 6px; }
+.steam-gh__avatar { width: 26px !important; height: 26px !important; font-size: 13px !important; flex-shrink: 0; }
+.steam-gh__uname { font-size: 12px !important; white-space: nowrap; }
+.steam-gh__cart { color: #b8b6b4 !important; padding: 5px 7px !important; border-radius: 2px; }
+.steam-gh__cart:hover { color: #fff !important; background: rgba(103,193,245,0.1) !important; }
 
 /* ---------- поднавигация магазина ---------- */
 .steam-store-nav-wrap {
     background: linear-gradient(90deg, #1b2838 0%, #2a475e 100%) !important;
     border-bottom: 1px solid rgba(0,0,0,0.4) !important;
 }
-.steam-store-nav { max-width: 1000px; }
+.steam-store-nav {
+    max-width: 1000px !important; margin: 0 auto;
+    display: flex !important; align-items: center; gap: 10px;
+    padding: 0 12px !important;
+}
+.steam-store-nav__tabs {
+    display: flex !important; align-items: center;
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0;
+}
+.steam-store-nav__tabs::-webkit-scrollbar { display: none; }
 .steam-store-nav__tab {
-    color: #dbe4ee !important; font-size: 12.5px !important; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 14px !important;
+    color: #dbe4ee !important; font-size: 12px !important; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 11px !important;
     border-radius: 2px 2px 0 0; background: transparent !important;
+    white-space: nowrap; flex-shrink: 0;
 }
 .steam-store-nav__tab:hover { color: #fff !important; background: rgba(103,193,245,0.12) !important; }
 .steam-store-nav__tab.is-active { background: rgba(0,0,0,0.28) !important; color: #fff !important; }
 
 /* поиск магазина */
+.steam-search { margin-left: auto !important; flex-shrink: 0; display: flex; }
 .steam-search input {
     background: rgba(0,0,0,0.35) !important; border: 1px solid rgba(103,193,245,0.2) !important;
-    color: #fff !important; border-radius: 2px !important; padding: 6px 10px !important; font-size: 13px;
+    color: #fff !important; border-radius: 2px !important; padding: 6px 10px !important;
+    font-size: 12.5px; width: 200px;
 }
 .steam-search input::placeholder { color: #7c8b98; }
 .steam-search input:focus { border-color: var(--st-link) !important; outline: none; }
@@ -114,6 +165,17 @@ hr { border: none; border-top: 1px solid rgba(103, 193, 245, 0.15); }
 .steam-search-suggest {
     background: #101822 !important; border: 1px solid var(--st-link) !important;
     box-shadow: 0 8px 20px rgba(0,0,0,0.7) !important;
+}
+
+/* адаптив хедера */
+@media (max-width: 1080px) {
+    .steam-gh__uname { display: none !important; }
+    .steam-search input { width: 150px; }
+}
+@media (max-width: 880px) {
+    .steam-gh__inner { flex-wrap: wrap; row-gap: 6px; }
+    .steam-gh__nav { order: 3; width: 100%; overflow-x: auto; }
+    .gh-install { font-size: 10.5px; padding: 5px 8px; }
 }
 
 /* ---------- кнопки (маппинг на классы проекта) ---------- */
